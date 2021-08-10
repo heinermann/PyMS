@@ -956,7 +956,7 @@ class PyMPQ(Tk):
 				return
 		h = MpqOpenArchiveForUpdateEx(file, MOAU_OPEN_EXISTING | MOAU_READ_ONLY)
 		if SFInvalidHandle(h):
-			askquestion(parent=self, title='Open', message='There is no MPQ in "%s".' % file, type=OK)
+			showinfo(parent=self, title='Open', message='There is no MPQ in "%s".' % file)
 			return
 		self.file = file
 		self.title(f'PyMPQ {LONG_VERSION} ({file})')

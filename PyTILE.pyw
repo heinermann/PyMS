@@ -2027,14 +2027,14 @@ class PyTILE(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.cv5'
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file)
+			if save == True:
 				if self.file:
 					self.save()
 				else:
 					self.saveas()
+			elif save == None:
+				return True
 
 	def action_states(self, *args, **kwargs):
 		file = [NORMAL,DISABLED][not self.tileset]

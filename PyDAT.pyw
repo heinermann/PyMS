@@ -159,7 +159,7 @@ class SaveMPQDialog(PyMSDialog):
 	def save(self):
 		sel = [self.listbox.get(i) for i in self.listbox.curselection()]
 		if not sel:
-			askquestion(parent=self, title='Nothing to save', message='Please choose at least one item to save.', type=OK)
+			showinfo(parent=self, title='Nothing to save', message='Please choose at least one item to save.')
 		else:
 			if self.sempq.get():
 				file = PYDAT_SETTINGS.lastpath.sempq.select_file('save', self, 'Save SEMPQ to...', '.exe', [('Executable Files','*.exe'),('All Files','*')], save=True)
@@ -214,7 +214,7 @@ class SaveMPQDialog(PyMSDialog):
 						undone.append(f)
 				MpqCloseUpdatedArchive(h)
 				if undone:
-					askquestion(parent=self, title='Save problems', message='%s could not be saved to the MPQ.' % ', '.join(undone), type=OK)
+					showinfo(parent=self, title='Save problems', message='%s could not be saved to the MPQ.' % ', '.join(undone))
 
 	def ok(self):
 		PYDAT_SETTINGS.sempq = not not self.sempq.get()
@@ -378,15 +378,15 @@ class DATTab(NotebookTab):
 			file = self.file
 			if not file:
 				file = self.dat.datname
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file)
+			if save == True:
 				if self.file:
 					self.save()
 				else:
 					self.saveas()
-
+			elif save == None:
+				return True
+				
 	def checkreference(self, v=None, c=None):
 		if self.listbox:
 			if not c:
@@ -4074,7 +4074,7 @@ class PyDAT(Tk):
 				self.changeid(i=cur, focus_list=False)
 				return
 			cur = (cur+1) % self.listbox.size()
-		askquestion(parent=self, title='Find', message="Can't find text.", type=OK)
+		showinfo(parent=self, title='Find', message="Can't find text.")
 
 	def jump(self, key=None):
 		self.changeid(i=self.jumpid.get())

@@ -462,14 +462,14 @@ BMP's must be imported with the same style they were exported as.""")
 			file = self.file
 			if not file:
 				file = 'Unnamed.grp'
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file)
+			if save == True:
 				if self.file:
 					self.save()
 				else:
 					self.saveas()
+			elif save == None:
+				return True
 
 	def action_states(self):
 		s,m = [int(i) for i in self.listbox.curselection()],self.listbox.size()
@@ -711,7 +711,7 @@ BMP's must be imported with the same style they were exported as.""")
 			self.grpoutline()
 			self.frameoutline()
 			if grp.uncompressed:
-				askquestion(parent=self, title='Uncompressed GRP', message='You have opened an uncompresed GRP.\nWhen saving make sure you select the "Save Uncompressed" option.', type=OK)
+				showinfo(parent=self, title='Uncompressed GRP', message='You have opened an uncompresed GRP.\nWhen saving make sure you select the "Save Uncompressed" option.')
 
 	def save(self, key=None):
 		if key and self.buttons['save']['state'] != NORMAL:

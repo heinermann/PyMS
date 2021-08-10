@@ -745,15 +745,15 @@ class PySPK(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.spk'
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file)
+			if save == True:
 				if self.file:
 					self.save()
 				else:
 					self.saveas()
-
+			elif save == None:
+				return True
+				
 	def select_file(self, title, open=True, ext='.spk', filetypes=[('StarCraft Parallax','*.spk'),('All Files','*')]):
 		path = self.settings.get('lastpath', BASE_DIR)
 		self._pyms__window_blocking = True

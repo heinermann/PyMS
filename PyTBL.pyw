@@ -222,7 +222,7 @@ class FindDialog(PyMSDialog):
 		p = self
 		if key and key.keycode != 13:
 			p = self.parent
-		askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
+		showinfo(parent=p, title='Find', message="Can't find text.")
 
 	def updatecolor(self):
 		if self.resettimer:
@@ -568,14 +568,14 @@ class PyTBL(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.tbl'
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file)
+			if save == True:
 				if self.file:
 					self.save()
 				else:
 					self.saveas()
+			elif save == None:
+				return True
 
 	def select_file(self, title, open=True, ext='.tbl', filetypes=[('StarCraft TBL Files','*.tbl'),('All Files','*')]):
 		path = self.settings.get('lastpath', BASE_DIR)

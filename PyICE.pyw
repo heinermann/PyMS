@@ -416,7 +416,7 @@ class PreviewerDialog(PyMSDialog):
 
 	def grp(self, i, pal, frame, *path):
 		if not FOLDER and pal in PALETTES:
-			p = os.path.join(BASE_DIR,'Libs','MPQ',os.path.join(*path))
+			p = os.path.join(BASE_DIR, 'Libs', 'MPQ', os.path.join(*path))
 			path = '\\'.join(path)
 			draw = not path in GRP_CACHE or not frame in GRP_CACHE[path] or not pal in GRP_CACHE[path][frame]
 			if draw or (not self.curgrp or i != self.curgrp[0]):
@@ -625,7 +625,7 @@ class FindReplaceDialog(PyMSDialog):
 					p = self
 					if key and key.keycode == 13:
 						p = self.parent
-					askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
+					showinfo(parent=p, title='Find', message="Can't find text.")
 			else:
 				u = self.updown.get()
 				s,lse,rlse,e = ['-','+'][u],['lineend','linestart'][u],['linestart','lineend'][u],[self.parent.text.index('1.0 lineend'),self.parent.text.index(END)][u]
@@ -663,14 +663,14 @@ class FindReplaceDialog(PyMSDialog):
 						p = self
 						if key and key.keycode == 13:
 							p = self.parent
-						askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
+						showinfo(parent=p, title='Find', message="Can't find text.")
 						break
 					i = self.parent.text.index(f'{i} {s}1lines {lse}')
 				else:
 					p = self
 					if key and key.keycode == 13:
 						p = self.parent
-					askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
+					showinfo(parent=p, title='Find', message="Can't find text.")
 
 	def count(self):
 		f = self.find.get()
@@ -684,7 +684,7 @@ class FindReplaceDialog(PyMSDialog):
 				self.resettimer = self.after(1000, self.updatecolor)
 				self.findentry['bg'] = '#FFB4B4'
 				return
-			askquestion(parent=self, title='Count', message='%s matches found.' % len(r.findall(self.parent.text.get('1.0', END))), type=OK)
+			showinfo(parent=self, title='Count', message='%s matches found.' % len(r.findall(self.parent.text.get('1.0', END))))
 
 	def replaceall(self):
 		f = self.find.get()
@@ -703,7 +703,7 @@ class FindReplaceDialog(PyMSDialog):
 				self.parent.text.delete('1.0', END)
 				self.parent.text.insert('1.0', text[0].rstrip('\n'))
 				self.parent.text.update_range('1.0')
-			askquestion(parent=self, title='Replace Complete', message='%s matches replaced.' % text[1], type=OK)
+			showinfo(parent=self, title='Replace Complete', message='%s matches replaced.' % text[1])
 
 	def updatecolor(self):
 		if self.resettimer:
@@ -1440,11 +1440,10 @@ class ManagePresets(PyMSDialog):
 	def remove(self):
 		selected = int(self.listbox.curselection()[0])
 		preset = self.settings['generator']['presets'][selected]
-		cont = askquestion(parent=self, title='Remove Preset?', message="'%s' will be removed and you won't be able to get it back. Continue?" % preset['name'], default=OK, type=OKCANCEL)
-		if cont == 'cancel':
-			return
-		del self.settings['generator']['presets'][selected]
-		self.update_list()
+		cont = askokcancel(parent=self, title='Remove Preset?', message="'%s' will be removed and you won't be able to get it back. Continue?" % preset['name'])
+		if cont == True:
+			del self.settings['generator']['presets'][selected]
+			self.update_list()
 
 	def export(self):
 		if not self.listbox.curselection():
@@ -1813,11 +1812,10 @@ class CodeGeneratorDialog(PyMSDialog):
 		self.buttons['edit']['state'] = selection
 
 	def remove(self, *_):
-		cont = askquestion(parent=self, title='Remove Variable?', message="The variable settings will be lost.", default=YES, type=YESNO)
-		if cont == 'no':
-			return
-		del self.variables[int(self.listbox.curselection()[0])]
-		self.update_list()
+		cont = askyesno(parent=self, title='Remove Variable?', message="The variable settings will be lost.")
+		if cont == True:
+			del self.variables[int(self.listbox.curselection()[0])]
+			self.update_list()
 
 	def unique_name(self, name, ignore=None):
 		n = 1
@@ -1850,13 +1848,14 @@ class CodeGeneratorDialog(PyMSDialog):
 			replace = None
 			for n,preset in enumerate(self.settings.get('generator',{}).get('presets',[])):
 				if preset['name'] == name:
-					cont = askyesnocancel(parent=window, title='Overwrite Preset?', message="A preset with the name '%s' already exists. Do you want to overwrite it?" % name, default=YES)
-					if cont == 'no':
+					cont = askyesnocancel(parent=window, title='Overwrite Preset?', message="A preset with the name '%s' already exists. Do you want to overwrite it?" % name)
+					if cont == True:
+						replace = n
+						break
+					elif cont == False:
 						return
-					elif cont == 'cancel':
+					elif cont == None:
 						return False
-					replace = n
-					break
 			preset = {
 				'name': name,
 				'code': self.text.get(1.0,END),
@@ -1882,8 +1881,8 @@ class CodeGeneratorDialog(PyMSDialog):
 		NameDialog(self, title='Save Preset', done='Save', callback=do_save)
 	def load_preset(self, preset, window=None):
 		if self.variables or self.text.get(1.0, END).strip():
-			cont = askquestion(parent=window if window else self, title='Load Preset?', message="Your current variables and code will be lost.", default=YES, type=YESNO)
-			if cont == 'no':
+			cont = askyesno(parent=window if window else self, title='Load Preset?', message="Your current variables and code will be lost.")
+			if cont == False:
 				return False
 		if isinstance(preset, int):
 			preset = self.settings['generator']['presets'][preset]
@@ -2179,11 +2178,11 @@ class CodeEditDialog(PyMSDialog):
 
 	def cancel(self):
 		if self.text.edited:
-			save = askyesnocancel(parent=self, title='Save Code?', message="Would you like to save the code?", default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return
+			save = askyesnocancel(parent=self, title='Save Code?', message="Would you like to save the code?")
+			if save == True:
 				self.save()
+			elif save == None:
+				return
 		self.ok()
 
 	def save(self, e=None):
@@ -2231,7 +2230,7 @@ class CodeEditDialog(PyMSDialog):
 					self.text.tag_add('Warning', '%s.0' % w.line, '%s.end' % w.line)
 			WarningDialog(self, warnings, True)
 		else:
-			askquestion(parent=self, title='Test Completed', message='The code compiles with no errors or warnings.', type=OK)
+			showinfo(parent=self, title='Test Completed', message='The code compiles with no errors or warnings.')
 
 	def export(self, e=None):
 		if not self.file:
@@ -2936,14 +2935,14 @@ class PyICE(Tk):
 			iscript = self.file
 			if not iscript:
 				iscript = 'iscript.bin'
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % iscript, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % iscript)
+			if save == True:
 				if self.file:
 					self.save()
 				else:
 					return self.saveas()
+			elif save == None:
+				return True
 
 	def new(self, key=None):
 		if not self.unsaved():
@@ -3024,7 +3023,7 @@ class PyICE(Tk):
 			parent = self
 		ibin = IScriptBIN.IScriptBIN()
 		try:
-			if self.ibin.code.keynames:
+			if self.ibin.code.keys():
 				s = self.ibin.code.getkey(-1) + 10
 			else:
 				s = 0

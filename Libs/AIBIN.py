@@ -34,6 +34,9 @@ def convflags(num):
 		num = int(num)
 	return f'{num:03b}'
 
+def makebytes(lst):
+	return [bytes(s, 'utf-8') if isinstance(s,str) else s for s in lst]
+
 class AIBIN:
 	labels = [
 		'Goto',
@@ -1136,7 +1139,7 @@ class AIBIN:
 									id = default_ais[id]
 								elif len(id) != 4:
 									raise PyMSError('Interpreting',"Invalid AI ID '%s' (must be 4 ascii characeters long, or one of the keywords: Protoss, BWProtoss, Terran, BWTerran, Zerg, BWZerg)" % id,n,line, warnings=warnings)
-								elif re.match('[,\x00:()]', id):
+								elif re.match(b'[,\x00:()]', id):
 									raise PyMSError('Interpreting',"Invalid AI ID '%s', it can not contain a null byte, or the characters: , ( ) :" % id,n,line, warnings=warnings)
 								try:
 									string = int(newai.group(2))
@@ -1529,6 +1532,7 @@ class AIBIN:
 		file.write('#----------------------------------------------------\n\n')
 
 	def decompile(self, file, defs=None, ref=False, shortlabel=True, scripts=None):
+		warnings = []
 		if isstr(file):
 			try:
 				f = AtomicWriter(file, 'w')
@@ -1544,7 +1548,9 @@ class AIBIN:
 			labels = self.labels
 		if ref:
 			self.reference(f)
-		warnings = []
+
+		scripts = makebytes(scripts)
+
 		extjumps = {}
 		if defs:
 			variables = {}
@@ -1633,7 +1639,7 @@ class AIBIN:
 				else:
 					j = 0
 					jump = {}
-				f.write(f'# stat_txt.tbl entry {string}: {TBL.decompile_string(self.tbl.strings[string])}\n{id}({string}, {convflags(flags)}, aiscript):')
+				f.write(f'# stat_txt.tbl entry {string}: {TBL.decompile_string(self.tbl.strings[string])}\n{str(id, "utf-8")}({string}, {convflags(flags)}, aiscript):')
 				labelnames = None
 				if id in self.aiinfo:
 					labelnames = self.aiinfo[id][1].copy()
@@ -1666,7 +1672,7 @@ class AIBIN:
 						if labelnames:
 							jump[cmdn] = labelnames.getkey(namenum)
 						else:
-							jump[cmdn] = '%s %04d' % (id,j)
+							jump[cmdn] = '%s %04d' % (str(id, 'utf-8'), j)
 						if cmdn:
 							f.write('\n')
 						if id in self.externaljumps[0][0] and cmdn in self.externaljumps[0][0][id]:
@@ -1987,7 +1993,9 @@ class BWBIN(AIBIN):
 			labels = self.short_labels
 		else:
 			labels = self.labels
-		externaljumps = extjumps[0]
+		
+		scripts = makebytes(scripts)
+
 		extjumps = extjumps[1]
 		warnings = []
 		for id in scripts:

@@ -114,7 +114,7 @@ def register_registry(prog,type,filetype,progpath,icon):
 		SetValue(HKEY_CLASSES_ROOT, key + '\\Shell\\open\\command', REG_SZ, '"{}" "{}" --gui "%1"'.format(sys.executable.replace('python.exe','pythonw.exe'),progpath))
 	except:
 		raise PyMSError('Registry', 'Could not complete file association.',exception=sys.exc_info())
-	askquestion(title='Success!', message='The file association was set.', type=OK)
+	showinfo(title='Success!', message='The file association was set.')
 
 def flags(value, length):
 	if isstr(value):

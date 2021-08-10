@@ -128,15 +128,15 @@ class PyPAL(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.pal'
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file)
+			if save == True:
 				if self.file:
 					self.save()
 				else:
 					self.saveas()
-
+			elif save == None:
+				return True
+				
 	def action_states(self):
 		file = [NORMAL,DISABLED][not self.palette]
 		for btn in ['saveriff','savejasc','savepal','savewpe','close']:

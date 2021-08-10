@@ -245,21 +245,21 @@ class PyFNT(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.fnt'
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file)
+			if save == True:
 				if self.file:
 					self.save()
 				else:
 					self.saveas()
+			elif save == None:
+					return True
 
 	def select_file(self, title, open=True, ext='.fnt', filetypes=[('StarCraft FNT','*.fnt'),('All Files','*')], parent=None):
 		if parent == None:
 			parent = self
 		path = self.settings.get('lastpath', BASE_DIR)
 		parent._pyms__window_blocking = True
-		file = [tkinter.filedialog.asksaveasfilename,tkinter.filedialog.askopenfilename][open](parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
+		file = [tkinter.filedialog.asksaveasfilename, tkinter.filedialog.askopenfilename][open](parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
 		parent._pyms__window_blocking = False
 		if file:
 			self.settings['lastpath'] = os.path.dirname(file)

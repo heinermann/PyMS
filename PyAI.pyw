@@ -325,7 +325,7 @@ class FindReplaceDialog(PyMSDialog):
 					p = self
 					if key and key.keycode == 13:
 						p = self.parent
-					askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
+					showinfo(parent=p, title='Find', message="Can't find text.")
 			else:
 				u = self.updown.get()
 				s,lse,rlse,e = ['-','+'][u],['lineend','linestart'][u],['linestart','lineend'][u],[self.parent.text.index('1.0 lineend'),self.parent.text.index(END)][u]
@@ -363,14 +363,14 @@ class FindReplaceDialog(PyMSDialog):
 						p = self
 						if key and key.keycode == 13:
 							p = self.parent
-						askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
+						showinfo(parent=p, title='Find', message="Can't find text.")
 						break
 					i = self.parent.text.index(f'{i} {s}1lines {lse}')
 				else:
 					p = self
 					if key and key.keycode == 13:
 						p = self.parent
-					askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
+					showinfo(parent=p, title='Find', message="Can't find text.")
 
 	def count(self):
 		f = self.find.get()
@@ -384,7 +384,7 @@ class FindReplaceDialog(PyMSDialog):
 				self.resettimer = self.after(1000, self.updatecolor)
 				self.findentry['bg'] = '#FFB4B4'
 				return
-			askquestion(parent=self, title='Count', message='%s matches found.' % len(r.findall(self.parent.text.get('1.0', END))), type=OK)
+			showinfo(parent=self, title='Count', message='%s matches found.' % len(r.findall(self.parent.text.get('1.0', END))))
 
 	def replaceall(self):
 		f = self.find.get()
@@ -403,7 +403,7 @@ class FindReplaceDialog(PyMSDialog):
 				self.parent.text.delete('1.0', END)
 				self.parent.text.insert('1.0', text[0].rstrip('\n'))
 				self.parent.text.update_range('1.0')
-			askquestion(parent=self, title='Replace Complete', message='%s matches replaced.' % text[1], type=OK)
+			showinfo(parent=self, title='Replace Complete', message='%s matches replaced.' % text[1])
 
 	def updatecolor(self):
 		if self.resettimer:
@@ -987,11 +987,12 @@ class CodeEditDialog(PyMSDialog):
 
 	def cancel(self):
 		if self.text.edited:
-			save = askyesnocancel(parent=self, title='Save Code?', message="Would you like to save the code?", default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return
+			save = askyesnocancel(parent=self, title='Save Code?', message="Would you like to save the code?")
+			
+			if save == True:	# yes
 				self.save()
+			elif save == None:	# cancel
+				return
 		self.ok()
 
 	def save(self, e=None):
@@ -1034,7 +1035,7 @@ class CodeEditDialog(PyMSDialog):
 					self.text.tag_add('Warning', '%s.0' % w.line, '%s.end' % w.line)
 			WarningDialog(self, warnings, True)
 		else:
-			askquestion(parent=self, title='Test Completed', message='The code compiles with no errors or warnings.', type=OK)
+			showinfo(parent=self, title='Test Completed', message='The code compiles with no errors or warnings.')
 
 	def export(self, e=None):
 		if not self.file:
@@ -1120,7 +1121,7 @@ class CodeEditDialog(PyMSDialog):
 			else:
 				data += '\n'
 		if None in headerinfo:
-			askquestion(parent=self, title='Invalid Header', message='The script is either missing a script_name or a script_id.', type=OK)
+			showinfo(parent=self, title='Invalid Header', message='The script is either missing a script_name or a script_id.')
 			return
 		self.text.delete('1.0', END)
 		self.text.insert(END, beforeheader + '\n' + header % tuple(headerinfo) + data)
@@ -1769,16 +1770,16 @@ class EditScriptDialog(PyMSDialog):
 	def ok(self):
 		id = self.id.get()
 		if self.initialid != id and id in self.parent.ai.ais:
-			replace = askyesnocancel(parent=self, title='Replace Script?', message="The script with ID '%s' already exists, replace it?" % id, default=YES)
-			if replace == 'yes':
+			replace = askyesnocancel(parent=self, title='Replace Script?', message="The script with ID '%s' already exists, replace it?" % id)
+			if replace == True:	# yes
 				if not self.ai.ais[id][0]:
 					del self.ai.bwscript.ais[id]
 				if id in self.ai.aiinfo:
 					del self.ai.aiinfo[id]
 			else:
-				if replace == 'no':
+				if replace == False:	# no
 					self.cancel()
-				return
+				return	# cancel
 		if not self.string.get():
 			self.string.set(0)
 		self.aiinfo = self.info.get(1.0, END)[:-1]
@@ -2006,14 +2007,15 @@ class StringEditor(PyMSDialog):
 
 	def open(self, file=None):
 		if self.parent.edittbl():
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % self.parent.stattxt(), default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % self.parent.stattxt())
+			if save == True:	# yes
 				if self.tbl:
 					self.save()
 				else:
 					self.saveas()
+			if save == None:	# cancel
+				return
+
 		if file == None:
 			file = self.parent.select_file('Open stat_txt.tbl', True, '.tbl', [('TBL Files','*.tbl'),('All Files','*')], self)
 		if file:
@@ -2109,7 +2111,7 @@ class StringEditor(PyMSDialog):
 					i += 'And %s other scripts. ' % (e-5)
 				if plural == 2:
 					plural = 1
-				if not askquestion(parent=self, title='Remove String?', message="Deleting string '{}' will effect the AI Script{}:\n{}Continue removing string anyway?".format(string, 's' * plural, i), default=YES):
+				if not askquestion(parent=self, title='Remove String?', message="Deleting string '{}' will effect the AI Script{}:\n{}Continue removing string anyway?".format(string, 's' * plural, i)):
 					return
 				end = self.listbox.size()-1
 				if end in self.parent.strings:
@@ -2217,7 +2219,7 @@ class ListboxTooltip(Tooltip):
 			flags += '\n'
 		text = "Script ID         : {}\nIn bwscript.bin   : {}\n{}String ID         : {}\n".format(id, ['No','Yes'][item[1]], flags, item[3])
 		ai = self.widget.master.master.ai
-		text += fit('String            : ', TBL.decompile_string(ai.tbl.strings[ai.ais[id][1]]), end=True)
+		text += fit('String            : ', TBL.decompile_string(ai.tbl.strings[ai.ais[bytes(id, 'utf-8')][1]]), end=True)
 		if id in ai.aiinfo and ai.aiinfo[id][0]:
 			text += 'Extra Information : %s' % ai.aiinfo[id][0].replace('\n','\n                    ')
 		else:
@@ -2563,7 +2565,7 @@ class PyAI(Tk):
 	def get_entry(self, index):
 		match = re.match(r'^(....)\s{5}(\s\s|BW)\s{5}([01]{3})\s{5}(.+)', self.listbox.get(index))
 		id = match.group(1)
-		return (id, match.group(2) == 'BW', match.group(3), self.ai.ais[id][1], match.group(4))
+		return (id, match.group(2) == 'BW', match.group(3), self.ai.ais[bytes(id, 'utf-8')][1], match.group(4))
 
 	def entry_text(self, id, bw, flags, string):
 		if isinstance(string, int):
@@ -2590,7 +2592,7 @@ class PyAI(Tk):
 			parent = self
 		path = self.settings.get('lastpath', BASE_DIR)
 		parent._pyms__window_blocking = True
-		file = [tkinter.filedialog.asksaveasfilename,tkinter.filedialog.askopenfilename][open](parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
+		file = [tkinter.filedialog.asksaveasfilename, tkinter.filedialog.askopenfilename][open](parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
 		parent._pyms__window_blocking = False
 		if file:
 			self.settings['lastpath'] = os.path.dirname(file)
@@ -2629,12 +2631,13 @@ class PyAI(Tk):
 
 	def unsaved(self):
 		if self.tbledited:
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % self.stat_txt, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % self.stat_txt)
+			if save == True:
 				self.tbl.compile(self.stat_txt)
 				self.tbledited = False
+			elif save == None:
+				return True
+
 		if self.ai and self.edited:
 			aiscript = self.aiscript
 			if not aiscript:
@@ -2642,14 +2645,14 @@ class PyAI(Tk):
 			bwscript = self.bwscript
 			if not bwscript:
 				bwscript = 'bwscript.bin'
-			save = askyesnocancel(parent=self, title='Save Changes?', message=f"Save changes to '{aiscript}' and '{bwscript}'?", default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message=f"Save changes to '{aiscript}' and '{bwscript}'?")
+			if save == True:
 				if self.aiscript:
 					self.save()
 				else:
 					return self.saveas()
+			elif save == None:
+				return True
 
 	def edittbl(self, edited=None):
 		if edited == None:
@@ -2853,7 +2856,7 @@ class PyAI(Tk):
 					undone.append('scripts\\%sscript.bin' % f)
 			MpqCloseUpdatedArchive(h)
 			if undone:
-				askquestion(parent=self, title='Save problems', message='%s could not be saved to the MPQ.' % ' and '.join(undone), type=OK)
+				showinfo(parent=self, title='Save problems', message='%s could not be saved to the MPQ.' % ' and '.join(undone))
 
 	def close(self, key=None):
 		if key and self.buttons['close']['state'] != NORMAL:
@@ -2930,7 +2933,7 @@ class PyAI(Tk):
 					except:
 						pass
 				self.listbox.delete(0, END)
-			ais = list(self.ai.ais.keynames)
+			ais = list(self.ai.ais.keys())
 			ais.sort()
 			for id in ais:
 				ai = self.ai.ais[id]
@@ -2951,12 +2954,9 @@ class PyAI(Tk):
 					except:
 						pass
 				self.listbox.delete(0, END)
-			ais = []
-			for id,ai in self.ai.ais.items():
-				ais.append(f'{ai[0]} {id}')
-			ais.sort()
-			for a in ais:
-				id = a.split(' ',1)[1]
+			ais = list(self.ai.ais.items())
+			ais.sort(key=lambda ai:(ai[1][0], ai[0]))
+			for id, _ in ais:
 				ai = self.ai.ais[id]
 				self.set_entry(END, id, not ai[0], AIBIN.convflags(ai[2]), ai[1])
 				if sel and id in sel:
@@ -2974,13 +2974,10 @@ class PyAI(Tk):
 					except:
 						pass
 				self.listbox.delete(0, END)
-			ais = []
-			for id,ai in self.ai.ais.items():
-				ais.append(f'{AIBIN.convflags(ai[2])} {id}')
-			ais.sort()
-			ais.reverse()
-			for a in ais:
-				id = a.split(' ',1)[1]
+			
+			ais = list(self.ai.ais.items())
+			ais.sort(reverse=True, key=lambda ai:(ai[1][2], ai[0]))
+			for id, _ in ais:
 				ai = self.ai.ais[id]
 				self.set_entry(END, id, not ai[0], AIBIN.convflags(ai[2]), ai[1])
 				if sel and id in sel:
@@ -2998,12 +2995,9 @@ class PyAI(Tk):
 					except:
 						pass
 				self.listbox.delete(0, END)
-			ais = []
-			for id,ai in self.ai.ais.items():
-				ais.append(f'{TBL.decompile_string(self.ai.tbl.strings[ai[1]])}\x00{id}')
-			ais.sort()
-			for a in ais:
-				id = a.split('\x00')[-1]
+			ais = list(self.ai.ais.items())
+			ais.sort(key=lambda ai:(f'{TBL.decompile_string(self.ai.tbl.strings[ai[1][1]])}', ai[0]))
+			for id, _ in ais:
 				ai = self.ai.ais[id]
 				self.set_entry(END, id, not ai[0], AIBIN.convflags(ai[2]), ai[1])
 				if sel and id in sel:
@@ -3072,7 +3066,7 @@ class PyAI(Tk):
 			if oldid != id:
 				self.ai.ais[oldid] = self.ai.ais[id]
 				if not self.ai.ais[id][0]:
-					self.ai.bwscript.ais[old] = self.ai.bwscript.ais[id]
+					self.ai.bwscript.ais[oldid] = self.ai.bwscript.ais[id]
 					del self.ai.bwscript.ais[id]
 				del self.ai.ais[id]
 				if id in self.ai.aiinfo:
@@ -3148,7 +3142,7 @@ class PyAI(Tk):
 			if oldid != id:
 				self.ai.ais[oldid] = self.ai.ais[id]
 				if not self.ai.ais[id][0]:
-					self.ai.bwscript.ais[old] = self.ai.bwscript.ais[id]
+					self.ai.bwscript.ais[oldid] = self.ai.bwscript.ais[id]
 					del self.ai.bwscript.ais[id]
 				del self.ai.ais[id]
 				if id in self.ai.aiinfo:
@@ -3226,9 +3220,9 @@ class PyAI(Tk):
 			more = len(cantremove) != len(indexs)
 			t = '\n'.join(['\t{} referenced by: {}'.format(id,', '.join(refs)) for id,refs in cantremove.items()])
 			if more:
-				cont = askyesnocancel(parent=self, title='Removing', message="These scripts can not be removed because they are referenced by other scripts:\n{}{}".format(t,'\n\nContinue removing the other scripts?'), default=YES)
+				cont = askyesnocancel(parent=self, title='Removing', message="These scripts can not be removed because they are referenced by other scripts:\n{}{}".format(t,'\n\nContinue removing the other scripts?'))
 			else:
-				cont = askquestion(parent=self, title='Removing', message="These scripts can not be removed because they are referenced by other scripts:\n%s" % t, default=None, type=OK)
+				cont = showinfo(parent=self, title='Removing', message="These scripts can not be removed because they are referenced by other scripts:\n%s" % t)
 		undo = []
 		n = 0
 		for index in ids:
@@ -3302,7 +3296,7 @@ class PyAI(Tk):
 			if warnings:
 				WarningDialog(self, warnings)
 			if external:
-				askquestion(parent=self, title='External References', message='One or more of the scripts you are exporting references an external block, so the scripts that are referenced have been exported as well:\n    %s' % '\n    '.join(external), type=OK)
+				showinfo(parent=self, title='External References', message='One or more of the scripts you are exporting references an external block, so the scripts that are referenced have been exported as well:\n    %s' % '\n    '.join(external))
 
 	def iimport(self, key=None, iimport=None, c=True, parent=None):
 		if key and self.buttons['import']['state'] != NORMAL:

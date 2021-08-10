@@ -207,7 +207,7 @@ class FindReplaceDialog(PyMSDialog):
 					p = self
 					if key:
 						p = self.parent
-					askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
+					showinfo(parent=p, title='Find', message="Can't find text.")
 			else:
 				u = self.updown.get()
 				s,lse,rlse,e = ['-','+'][u],['lineend','linestart'][u],['linestart','lineend'][u],[self.parent.text.index('1.0 lineend'),self.parent.text.index(END)][u]
@@ -245,14 +245,14 @@ class FindReplaceDialog(PyMSDialog):
 						p = self
 						if key:
 							p = self.parent
-						askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
+						showinfo(parent=p, title='Find', message="Can't find text.")
 						break
 					i = self.parent.text.index(f'{i} {s}1lines {lse}')
 				else:
 					p = self
 					if key:
 						p = self.parent
-					askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
+					showinfo(parent=p, title='Find', message="Can't find text.")
 
 	def count(self):
 		f = self.find.get()
@@ -266,7 +266,7 @@ class FindReplaceDialog(PyMSDialog):
 				self.resettimer = self.after(1000, self.updatecolor)
 				self.findentry['bg'] = '#FFB4B4'
 				return
-			askquestion(parent=self, title='Count', message='%s matches found.' % len(r.findall(self.parent.text.get('1.0', END))), type=OK)
+			showinfo(parent=self, title='Count', message='%s matches found.' % len(r.findall(self.parent.text.get('1.0', END))))
 
 	def replaceall(self):
 		f = self.find.get()
@@ -285,7 +285,7 @@ class FindReplaceDialog(PyMSDialog):
 				self.parent.text.delete('1.0', END)
 				self.parent.text.insert('1.0', text[0].rstrip('\n'))
 				self.parent.text.update_range('1.0')
-			askquestion(parent=self, title='Replace Complete', message='%s matches replaced.' % text[1], type=OK)
+			showinfo(parent=self, title='Replace Complete', message='%s matches replaced.' % text[1])
 
 	def updatecolor(self):
 		if self.resettimer:
@@ -740,15 +740,15 @@ class PyLO(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.loa'
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file)
+			if save == True:
 				if self.file:
 					self.save()
 				else:
 					self.saveas()
-
+			elif save == None:
+				return True
+				
 	def select_file(self, title, open=True, ext='.loa', filetypes=[('All StarCraft Overlays','*.loa;*.lob;*.lod;*.lof;*.loo;*.los;*.lou;*.log;*.lol;*.lox'),('StarCraft Attack Overlays','*.loa'),('StarCraft Birth Overloays','*.lob'),('StarCraft Landing Dust Overlays','*.lod'),('StarCraft Fire Overlays','*.lof'),('StarCraft Powerup Overlays','*.loo'),('StarCraft Shield/Smoke Overlays','*.los'),('StarCraft Lift-Off Dust Overlays','*.lou'),('Misc. StarCraft Overlay','*.log'),('Misc. StarCraft Overlay','*.lol'),('Misc. StarCraft Overlay','*.lox'),('All Files','*')]):
 		path = self.settings.get('lastpath', BASE_DIR)
 		self._pyms__window_blocking = True
@@ -968,7 +968,7 @@ class PyLO(Tk):
 					self.text.tag_add('Warning', '%s.0' % w.line, '%s.end' % w.line)
 			WarningDialog(self, warnings, True)
 		else:
-			askquestion(parent=self, title='Test Completed', message='The code compiles with no errors or warnings.', type=OK)
+			showinfo(parent=self, title='Test Completed', message='The code compiles with no errors or warnings.')
 
 	def close(self, key=None):
 		if key and self.buttons['close']['state'] != NORMAL:

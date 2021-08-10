@@ -2549,15 +2549,15 @@ class PyMAP(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.scx'
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file)
+			if save == True:
 				if self.file:
 					self.save()
 				else:
 					self.saveas()
-
+			elif save == None:
+				return True
+				
 	def select_file(self, title, open=True, ext='.scx', filetypes=[('BroodWar Map','*.scx'),('StarCraft Map','*.scm'),('Raw Map','*.chk'),('All Files','*')], parent=None):
 		if parent == None:
 			parent = self
@@ -2659,10 +2659,10 @@ class PyMAP(Tk):
 				ErrorDialog(self, e)
 				return
 			if not chk or not chk.sections:
-				askquestion(parent=self, title='Open', message='"%s" is not a valid map.' % file, type=OK)
+				showinfo(parent=self, title='Open', message='"%s" is not a valid map.' % file)
 				return
 			if not tileset:
-				askquestion(parent=self, title='Open', message='"%s" has an invalid tileset.' % file, type=OK)
+				showinfo(parent=self, title='Open', message='"%s" has an invalid tileset.' % file)
 				return
 			self.scmap = scmap
 			self.chk = chk

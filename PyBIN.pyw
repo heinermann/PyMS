@@ -1916,15 +1916,15 @@ class PyBIN(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.bin'
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
-			if save != 'no':
-				if save == 'cancel':
-					return True
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file)
+			if save == True:
 				if self.file:
 					self.save()
 				else:
 					self.saveas()
-
+			elif save == None:
+				return True
+				
 	def action_states(self):
 		isopen = [NORMAL,DISABLED][not self.bin]
 		for btn in ['save','saveas','export','close','add']:
