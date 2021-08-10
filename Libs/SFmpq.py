@@ -236,7 +236,7 @@ MPQARCHIVE._fields_ = [
 
 class MPQHANDLE(c_void_p):
 	def __repr__(self):
-		return '<MPQHANDLE object at %s: %s>' % (hex(id(self)), hex(self.value))
+		return f'<MPQHANDLE object at {hex(id(self))}: {hex(self.value)}>'
 
 def MpqInitialize():
 	if not FOLDER:
@@ -302,9 +302,9 @@ def debug_log(func):
 		def do_log(*args, **kwargs):
 			result = func(*args, **kwargs)
 			print("Func  : %s" % func.__name__)
-			print("Args  : %s" % (args,))
+			print(f"Args  : {args}")
 			print("kwargs: %s" % kwargs)
-			print("Result: %s" % (result,))
+			print(f"Result: {result}")
 			return result
 		return do_log
 	else:

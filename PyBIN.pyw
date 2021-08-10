@@ -834,7 +834,7 @@ class WidgetNode:
 		if self.widget:
 			name = DialogBIN.BINWidget.TYPE_NAMES[self.widget.type]
 			if self.widget.display_text():
-				name = '%s [%s]' % (TBL.decompile_string(self.widget.display_text()), name)
+				name = f'{TBL.decompile_string(self.widget.display_text())} [{name}]'
 		if self.name:
 			name = '%s [%s]' % self.name
 		return name
@@ -1421,7 +1421,7 @@ class PyBIN(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -1557,7 +1557,7 @@ class PyBIN(Tk):
 		themes = ['None']
 		for t in range(DialogBIN.THEME_ASSETS_MAIN_MENU,DialogBIN.THEME_ASSETS_NONE):
 			theme = DialogBIN.THEME_ASSETS_INFO[t]
-			themes.append('%s (%s)' % (theme['name'],theme['path']))
+			themes.append('{} ({})'.format(theme['name'],theme['path']))
 		DropDown(themeframe, self.show_theme_index, themes, self.change_theme).grid(row=0, column=0, padx=5, sticky=EW)
 		Checkbutton(themeframe, text='Background', variable=self.show_background, command=lambda: self.toggle_setting('show_background',self.show_background)).grid(row=1, column=0, sticky=W)
 		themeframe.grid_columnconfigure(0, weight=1)
@@ -2326,7 +2326,7 @@ class PyBIN(Tk):
 			self.setup_nodes()
 			self.reload_list()
 			self.reload_canvas()
-			self.title('PyBIN %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyBIN {LONG_VERSION} ({file})')
 			self.file = file
 			self.scr_enabled.set(self.bin.remastered)
 			self.status.set('Load Successful!')
@@ -2358,7 +2358,7 @@ class PyBIN(Tk):
 			self.setup_nodes()
 			self.reload_list()
 			self.reload_canvas()
-			self.title('PyBIN %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyBIN {LONG_VERSION} ({file})')
 			self.file = file
 			self.scr_enabled.set(self.bin.remastered)
 			self.status.set('Import Successful!')

@@ -69,7 +69,7 @@ class PyPAL(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -245,7 +245,7 @@ class PyPAL(Tk):
 				pal.palette = bmp.palette
 				self.type = None
 			self.palette = pal
-			self.title('PyPAL %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyPAL {LONG_VERSION} ({file})')
 			self.file = file
 			self.status.set('Load Successful!')
 			self.edited = False
@@ -280,7 +280,7 @@ class PyPAL(Tk):
 		if not file:
 			return True
 		self.file = file
-		self.title('PyPAL %s (%s)' % (LONG_VERSION,self.file))
+		self.title(f'PyPAL {LONG_VERSION} ({self.file})')
 		self.type = type
 		self.save()
 		self.action_states()
@@ -345,11 +345,11 @@ def main():
 			pal = PAL.Palette()
 			ext = ['pal','wpe','pal','pal'][opt.format]
 			if len(args) == 1:
-				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
+				args.append(f'{os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1]))}{os.extsep}{ext}')
 			print("Reading Palette '%s'..." % args[0])
 			try:
 				pal.load_file(args[0])
-				print(" - '%s' read successfully\nConverting '%s' to %s file '%s'..." % (args[0], ext.upper(), args[1]))
+				print(" - '{}' read successfully\nConverting '{}' to {} file '{}'...".format(args[0], ext.upper(), args[1]))
 				[pal.save_sc_pal,pal.save_sc_wpe,pal.save_riff_pal,pal.save_jasc_pal][opt.format](args[1])
 				print(" - '%s' written succesfully" % args[1])
 			except PyMSError as e:

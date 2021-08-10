@@ -16,8 +16,8 @@ from collections import OrderedDict
 LONG_VERSION = 'v%s' % VERSIONS['PyLO']
 
 SIGNED_INT = '-128|-?(?:12[0-7]|1[01]\\d|\\d?\\d)'
-COORDINATES = re.compile('^\\s*\\(\\s*(%s)\\s*,\\s*(%s)\\s*\\)\\s*(?:#.+)?$' % (SIGNED_INT,SIGNED_INT))
-DRAG_COORDS = re.compile('^(\\s*\\(\\s*)(?:%s)(\\s*,\\s*)(?:%s)(\\s*\\)\\s*(?:#.+)?)$' % (SIGNED_INT,SIGNED_INT))
+COORDINATES = re.compile(f'^\\s*\\(\\s*({SIGNED_INT})\\s*,\\s*({SIGNED_INT})\\s*\\)\\s*(?:#.+)?$')
+DRAG_COORDS = re.compile(f'^(\\s*\\(\\s*)(?:{SIGNED_INT})(\\s*,\\s*)(?:{SIGNED_INT})(\\s*\\)\\s*(?:#.+)?)$')
 
 GRP_CACHE = [{},{}]
 
@@ -49,7 +49,7 @@ class CodeTooltip(Tooltip):
 		if self.tip:
 			return
 		pos = list(self.widget.winfo_pointerxy())
-		head,tail = self.widget.tag_prevrange(self.tag,self.widget.index('@%s,%s+1c' % (pos[0] - self.widget.winfo_rootx(),pos[1] - self.widget.winfo_rooty())))
+		head,tail = self.widget.tag_prevrange(self.tag,self.widget.index(f'@{pos[0] - self.widget.winfo_rootx()},{pos[1] - self.widget.winfo_rooty()}+1c'))
 		m = COORDINATES.match(self.widget.get(head,tail))
 		if not m:
 			return
@@ -198,7 +198,7 @@ class FindReplaceDialog(PyMSDialog):
 				m = r.search(self.parent.text.get(INSERT, END))
 				if m:
 					self.parent.text.tag_remove('Selection', '1.0', END)
-					s,e = '%s +%sc' % (INSERT, m.start(0)),'%s +%sc' % (INSERT,m.end(0))
+					s,e = f'{INSERT} +{m.start(0)}c',f'{INSERT} +{m.end(0)}c'
 					self.parent.text.tag_add('Selection', s, e)
 					self.parent.text.mark_set(INSERT, e)
 					self.parent.text.see(s)
@@ -214,15 +214,15 @@ class FindReplaceDialog(PyMSDialog):
 				i = self.parent.text.index(INSERT)
 				if i == e:
 					return
-				if i == self.parent.text.index('%s %s' % (INSERT, rlse)):
-					i = self.parent.text.index('%s %s1lines %s' % (INSERT, s, lse))
+				if i == self.parent.text.index(f'{INSERT} {rlse}'):
+					i = self.parent.text.index(f'{INSERT} {s}1lines {lse}')
 				n = -1
 				while not u or i != e:
 					if u:
-						m = r.search(self.parent.text.get(i, '%s %s' % (i, rlse)))
+						m = r.search(self.parent.text.get(i, f'{i} {rlse}'))
 					else:
 						m = None
-						a = r.finditer(self.parent.text.get('%s %s' % (i, rlse), i))
+						a = r.finditer(self.parent.text.get(f'{i} {rlse}', i))
 						c = 0
 						for x,f in enumerate(a):
 							if x == n or n == -1:
@@ -232,10 +232,10 @@ class FindReplaceDialog(PyMSDialog):
 					if m:
 						self.parent.text.tag_remove('Selection', '1.0', END)
 						if u:
-							s,e = '%s +%sc' % (i,m.start(0)),'%s +%sc' % (i,m.end(0))
+							s,e = f'{i} +{m.start(0)}c',f'{i} +{m.end(0)}c'
 							self.parent.text.mark_set(INSERT, e)
 						else:
-							s,e = '%s linestart +%sc' % (i,m.start(0)),'%s linestart +%sc' % (i,m.end(0))
+							s,e = f'{i} linestart +{m.start(0)}c',f'{i} linestart +{m.end(0)}c'
 							self.parent.text.mark_set(INSERT, s)
 						self.parent.text.tag_add('Selection', s, e)
 						self.parent.text.see(s)
@@ -247,7 +247,7 @@ class FindReplaceDialog(PyMSDialog):
 							p = self.parent
 						askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
 						break
-					i = self.parent.text.index('%s %s1lines %s' % (i, s, lse))
+					i = self.parent.text.index(f'{i} {s}1lines {lse}')
 				else:
 					p = self
 					if key:
@@ -565,7 +565,7 @@ class PyLO(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -694,7 +694,7 @@ class PyLO(Tk):
 			if m:
 				self.pauseupdate = True
 				self.text.delete(s,'%s lineend' % INSERT)
-				self.text.insert(s,'%s%s%s%s%s' % (m.group(1),self.previewing[2],m.group(2),self.previewing[3],m.group(3)))
+				self.text.insert(s,f'{m.group(1)}{self.previewing[2]}{m.group(2)}{self.previewing[3]}{m.group(3)}')
 				self.pauseupdate = False
 			self.dragoffset = None
 			self.text.text.edit_separator()
@@ -783,8 +783,8 @@ class PyLO(Tk):
 			om = self.overlaygrp.frames
 		if self.overlayframe != None:
 			o = self.overlayframe + 1
-		self.baseframes.set('Base Frame: %s / %s' % (b,bm))
-		self.overlayframes.set('Overlay Frame: %s / %s' % (o,om))
+		self.baseframes.set(f'Base Frame: {b} / {bm}')
+		self.overlayframes.set(f'Overlay Frame: {o} / {om}')
 
 	def previewupdate(self):
 		if not self.pauseupdate:
@@ -867,7 +867,7 @@ class PyLO(Tk):
 				ErrorDialog(self, e)
 				return
 			self.lo = lo
-			self.title('PyLO %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyLO {LONG_VERSION} ({file})')
 			self.file = file
 			self.status.set('Load Successful!')
 			self.overlayframe = 0
@@ -888,12 +888,12 @@ class PyLO(Tk):
 			if not file:
 				return
 			try:
-				text = open(file,'r').read()
+				text = open(file).read()
 			except:
 				ErrorDialog(self, PyMSError('Import', "Couldn't import file '%s'" % file))
 				return
 			self.lo = LO.LO()
-			self.title('PyLO %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyLO {LONG_VERSION} ({file})')
 			self.file = file
 			self.status.set('Import Successful!')
 			self.overlayframe = 0
@@ -1067,18 +1067,18 @@ def main():
 					ext = 'txt'
 				else:
 					ext = 'lox'
-				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
+				args.append(f'{os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1]))}{os.extsep}{ext}')
 			try:
 				if opt.convert:
 					print("Reading LO? '%s'..." % args[0])
 					lo.load_file(args[0])
-					print(" - '%s' read successfully\nDecompiling LO? file '%s'..." % (args[0],args[0]))
+					print(f" - '{args[0]}' read successfully\nDecompiling LO? file '{args[0]}'...")
 					lo.decompile(args[1])
 					print(" - '%s' written succesfully" % args[1])
 				else:
 					print("Interpreting file '%s'..." % args[0])
 					lo.interpret(args[0])
-					print(" - '%s' read successfully\nCompiling file '%s' to LO? format..." % (args[0],args[0]))
+					print(f" - '{args[0]}' read successfully\nCompiling file '{args[0]}' to LO? format...")
 					lo.compile(args[1])
 					print(" - '%s' written succesfully" % args[1])
 			except PyMSError as e:

@@ -19,7 +19,7 @@ if os.path.exists(BASE_DIR):
 	os.chdir(BASE_DIR)
 
 import json
-with open(os.path.join(BASE_DIR, 'Libs', 'versions.json'), 'r') as f:
+with open(os.path.join(BASE_DIR, 'Libs', 'versions.json')) as f:
 	VERSIONS = json.load(f)
 
 couriernew = ('Courier', -12, 'normal')
@@ -54,13 +54,13 @@ def debug_func_log(should_log_call=None):
 			ref = uuid.uuid4().hex
 			log = not should_log_call or should_log_call(func, args, kwargs)
 			if log:
-				print("Func  : %s (%s)" % (func.__name__, ref))
-				print("\tArgs  : %s" % (args,))
+				print(f"Func  : {func.__name__} ({ref})")
+				print(f"\tArgs  : {args}")
 				print("\tkwargs: %s" % kwargs)
 			result = func(*args, **kwargs)
 			if log:
-				print("Func  : %s (%s)" % (func.__name__, ref))
-				print("\tResult: %s" % (result,))
+				print(f"Func  : {func.__name__} ({ref})")
+				print(f"\tResult: {result}")
 			return result
 		return do_log
 	return decorator
@@ -88,7 +88,7 @@ def register_registry(prog,type,filetype,progpath,icon):
 	def delkey(key,sub_key):
 		try:
 			h = OpenKey(key,sub_key)
-		except WindowsError as e:
+		except OSError as e:
 			if e.errno == 2:
 				return
 			raise
@@ -98,20 +98,20 @@ def register_registry(prog,type,filetype,progpath,icon):
 			while True:
 				n = EnumKey(h,0)
 				delkey(h,n)
-		except EnvironmentError:
+		except OSError:
 			pass
 		h.Close()
 		DeleteKey(key,sub_key)
 
-	key = '%s:%s' % (prog,filetype)
+	key = f'{prog}:{filetype}'
 	try:
 		delkey(HKEY_CLASSES_ROOT, '.' + filetype)
 		delkey(HKEY_CLASSES_ROOT, key)
 		SetValue(HKEY_CLASSES_ROOT, '.' + filetype, REG_SZ, key)
-		SetValue(HKEY_CLASSES_ROOT, key, REG_SZ, 'StarCraft %s *.%s file (%s)' % (type,filetype,prog))
+		SetValue(HKEY_CLASSES_ROOT, key, REG_SZ, f'StarCraft {type} *.{filetype} file ({prog})')
 		SetValue(HKEY_CLASSES_ROOT, key + '\\DefaultIcon', REG_SZ, icon)
 		SetValue(HKEY_CLASSES_ROOT, key + '\\Shell', REG_SZ, 'open')
-		SetValue(HKEY_CLASSES_ROOT, key + '\\Shell\\open\\command', REG_SZ, '"%s" "%s" --gui "%%1"' % (sys.executable.replace('python.exe','pythonw.exe'),progpath))
+		SetValue(HKEY_CLASSES_ROOT, key + '\\Shell\\open\\command', REG_SZ, '"{}" "{}" --gui "%1"'.format(sys.executable.replace('python.exe','pythonw.exe'),progpath))
 	except:
 		raise PyMSError('Registry', 'Could not complete file association.',exception=sys.exc_info())
 	askquestion(title='Success!', message='The file association was set.', type=OK)
@@ -196,9 +196,9 @@ class PyMSError(Exception):
 		self.exception = exception
 
 	def repr(self):
-		r = '%s Error: %s' % (self.type, self.error)
+		r = f'{self.type} Error: {self.error}'
 		if self.line:
-			r += '\n    Line %s: %s' % (self.line, self.code)
+			r += f'\n    Line {self.line}: {self.code}'
 		return r
 
 	def __repr__(self):
@@ -227,7 +227,7 @@ class PyMSWarning(Exception):
 		self.sub_warnings = [] if not sub_warnings else sub_warnings
 
 	def repr(self):
-		r = fit('%s Warning%s: ' % (self.type, ' (%s)' % self.id if self.id else ''), self.warning, end=True)
+		r = fit('{} Warning{}: '.format(self.type, ' (%s)' % self.id if self.id else ''), self.warning, end=True)
 		if self.line:
 			r += fit('    Line %s: ' % self.line, self.code, end=True)
 		for w in self.sub_warnings:
@@ -235,7 +235,7 @@ class PyMSWarning(Exception):
 		return r
 
 	def __repr__(self):
-		r = fit('%s Warning%s: ' % (self.type, ' (%s)' % self.id if self.id else ''), self.warning)
+		r = fit('{} Warning{}: '.format(self.type, ' (%s)' % self.id if self.id else ''), self.warning)
 		if self.line:
 			r += fit('    Line %s: ' % self.line, self.code)
 		for w in self.sub_warnings:
@@ -394,7 +394,7 @@ class ErrorDialog(PyMSDialog):
 		p = 's'
 		if w == 1:
 			p = ''
-		Button(frame, text='%s Warning%s' % (w, p), width=10, command=self.viewwarnings, state=[NORMAL,DISABLED][not self.error.warnings]).pack(side=LEFT, padx=3)
+		Button(frame, text=f'{w} Warning{p}', width=10, command=self.viewwarnings, state=[NORMAL,DISABLED][not self.error.warnings]).pack(side=LEFT, padx=3)
 		Button(frame, text='Copy', width=10, command=self.copy).pack(side=LEFT, padx=6)
 		if self.error.exception:
 			Button(frame, text='Internal Error', width=10, command=self.internal).pack(side=LEFT, padx=6)
@@ -486,7 +486,7 @@ class AboutDialog(PyMSDialog):
 		PyMSDialog.__init__(self, parent, 'About %s' % program, resizable=(False, False))
 
 	def widgetize(self):
-		name = Label(self, text='%s %s' % (self.program, self.version), font=('Courier', 18, 'bold'))
+		name = Label(self, text=f'{self.program} {self.version}', font=('Courier', 18, 'bold'))
 		name.pack()
 		frame = Frame(self)
 		Label(frame, text='Author:').grid(stick=E)
@@ -1083,9 +1083,9 @@ class CodeText(Frame):
 		lines = self.lines.get('1.0', END).count('\n')
 		dif = self.text.get('1.0', END).count('\n') - lines
 		if dif > 0:
-			self.lines.insert(END, '\n' + '\n'.join(['%s%s' % (' ' * (7-len(str(n))), n) for n in range(lines+1,lines+1+dif)]))
+			self.lines.insert(END, '\n' + '\n'.join(['{}{}'.format(' ' * (7-len(str(n))), n) for n in range(lines+1,lines+1+dif)]))
 		elif dif:
-			self.lines.delete('%s%slines' % (END,dif),END)
+			self.lines.delete(f'{END}{dif}lines',END)
 
 	def update_range(self, start='1.0', end=END):
 		self.tag_add("Update", start, end)
@@ -1191,7 +1191,7 @@ class CodeText(Frame):
 		self.text.bind('<Motion>', self.selmotion)
 
 	def selmotion(self, e):
-		self.text.mark_set(INSERT, '@%s,%s' % (e.x,e.y))
+		self.text.mark_set(INSERT, f'@{e.x},{e.y}')
 
 	def selrelease(self, e):
 		self.dnd = False

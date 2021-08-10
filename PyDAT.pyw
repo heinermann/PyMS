@@ -52,7 +52,7 @@ ICON_CACHE = {}
 GRP_CACHE = {}
 HINTS = {}
 PALETTES = {}
-for l in open(os.path.join(BASE_DIR,'Libs','Data','Hints.txt'),'r'):
+for l in open(os.path.join(BASE_DIR,'Libs','Data','Hints.txt')):
 	m = re.match('(\\S+)=(.+)\n?', l)
 	if m:
 		HINTS[m.group(1)] = m.group(2)
@@ -178,7 +178,7 @@ class SaveMPQDialog(PyMSDialog):
 				else:
 					h = MpqOpenArchiveForUpdate(file, MOAU_OPEN_ALWAYS | MOAU_MAINTAIN_LISTFILE)
 				if h == -1:
-					ErrorDialog(self, PyMSError('Saving','Could not open %sMPQ "%s".' % (['','SE'][self.sempq.get()],file)))
+					ErrorDialog(self, PyMSError('Saving','Could not open {}MPQ "{}".'.format(['','SE'][self.sempq.get()],file)))
 					return
 				undone = []
 				s = SFile()
@@ -229,7 +229,7 @@ class ContinueImportDialog(PyMSDialog):
 		PyMSDialog.__init__(self, parent, 'Continue Importing?')
 
 	def widgetize(self):
-		Label(self, text="You are about to import the %s entry %s, overwrite existing data?" % (self.dattype,self.id)).pack(pady=10)
+		Label(self, text=f"You are about to import the {self.dattype} entry {self.id}, overwrite existing data?").pack(pady=10)
 		frame = Frame(self)
 		yes = Button(frame, text='Yes', width=10, command=self.yes)
 		yes.pack(side=LEFT, padx=3)
@@ -321,7 +321,7 @@ class DATTab(NotebookTab):
 			self.toplevel.jumpid.range[1] = len(d) - 1
 			self.toplevel.jumpid.editvalue()
 			for n,l in enumerate(d):
-				self.toplevel.listbox.insert(END, ' %s%s  %s' % (' ' * (4-len(str(n))),n,l))
+				self.toplevel.listbox.insert(END, ' {}{}  {}'.format(' ' * (4-len(str(n))),n,l))
 			self.toplevel.listbox.select_set(self.id)
 			self.toplevel.listbox.see(self.id)
 			self.update_status()
@@ -404,7 +404,7 @@ class DATTab(NotebookTab):
 							ref = DATA_CACHE[dat.idfile][id]
 							if PYDAT_SETTINGS.settings.get('customlabels', False) and type(dat) == UnitsDAT:
 								ref = decompile_string(self.toplevel.stat_txt.strings[id])
-							self.listbox.insert(END, '%s entry %s: %s' % (dat.datname, id, ref))
+							self.listbox.insert(END, f'{dat.datname} entry {id}: {ref}')
 							break
 
 	def popup(self, e):
@@ -3731,7 +3731,7 @@ class PyDAT(Tk):
 		pal = Palette()
 		for p in ['Units','bfire','gfire','ofire','Terrain','Icons']:
 			try:
-				pal.load_file(PYDAT_SETTINGS.settings.palettes.get(p, os.path.join(BASE_DIR, 'Palettes', '%s%spal' % (p,os.extsep))))
+				pal.load_file(PYDAT_SETTINGS.settings.palettes.get(p, os.path.join(BASE_DIR, 'Palettes', f'{p}{os.extsep}pal')))
 			except:
 				continue
 			PALETTES[p] = pal.palette
@@ -3773,7 +3773,7 @@ class PyDAT(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -4133,12 +4133,12 @@ class PyDAT(Tk):
 				d.entries = entries
 				continue
 			l.append(d.datname)
-			found.append((d,'%s:arr\\%s' % (file, d.datname)))
+			found.append((d,f'{file}:arr\\{d.datname}'))
 		SFileCloseArchive(h)
 		if not found:
 			ErrorDialog(self, PyMSError('Open','No DAT files found in MPQ "%s"' % file))
 			return
-		showinfo('DAT Files Found','DAT Files found in "%s":\n\t%s' % (file, ', '.join(l)))
+		showinfo('DAT Files Found','DAT Files found in "{}":\n\t{}'.format(file, ', '.join(l)))
 		for d in found:
 			self.dattabs.pages[d[0].idfile.split('.')[0]][0].open(d)
 
@@ -4172,7 +4172,7 @@ class PyDAT(Tk):
 			ErrorDialog(self, PyMSError('Open','No DAT files found in directory "%s"' % dir))
 			return
 		files = [f for f in files if f != None]
-		showinfo('DAT Files Found','DAT Files found in "%s":\n\t%s' % (dir, ', '.join(files)))
+		showinfo('DAT Files Found','DAT Files found in "{}":\n\t{}'.format(dir, ', '.join(files)))
 		for d in found:
 			self.dattabs.pages[d[0].idfile.split('.')[0]][0].open(d)
 
@@ -4272,7 +4272,7 @@ def main():
 					ext = 'txt'
 				else:
 					ext = 'dat'
-				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
+				args.append(f'{os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1]))}{os.extsep}{ext}')
 			try:
 				if opt.convert:
 					if opt.ids:
@@ -4288,19 +4288,19 @@ def main():
 						ids = None
 					print("Reading DAT '%s'..." % args[0])
 					dat.load_file(args[0])
-					print(" - '%s' read successfully\nDecompiling DAT file '%s'..." % (args[0],args[0]))
+					print(f" - '{args[0]}' read successfully\nDecompiling DAT file '{args[0]}'...")
 					dat.decompile(args[1], opt.reference, ids)
 					print(" - '%s' written succesfully" % args[1])
 				else:
 					if opt.basedat:
 						basedat = os.path.abspath(opt.basedat)
 					else:
-						basedat = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr','%s%sdat' % (['units','weapons','flingy','sprites','images','upgrades','techdata','sfxdata','portdata','mapdata','orders'][opt.type],os.extsep))
+						basedat = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr','{}{}dat'.format(['units','weapons','flingy','sprites','images','upgrades','techdata','sfxdata','portdata','mapdata','orders'][opt.type],os.extsep))
 					print("Loading base DAT file '%s'..." % basedat)
 					dat.load_file(basedat)
-					print(" - '%s' read successfully\nInterpreting file '%s'..." % (basedat,args[0]))
+					print(f" - '{basedat}' read successfully\nInterpreting file '{args[0]}'...")
 					dat.interpret(args[0])
-					print(" - '%s' read successfully\nCompiling file '%s' to DAT format..." % (args[0],args[0]))
+					print(f" - '{args[0]}' read successfully\nCompiling file '{args[0]}' to DAT format...")
 					dat.compile(args[1])
 					print(" - '%s' written succesfully" % args[1])
 			except PyMSError as e:

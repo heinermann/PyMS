@@ -1753,7 +1753,7 @@ class EditLayerUnits(EditLayer):
 							selecting.append(image)
 				select = set(selecting)
 				if not self.selecting_moved and selecting:
-					select = set((selecting[0],))
+					select = {selecting[0]}
 				to_deselect = self.selecting_images - select
 				to_select = select - set(self.selected_images)
 				if not self.selecting_moved and select and not to_deselect and not to_select and button_event & (EditLayer.MODIFIER_SHIFT | EditLayer.MODIFIER_CTRL):
@@ -1867,7 +1867,7 @@ class MapLayerTerrain(MapLayer):
 
 	def update_tile(self, x,y):
 		tiles = self.ui.chk.get_section(CHKSectionTILE.NAME)
-		tag = '%s,%s' % (x,y)
+		tag = f'{x},{y}'
 		if tag in self.map:
 			self.ui.mapCanvas.delete(tag)
 		tile = [0,0]
@@ -1889,7 +1889,7 @@ class MapLayerTerrain(MapLayer):
 		ty2 = int(ceil(y2 / 32.0))
 		for y in range(ty1,ty2):
 			for x in range(tx1,tx2):
-				tag = '%s,%s' % (x,y)
+				tag = f'{x},{y}'
 				item = self.map.get(tag)
 				if not item:
 					self.update_tile(x,y)
@@ -1952,7 +1952,7 @@ class ListLayer:
 		return self.groupId
 
 	def clear_list(self):
-		self.ui.listbox.delete('%s.%s' % (self.groupId,ALL))
+		self.ui.listbox.delete(f'{self.groupId}.{ALL}')
 		self.options = {}
 
 	def get_event(self, index):
@@ -2190,7 +2190,7 @@ class PyMAP(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -2358,7 +2358,7 @@ class PyMAP(Tk):
 			pal = PAL.Palette()
 			for p in ['Units','bfire','gfire','ofire','Terrain']:#,'Icons']:
 				try:
-					pal.load_file(self.settings.get('%s.pal' % p,os.path.join(BASE_DIR, 'Palettes', '%s%spal' % (p,os.extsep))))
+					pal.load_file(self.settings.get('%s.pal' % p,os.path.join(BASE_DIR, 'Palettes', f'{p}{os.extsep}pal')))
 				except:
 					if p == 'Units':
 						raise

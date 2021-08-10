@@ -70,7 +70,7 @@ class PyPCX(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -132,7 +132,7 @@ class PyPCX(Tk):
 			ErrorDialog(self, e)
 			return
 		self.pcx = pcx
-		self.title('PyPCX %s (%s)' % (LONG_VERSION,file))
+		self.title(f'PyPCX {LONG_VERSION} ({file})')
 		self.file = file
 		self.status.set('Load Successful!')
 		self.preview()
@@ -156,7 +156,7 @@ class PyPCX(Tk):
 		if not file:
 			return True
 		self.file = file
-		self.title('PyPCX %s (%s)' % (LONG_VERSION,self.file))
+		self.title(f'PyPCX {LONG_VERSION} ({self.file})')
 		self.save()
 
 	def loadpal(self, key=None):
@@ -225,7 +225,7 @@ class PyPCX(Tk):
 		if not self.pcx:
 			self.pcx = PCX.PCX()
 			self.file = 'Unnamed.pcx'
-			self.title('PyPCX %s (%s)' % (LONG_VERSION,self.file))
+			self.title(f'PyPCX {LONG_VERSION} ({self.file})')
 		self.pcx.load_data(b.image,b.palette)
 		self.preview()
 		self.status.set('Image imported successfully!')
@@ -283,12 +283,12 @@ def main():
 			bmp = BMP.BMP()
 			ext = ['pcx','bmp'][opt.convert]
 			if len(args) == 1:
-				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
+				args.append(f'{os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1]))}{os.extsep}{ext}')
 			if opt.convert:
 				print("Reading PCX '%s'..." % args[0])
 				try:
 					pcx.load_file(args[0])
-					print(" - '%s' read successfully\nConverting '%s' to %s file '%s'..." % (args[0], ext.upper(), args[1]))
+					print(" - '{}' read successfully\nConverting '{}' to {} file '{}'...".format(args[0], ext.upper(), args[1]))
 					bmp.load_data(pcx.image,pcx.palette)
 					bmp.save_file(args[1])
 				except PyMSError as e:
@@ -299,7 +299,7 @@ def main():
 				print("Reading BMP '%s'..." % args[0])
 				try:
 					bmp.load_file(args[0])
-					print(" - '%s' read successfully\nConverting '%s' to %s file '%s'..." % (args[0], ext.upper(), args[1]))
+					print(" - '{}' read successfully\nConverting '{}' to {} file '{}'...".format(args[0], ext.upper(), args[1]))
 					pcx.load_data(bmp.image,bmp.palette)
 					pcx.save_file(args[1])
 				except PyMSError as e:

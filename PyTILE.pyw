@@ -405,7 +405,7 @@ class Placeability(PyMSDialog):
 					for x in range(self.width):
 						c = self.tileset.dddata.doodads[self.id][x + y * self.width]
 						if not y:
-							t = 'tile%s,%s' % (x,y)
+							t = f'tile{x},{y}'
 							self.canvass[-1].images.append(Tilesets.megatile_to_photo(self.tileset, g[13][x]))
 							self.canvass[-1].create_image(x * 33 + 18, 18, image=self.canvass[-1].images[-1], tags=t)
 							self.canvass[-1].tag_bind(t, '<Double-Button-1>', lambda e,p=(x,y): self.select(p))
@@ -413,7 +413,7 @@ class Placeability(PyMSDialog):
 						Entry(f, textvariable=self.groups[-1][-1], width=1, font=couriernew, bd=0).grid(sticky=E+W, column=x, row=y*2+1, padx=x%2)
 			elif ty > 0:
 				for x in range(self.width):
-					t = 'tile%s,%s' % (x,y)
+					t = f'tile{x},{y}'
 					self.canvass[h-ty].images.append(Tilesets.megatile_to_photo(self.tileset, g[13][x]))
 					self.canvass[h-ty].create_image(x * 33 + 18, 18, image=self.canvass[h-ty].images[-1], tags=t)
 					self.canvass[h-ty].tag_bind(t, '<Double-Button-1>', lambda e,p=(x,h-ty): self.select(p))
@@ -473,13 +473,13 @@ class MiniEditor(PyMSDialog):
 			self.indexs.append(list(p))
 			for x,i in enumerate(p):
 				cx,cy,c = x * 10 + 2, y * 10 + 2, '#%02x%02x%02x' % tuple(self.parent.tileset.wpe.palette[i])
-				t = 'tile%s,%s' % (x,y)
+				t = f'tile{x},{y}'
 				self.canvas.create_rectangle(cx, cy, cx+10, cy+10, fill=c, outline=c, tags=t)
 				self.canvas.tag_bind(t, '<Button-1>', lambda e,p=(x,y),c=0: self.color(p,c))
 				self.canvas.tag_bind(t, '<Button-2>', lambda e,p=(x,y),c=1: self.color(p,c))
 				self.canvas.tag_bind(t, '<Button-3>', lambda e,p=(x,y),c=1: self.color(p,c))
 				cx,cy = x + 32,y + 90
-				self.canvas.create_rectangle(cx, cy, cx+2, cy+2, fill=c, outline=c, tags='scale%s,%s' % (x,y))
+				self.canvas.create_rectangle(cx, cy, cx+2, cy+2, fill=c, outline=c, tags=f'scale{x},{y}')
 		self.canvas.create_rectangle(90, 2, 202, 114, fill='#000000', outline='#000000')
 		for n,i in enumerate(self.parent.tileset.wpe.palette):
 			cx,cy,c = (n % 16) * 7 + 91, (n // 16) * 7 + 3, '#%02x%02x%02x' % tuple(i)
@@ -1259,7 +1259,7 @@ class TilePalette(PyMSDialog):
 					a = btn[4]
 					if a:
 						if not a.startswith('F'):
-							self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+							self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 						else:
 							self.bind('<%s>' % a, btn[1])
 				else:
@@ -1507,7 +1507,7 @@ class PyTILE(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -1637,7 +1637,7 @@ class PyTILE(Tk):
 				else:
 					self.disable.append(MaskedRadiobutton(f, text=option_name, variable=variable, value=option_value, mask=option_mask if option_mask else variable.range[1], state=DISABLED))
 				self.disable[-1].pack(side=LEFT)
-				tip(self.disable[-1], name, tooltip + '\n\n%s:\n  %s' % (option_name, option_tooltip))
+				tip(self.disable[-1], name, tooltip + f'\n\n{option_name}:\n  {option_tooltip}')
 				f.pack(side=TOP, fill=X)
 			f = Frame(c)
 			Label(f, text='Raw:').pack(side=LEFT)
@@ -1656,7 +1656,7 @@ class PyTILE(Tk):
 					self.disable.append(Entry(f, textvariable=variable, font=couriernew, width=len(str(variable.range[1])), state=DISABLED))
 					self.disable[-1].grid(column=c*2+1, row=r, sticky=W)
 					if tooltip:
-						tip(self.disable[-1], name, tooltip + '\n\n%s:\n  %s' % (field_name, field_tooltip))
+						tip(self.disable[-1], name, tooltip + f'\n\n{field_name}:\n  {field_tooltip}')
 					else:
 						tip(self.disable[-1], field_name, field_tooltip)
 			f.pack(padx=2,pady=2)
@@ -1745,7 +1745,7 @@ class PyTILE(Tk):
 			menu = Menu(self, tearoff=0)
 			mode = self.mega_editor.edit_mode.get()
 			name = [None,None,'Height','Walkability','Blocks View','Ramp(?)'][mode]
-			menu.add_command(label="Apply %s flags to Megatiles in Group (Control+Shift+%s)" % (name, name[0]), command=lambda m=mode: self.megatile_apply_all(mode))
+			menu.add_command(label=f"Apply {name} flags to Megatiles in Group (Control+Shift+{name[0]})", command=lambda m=mode: self.megatile_apply_all(mode))
 			menu.add_command(label="Apply all flags to Megatiles in Group (Control+Shift+A)", command=self.megatile_apply_all)
 			menu.add_separator()
 			menu.add_checkbutton(label="Exclude Null Tiles (Control+Shift+N)", variable=self.apply_all_exclude_nulls)
@@ -2103,7 +2103,7 @@ class PyTILE(Tk):
 
 	def update_group_label(self):
 		d = ['',' - Doodad'][self.palette.selected[0] >= 1024]
-		self.groupid['text'] = 'MegaTile Group [%s%s]' % (self.palette.selected[0],d)
+		self.groupid['text'] = f'MegaTile Group [{self.palette.selected[0]}{d}]'
 
 	def megaload(self):
 		self.loading_megas = True

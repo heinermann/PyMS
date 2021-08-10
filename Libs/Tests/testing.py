@@ -23,14 +23,14 @@ def run(tests):
 			if isstr(result):
 				message = result
 		except:
-			print('%s- Test "%s" crashed:' % (INDENT*2, name))
+			print(f'{INDENT*2}- Test "{name}" crashed:')
 			log_exception(INDENT*3)
 		else:
 			if success:
 				succeeded += 1
 			if message:
 				message = ' (%s)' % message
-			print('%s- Test group "%s" completed: %s%s' % (INDENT*2, name, 'SUCCESS' if success else 'FAIL', message))
+			print('{}- Test group "{}" completed: {}{}'.format(INDENT*2, name, 'SUCCESS' if success else 'FAIL', message))
 	return (succeeded, total_tests)
 
 def prepare(tests):

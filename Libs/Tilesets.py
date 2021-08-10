@@ -154,18 +154,18 @@ class Tileset:
 		if not vf4:
 			if not path or not name:
 				raise
-			vf4 = os.path.join(path, '%s%svf4' % (name,os.extsep))
+			vf4 = os.path.join(path, f'{name}{os.extsep}vf4')
 		if not vx4:
 			if not path or not name:
 				raise
-			vx4 = os.path.join(path, '%s%svx4ex' % (name,os.extsep))
+			vx4 = os.path.join(path, f'{name}{os.extsep}vx4ex')
 			# Check for and prefer expanded vx4 files
 			if not os.path.exists(vx4):
-				vx4 = os.path.join(path, '%s%svx4' % (name,os.extsep))
+				vx4 = os.path.join(path, f'{name}{os.extsep}vx4')
 		if not vr4:
 			if not path or not name:
 				raise
-			vr4 = os.path.join(path, '%s%svr4' % (name,os.extsep))
+			vr4 = os.path.join(path, f'{name}{os.extsep}vr4')
 		if not dddata:
 			if not path or not name:
 				raise
@@ -173,7 +173,7 @@ class Tileset:
 		if not wpe:
 			if not path or not name:
 				raise
-			wpe = os.path.join(path, '%s%swpe' % (name,os.extsep))
+			wpe = os.path.join(path, f'{name}{os.extsep}wpe')
 		self.cv5 = CV5()
 		self.cv5.load_file(cv5)
 		self.vf4 = VF4()
@@ -199,17 +199,17 @@ class Tileset:
 		if name.endswith(os.extsep + 'cv5'):
 			name = name[:-4]
 		if vf4 == None:
-			vf4 = os.path.join(path, '%s%svf4' % (name,os.extsep))
+			vf4 = os.path.join(path, f'{name}{os.extsep}vf4')
 		if vx4 == None:
 			expanded = 'ex' if self.vx4.expanded else ''
-			vx4 = os.path.join(path, '%s%svx4%s' % (name,os.extsep,expanded))
+			vx4 = os.path.join(path, f'{name}{os.extsep}vx4{expanded}')
 		if vr4 == None:
-			vr4 = os.path.join(path, '%s%svr4' % (name,os.extsep))
+			vr4 = os.path.join(path, f'{name}{os.extsep}vr4')
 		dddir = os.path.join(path, name)
 		if dddata == None:
 			dddata = os.path.join(dddir, 'dddata%sbin' % os.extsep)
 		if wpe == None:
-			wpe = os.path.join(path, '%s%swpe' % (name,os.extsep))
+			wpe = os.path.join(path, f'{name}{os.extsep}wpe')
 		self.cv5.save_file(cv5)
 		self.vf4.save_file(vf4)
 		self.vx4.save_file(vx4)
@@ -241,11 +241,11 @@ class Tileset:
 			bmp = BMP.BMP()
 			bmp.load_file(path)
 			if tiletype == TILETYPE_GROUP and (bmp.width != 512 or bmp.height % 32):
-				raise PyMSError('Interpreting','The image is not the correct size for tile groups (got %sx%s, expected width to be 512 and height to be a multiple of 32)' % (bmp.width,bmp.height))
+				raise PyMSError('Interpreting',f'The image is not the correct size for tile groups (got {bmp.width}x{bmp.height}, expected width to be 512 and height to be a multiple of 32)')
 			elif tiletype == TILETYPE_MEGA and (bmp.width % 32 or bmp.height % 32):
-				raise PyMSError('Interpreting','The image is not the correct size for megatiles (got %sx%s, expected width and height to be multiples of 32)' % (bmp.width,bmp.height))
+				raise PyMSError('Interpreting',f'The image is not the correct size for megatiles (got {bmp.width}x{bmp.height}, expected width and height to be multiples of 32)')
 			elif tiletype == TILETYPE_MINI and (bmp.width % 8 or bmp.height % 8):
-				raise PyMSError('Interpreting','The image is not the correct size for minitiles (got %sx%s, expected width and height to be multiples of 8)' % (bmp.width,bmp.height))
+				raise PyMSError('Interpreting',f'The image is not the correct size for minitiles (got {bmp.width}x{bmp.height}, expected width and height to be multiples of 8)')
 			pixels.extend(bmp.image)
 		new_images = []
 		mini_lookup = {}
@@ -562,7 +562,7 @@ DoodadGroup:""" % id)
 					)
 				for v,(name,show) in zip(data,fields):
 					if show:
-						file.write("\n\t%s:%s%s" % (name, ' ' * (22-len(name)), v))
+						file.write("\n\t{}:{}{}".format(name, ' ' * (22-len(name)), v))
 			elif tiletype == TILETYPE_MEGA:
 				def write_flags(id, name, mask_values, else_value):
 					file.write('\n\t%s:' % name)
@@ -600,7 +600,7 @@ MegaTile:""" % id)
 			lines = re.split('[\r\n]+', path_or_text)
 		else:
 			try:
-				with open(path,'r') as settings_file:
+				with open(path) as settings_file:
 					lines = settings_file.readlines()
 			except:
 				raise PyMSError('Importing',"Could not load file '%s'" % path)
@@ -912,7 +912,7 @@ class VX4:
 		struct_size = (64 if expanded else 32)
 		file_type = 'Expanded VX4 file' if expanded else 'VX4 file'
 		if data and len(data) % struct_size:
-			raise PyMSError('Load',"'%s' is an invalid %s" % (file, file_type))
+			raise PyMSError('Load',f"'{file}' is an invalid {file_type}")
 		graphics = []
 		lookup = {}
 		try:
@@ -925,7 +925,7 @@ class VX4:
 					lookup[tile_hash] = []
 				lookup[tile_hash].append(id)
 		except:
-			raise PyMSError('Load',"Unsupported %s '%s', could possibly be corrupt" % (file_type, file))
+			raise PyMSError('Load',f"Unsupported {file_type} '{file}', could possibly be corrupt")
 		self.graphics = graphics
 		self.lookup = lookup
 		self.expanded = expanded
@@ -934,7 +934,7 @@ class VX4:
 		data = ''
 		struct_frmt = '<16L' if self.expanded else '<16H'
 		for d in self.graphics:
-			data += struct.pack(struct_frmt, *[g*2 + h for g,h in d])
+			data += struct.pack(struct_frmt, *(g*2 + h for g,h in d))
 		if isstr(file):
 			try:
 				f = AtomicWriter(file, 'wb')

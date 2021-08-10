@@ -8,7 +8,7 @@ PADDING = 20
 
 def pad(label, value='', span=PADDING):
 	label = str(label)
-	return '%s%s%s' % (label, ' ' * (span - len(label)), value)
+	return '{}{}{}'.format(label, ' ' * (span - len(label)), value)
 
 def named_flags(flags, names, count, skip=0):
 	header = ''
@@ -57,7 +57,7 @@ class CHKSectionUnknown(CHKSection):
 		return self.data
 
 	def decompile(self):
-		return '%s: # Unknown\n\t%s\n' % (self.name, pad('Data',self.data.encode('hex')))
+		return '{}: # Unknown\n\t{}\n'.format(self.name, pad('Data',self.data.encode('hex')))
 
 class CHKSectionVER(CHKSection):
 	NAME = "VER "
@@ -90,7 +90,7 @@ class CHKSectionVER(CHKSection):
 		return struct.pack('<H', self.version)
 
 	def decompile(self):
-		return '%s:\n\t%s # %s\n' % (self.NAME, pad('Version',self.version), CHKSectionVER.VER_NAME(self.version))
+		return '{}:\n\t{} # {}\n'.format(self.NAME, pad('Version',self.version), CHKSectionVER.VER_NAME(self.version))
 
 class CHKRequirements:
 	VER_NONE = 0
@@ -151,7 +151,7 @@ class CHKSectionTYPE(CHKSection):
 		return self.type
 
 	def decompile(self):
-		return '%s:\n\t%s # %s\n' % (self.NAME, pad('Type',self.type), CHKSectionTYPE.TYPE_NAME(self.type))
+		return '{}:\n\t{} # {}\n'.format(self.NAME, pad('Type',self.type), CHKSectionTYPE.TYPE_NAME(self.type))
 
 class CHKSectionIVER(CHKSection):
 	NAME = 'IVER'
@@ -181,7 +181,7 @@ class CHKSectionIVER(CHKSection):
 		return struct.pack('<H', self.version)
 
 	def decompile(self):
-		return '%s:\n\t%s # %s\n' % (self.NAME, pad('Version',self.version), CHKSectionIVER.VER_NAME(self.version))
+		return '{}:\n\t{} # {}\n'.format(self.NAME, pad('Version',self.version), CHKSectionIVER.VER_NAME(self.version))
 
 class CHKSectionIVE2(CHKSection):
 	NAME = 'IVE2'
@@ -206,7 +206,7 @@ class CHKSectionIVE2(CHKSection):
 		return struct.pack('<H', self.version)
 
 	def decompile(self):
-		return '%s:\n\t%s # %s\n' % (self.NAME, pad('Version',self.version), CHKSectionIVE2.VER_NAME(self.version))
+		return '{}:\n\t{} # {}\n'.format(self.NAME, pad('Version',self.version), CHKSectionIVE2.VER_NAME(self.version))
 
 class CHKSectionVCOD(CHKSection):
 	NAME = 'VCOD'
@@ -228,7 +228,7 @@ class CHKSectionVCOD(CHKSection):
 		return self.code + struct.pack('<16B',*self.opcodes)
 
 	def decompile(self):
-		result = '%s:\n\t%s\n' % (self.NAME, pad('Code',self.code.encode('hex')))
+		result = '{}:\n\t{}\n'.format(self.NAME, pad('Code',self.code.encode('hex')))
 		for n,opcode in enumerate(self.opcodes):
 			result += '\t%s\n' % (pad('Opcode%02d' % n, opcode))
 		return result
@@ -274,7 +274,7 @@ class CHKSectionIOWN(CHKSection):
 	def decompile(self):
 		result = '%s:\n' % self.NAME
 		for n,value in enumerate(self.owners):
-			result += '\t%s # %s\n' % (pad('Slot%02d' % n,value), CHKSectionIOWN.OWNER_NAME(value))
+			result += '\t{} # {}\n'.format(pad('Slot%02d' % n,value), CHKSectionIOWN.OWNER_NAME(value))
 		return result
 
 class CHKSectionOWNR(CHKSection):
@@ -318,7 +318,7 @@ class CHKSectionOWNR(CHKSection):
 	def decompile(self):
 		result = '%s:\n' % self.NAME
 		for n,value in enumerate(self.owners):
-			result += '\t%s # %s\n' % (pad('Slot%02d' % n,value), CHKSectionOWNR.OWNER_NAME(value))
+			result += '\t{} # {}\n'.format(pad('Slot%02d' % n,value), CHKSectionOWNR.OWNER_NAME(value))
 		return result
 
 class CHKSectionERA(CHKSection):
@@ -352,7 +352,7 @@ class CHKSectionERA(CHKSection):
 		return struct.pack('<H', self.tileset)
 
 	def decompile(self):
-		return '%s:\n\t%s # %s\n' % (self.NAME, pad('Tileset',self.tileset), CHKSectionERA.TILESET_NAME(self.tileset))
+		return '{}:\n\t{} # {}\n'.format(self.NAME, pad('Tileset',self.tileset), CHKSectionERA.TILESET_NAME(self.tileset))
 
 class CHKSectionDIM(CHKSection):
 	NAME = 'DIM '
@@ -376,7 +376,7 @@ class CHKSectionDIM(CHKSection):
 		return struct.pack('<2H', self.width, self.height)
 	
 	def decompile(self):
-		return '%s:\n\t%s\n\t%s\n' % (self.NAME, pad('Width',self.width), pad('Height',self.height))
+		return '{}:\n\t{}\n\t{}\n'.format(self.NAME, pad('Width',self.width), pad('Height',self.height))
 
 class CHKSectionSIDE(CHKSection):
 	NAME = 'SIDE'
@@ -417,7 +417,7 @@ class CHKSectionSIDE(CHKSection):
 	def decompile(self):
 		result = '%s:\n' % self.NAME
 		for n,value in enumerate(self.sides):
-			result += '\t%s # %s\n' % (pad('Slot%02d' % n,value), CHKSectionSIDE.SIDE_NAME(value))
+			result += '\t{} # {}\n'.format(pad('Slot%02d' % n,value), CHKSectionSIDE.SIDE_NAME(value))
 		return result
 
 class CHKSectionMTXM(CHKSection):
@@ -729,7 +729,7 @@ class CHKUnit:
 		result = '\t#\n'
 		data = {
 			'InstanceID': self.instanceID,
-			'Position': '%s,%s' % (self.position[0], self.position[1]),
+			'Position': f'{self.position[0]},{self.position[1]}',
 			'UnitID': self.unit_id,
 			'BuildingRelation': named_flags(self.buildingRelation, ["Nydus Link","Addon Link"], 16, 9),
 			'ValidAbilities': named_flags(self.validAbilities, ["Cloak", "Burrow", "In Transit", "Hullucinated", "Invincible"], 16),
@@ -746,7 +746,7 @@ class CHKUnit:
 		for key in ['InstanceID','Position','UnitID','BuildingRelation','ValidAbilities','ValidProperties','Owner','Health','Shields','Energy','Resources','HangerUnits','AbilityStates','UnitRelationID']:
 			value = data[key]
 			if isinstance(value, tuple):
-				result += '\t%s%s\n' % (pad('#'), value[0])
+				result += '\t{}{}\n'.format(pad('#'), value[0])
 				value = value[1]
 			result += '\t%s\n' % pad(key, value)
 		return result
@@ -858,7 +858,7 @@ class CHKDoodadVisual:
 	def decompile(self):
 		result = "\t#\n"
 		result += '\t%s\n' % pad('DoodadID', self.doodadID)
-		result += '\t%s\n' % pad('Position', '%s,%s' % (self.position[0],self.position[1]))
+		result += '\t%s\n' % pad('Position', f'{self.position[0]},{self.position[1]}')
 		result += '\t%s\n' % pad('Owner', self.owner)
 		result += '\t%s\n' % pad('Enabled', self.enabled)
 		return result
@@ -913,10 +913,10 @@ class CHKDoodad:
 	def decompile(self):
 		result = "\t#\n"
 		result += '\t%s\n' % pad('DoodadID', self.doodadID)
-		result += '\t%s\n' % pad('Position', '%s,%s' % (self.position[0],self.position[1]))
+		result += '\t%s\n' % pad('Position', f'{self.position[0]},{self.position[1]}')
 		result += '\t%s\n' % pad('Owner', self.owner)
 		header,values = named_flags(self.flags, ["Sprite",None,None,"Disabled"], 16, 12)
-		result += '\t%s%s\n' % (pad('#'), header)
+		result += '\t{}{}\n'.format(pad('#'), header)
 		result += '\t%s\n' % pad('Flags', values)
 		return result
 
@@ -1111,7 +1111,7 @@ class CHKSectionSTR(CHKSection):
 	def decompile(self):
 		result = '%s:\n' % (self.NAME)
 		for n,string in self.strings.items():
-			result += '\t%s"%s"\n' % (pad('String %d' % (n+1)), string.text.replace('\\','\\\\').replace('"','\\"'))
+			result += '\t{}"{}"\n'.format(pad('String %d' % (n+1)), string.text.replace('\\','\\\\').replace('"','\\"'))
 		return result
 
 class CHKUnitProperties:
@@ -1150,7 +1150,7 @@ class CHKUnitProperties:
 		for key in ['ValidAbilities','ValidProperties','Owner','Health','Shields','Energy','Resources','HangerUnits','AbilityStates']:
 			value = data[key]
 			if isinstance(value, tuple):
-				result += '\t%s%s\n' % (pad('#'), value[0])
+				result += '\t{}{}\n'.format(pad('#'), value[0])
 				value = value[1]
 			result += '\t%s\n' % pad(key, value)
 		return result
@@ -1235,15 +1235,15 @@ class CHKLocation:
 		if strings and self.name > -1 and self.name < len(strings.strings):
 			string = ' # ' + strings.strings[self.name].text
 		data = {
-			'Start': pad('%s,%s' % (self.start[0],self.start[1])),
-			'End': pad('%s,%s' % (self.end[0],self.end[1])),
-			'Name': '%s%s' % (self.name, string),
+			'Start': pad(f'{self.start[0]},{self.start[1]}'),
+			'End': pad(f'{self.end[0]},{self.end[1]}'),
+			'Name': f'{self.name}{string}',
 			'Elevation': named_flags(self.elevation, ["Low Ground", "Med. Ground", "High Ground", "Low Air", "Med. Air", "High Air"], 16),
 		}
 		for key in ['Start','End','Name','Elevation']:
 			value = data[key]
 			if isinstance(value, tuple):
-				result += '\t%s%s\n' % (pad('#'), value[0])
+				result += '\t{}{}\n'.format(pad('#'), value[0])
 				value = value[1]
 			result += '\t%s\n' % pad(key, value)
 		return result
@@ -1412,7 +1412,7 @@ class CHKSectionFORC(CHKSection):
 			result += '\t%s\n' % pad('Name%d' % (f+1), 'String %d' % force.name)
 			header,values = named_flags(force.properties, ["Random Start","Allies","Allied Victory","Shared Vision"], 8)
 			if not properties:
-				properties = '\t%s%s\n' % (pad('#'), header)
+				properties = '\t{}{}\n'.format(pad('#'), header)
 			properties += '\t%s\n' % pad('Properies%d' % (f+1), values)
 		return result + properties
 
@@ -1814,7 +1814,7 @@ class CHKSectionCOLR(CHKSection):
 	def decompile(self):
 		result = '%s:\n' % (self.NAME)
 		for p,c in enumerate(self.colors):
-			result += '\t%s # %s\n' % (pad('Player%d' % (p+1), c), CHKSectionCOLR.COLOR_NAME(c))
+			result += '\t{} # {}\n'.format(pad('Player%d' % (p+1), c), CHKSectionCOLR.COLOR_NAME(c))
 		return result
 
 class CHKSectionPUPx(CHKSectionUPGR):

@@ -47,7 +47,7 @@ class SoundDialog(PyMSDialog):
 
 	def widgetize(self):
 		f = Frame(self)
-		self.dd = DropDown(f, self.id, ['%03s %s' % (n,TBL.decompile_string(self.toplevel.sfxdatatbl.strings[self.toplevel.soundsdat.get_value(n,'SoundFile')-1][:-1])) for n in range(DAT.SoundsDAT.count)], width=30)
+		self.dd = DropDown(f, self.id, ['{:03} {}'.format(n,TBL.decompile_string(self.toplevel.sfxdatatbl.strings[self.toplevel.soundsdat.get_value(n,'SoundFile')-1][:-1])) for n in range(DAT.SoundsDAT.count)], width=30)
 		self.dd.pack(side=LEFT, padx=1)
 		i = PhotoImage(file=os.path.join(BASE_DIR,'Images','fwp.gif'))
 		b = Button(f, image=i, width=20, height=20, command=self.play, state=[DISABLED,NORMAL][SOUND and not FOLDER])
@@ -97,7 +97,7 @@ class SoundDialog(PyMSDialog):
 	def docmd(self):
 		s = self.parent.text.index('%s linestart' % INSERT)
 		i = IScriptBIN.type_soundid(1, self.toplevel.ibin, self.id.get())
-		t = '\tplaysnd%s\t%s' % (' ' * (LONG_OPCODE-7),i[0])
+		t = '\tplaysnd{}\t{}'.format(' ' * (LONG_OPCODE-7),i[0])
 		if i[1]:
 			t += ' # ' + i[1]
 		if self.overwrite.get():
@@ -375,7 +375,7 @@ class PreviewerDialog(PyMSDialog):
 		else:
 			i = IScriptBIN.type_frame(1, None, self.previewing[1])
 		c = PREVIEWER_CMDS[t][[self.curcmd,self.imagecmd,self.spritescmd,self.flingyscmd][t].get()]
-		t = '\t%s%s\t%s' % (c,' ' * (LONG_OPCODE-len(c)),i[0])
+		t = '\t{}{}\t{}'.format(c,' ' * (LONG_OPCODE-len(c)),i[0])
 		p = len(IScriptBIN.OPCODES[IScriptBIN.REV_OPCODES[c]][1])
 		if p > 1:
 			t += ' 0' * (p-1)
@@ -391,7 +391,7 @@ class PreviewerDialog(PyMSDialog):
 
 	def updateframes(self):
 		if self.previewnext and self.curgrp:
-			self.frame.set('Frame: %s / %s' % (self.previewnext[1],self.curgrp[2]))
+			self.frame.set(f'Frame: {self.previewnext[1]} / {self.curgrp[2]}')
 			if self.curgrp[2]:
 				x = self.previewnext[1] / float(self.curgrp[2])
 				self.scroll.set(x,x+1/float(self.curgrp[2]))
@@ -616,7 +616,7 @@ class FindReplaceDialog(PyMSDialog):
 				m = r.search(self.parent.text.get(INSERT, END))
 				if m:
 					self.parent.text.tag_remove('Selection', '1.0', END)
-					s,e = '%s +%sc' % (INSERT, m.start(0)),'%s +%sc' % (INSERT,m.end(0))
+					s,e = f'{INSERT} +{m.start(0)}c',f'{INSERT} +{m.end(0)}c'
 					self.parent.text.tag_add('Selection', s, e)
 					self.parent.text.mark_set(INSERT, e)
 					self.parent.text.see(s)
@@ -632,15 +632,15 @@ class FindReplaceDialog(PyMSDialog):
 				i = self.parent.text.index(INSERT)
 				if i == e:
 					return
-				if i == self.parent.text.index('%s %s' % (INSERT, rlse)):
-					i = self.parent.text.index('%s %s1lines %s' % (INSERT, s, lse))
+				if i == self.parent.text.index(f'{INSERT} {rlse}'):
+					i = self.parent.text.index(f'{INSERT} {s}1lines {lse}')
 				n = -1
 				while not u or i != e:
 					if u:
-						m = r.search(self.parent.text.get(i, '%s %s' % (i, rlse)))
+						m = r.search(self.parent.text.get(i, f'{i} {rlse}'))
 					else:
 						m = None
-						a = r.finditer(self.parent.text.get('%s %s' % (i, rlse), i))
+						a = r.finditer(self.parent.text.get(f'{i} {rlse}', i))
 						c = 0
 						for x,f in enumerate(a):
 							if x == n or n == -1:
@@ -650,10 +650,10 @@ class FindReplaceDialog(PyMSDialog):
 					if m:
 						self.parent.text.tag_remove('Selection', '1.0', END)
 						if u:
-							s,e = '%s +%sc' % (i,m.start(0)),'%s +%sc' % (i,m.end(0))
+							s,e = f'{i} +{m.start(0)}c',f'{i} +{m.end(0)}c'
 							self.parent.text.mark_set(INSERT, e)
 						else:
-							s,e = '%s linestart +%sc' % (i,m.start(0)),'%s linestart +%sc' % (i,m.end(0))
+							s,e = f'{i} linestart +{m.start(0)}c',f'{i} linestart +{m.end(0)}c'
 							self.parent.text.mark_set(INSERT, s)
 						self.parent.text.tag_add('Selection', s, e)
 						self.parent.text.see(s)
@@ -665,7 +665,7 @@ class FindReplaceDialog(PyMSDialog):
 							p = self.parent
 						askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
 						break
-					i = self.parent.text.index('%s %s1lines %s' % (i, s, lse))
+					i = self.parent.text.index(f'{i} {s}1lines {lse}')
 				else:
 					p = self
 					if key and key.keycode == 13:
@@ -873,7 +873,7 @@ class IScriptCodeText(CodeText):
 			while self.text.compare(head, '<=', tail):
 				m = re.match('(\\s*)(#?)(.*)', self.get(head, '%s lineend' % head))
 				if m.group(2):
-					self.tk.call(self.text.orig, 'delete', '%s +%sc' % (head, len(m.group(1))))
+					self.tk.call(self.text.orig, 'delete', f'{head} +{len(m.group(1))}c')
 				elif m.group(3):
 					self.tk.call(self.text.orig, 'insert', head, '#')
 				head = self.index('%s +1line' % head)
@@ -965,7 +965,7 @@ class CodeTooltip(Tooltip):
 		t = ''
 		if self.tag:
 			pos = list(self.widget.winfo_pointerxy())
-			head,tail = self.widget.tag_prevrange(self.tag,self.widget.index('@%s,%s+1c' % (pos[0] - self.widget.winfo_rootx(),pos[1] - self.widget.winfo_rooty())))
+			head,tail = self.widget.tag_prevrange(self.tag,self.widget.index(f'@{pos[0] - self.widget.winfo_rootx()},{pos[1] - self.widget.winfo_rooty()}+1c'))
 			t = self.widget.get(head,tail)
 		try:
 			t = self.gettext(t)
@@ -1003,7 +1003,7 @@ class AnimationTooltip(CodeTooltip):
 	tag = 'Animations'
 
 	def gettext(self, anim):
-		return 'Animation:\n  %s\n%s' % (anim,fit('    ', IScriptBIN.HEADER_HELP[IScriptBIN.REV_HEADER[anim]], end=True)[:-1])
+		return 'Animation:\n  {}\n{}'.format(anim,fit('    ', IScriptBIN.HEADER_HELP[IScriptBIN.REV_HEADER[anim]], end=True)[:-1])
 
 class CommandTooltip(CodeTooltip):
 	tag = 'Commands'
@@ -1474,7 +1474,7 @@ class ManagePresets(PyMSDialog):
 		try:
 			preset = None
 			try:
-				with open(path, 'r') as f:
+				with open(path) as f:
 					preset = json.loads(f.read())
 			except:
 				raise PyMSError('Import',"Could not read preset '%s'" % path, exception=sys.exc_info())
@@ -1490,7 +1490,7 @@ class ManagePresets(PyMSDialog):
 					raise PyMSError('Import',"Invalid preset format in file '%s'" % path)
 			copy = 1
 			while True:
-				check = '%s%s' % (preset['name'],'' if copy == 1 else str(copy))
+				check = '{}{}'.format(preset['name'],'' if copy == 1 else str(copy))
 				for p in self.settings['generator']['presets']:
 					if check == p['name']:
 						copy += 1
@@ -1913,7 +1913,7 @@ class CodeGeneratorDialog(PyMSDialog):
 		y = self.listbox.yview()[0]
 		self.listbox.delete(0,END)
 		for v in self.variables:
-			self.listbox.insert(END, '$%s = %s' % (v.name, v.generator.description()))
+			self.listbox.insert(END, f'${v.name} = {v.generator.description()}')
 		if select != None:
 			self.listbox.select_set(select)
 		self.listbox.yview_moveto(y)
@@ -2112,8 +2112,8 @@ class CodeEditDialog(PyMSDialog):
 		self.completing = True
 		self.text.taboverride = ' :'
 		def docomplete(s, e, v, t):
-			ss = '%s+%sc' % (s,len(t))
-			se = '%s+%sc' % (s,len(v))
+			ss = f'{s}+{len(t)}c'
+			se = f'{s}+{len(v)}c'
 			self.text.delete(s, ss)
 			self.text.insert(s, v)
 			self.text.tag_remove('Selection', '1.0', END)
@@ -2253,7 +2253,7 @@ class CodeEditDialog(PyMSDialog):
 		iimport = self.parent.select_file('Import From', True, '.txt', [('Text Files','*.txt'),('All Files','*')], self)
 		if iimport:
 			try:
-				f = open(iimport, 'r')
+				f = open(iimport)
 				self.text.delete('1.0', END)
 				self.text.insert('1.0', f.read())
 				self.text.edit_reset()
@@ -2713,7 +2713,7 @@ class PyICE(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -2778,7 +2778,7 @@ class PyICE(Tk):
 		pal = PAL.Palette()
 		for p in ['Units','bfire','gfire','ofire','Terrain','Icons']:
 			try:
-				pal.load_file(self.settings.get('%spal' % p,os.path.join(BASE_DIR, 'Palettes', '%s%spal' % (p,os.extsep))))
+				pal.load_file(self.settings.get('%spal' % p,os.path.join(BASE_DIR, 'Palettes', f'{p}{os.extsep}pal')))
 			except:
 				continue
 			PALETTES[p] = pal.palette
@@ -2841,7 +2841,7 @@ class PyICE(Tk):
 				else:
 					dat = DAT.DATA_CACHE[d + '.txt']
 				for n,e in enumerate(dat):
-					l = '%03s %s' % (n,e)
+					l = f'{n:03} {e}'
 					if x > -1:
 						l += ' [%s]' % self.selid(x,n)
 					lb.insert(END, l)
@@ -2965,7 +2965,7 @@ class PyICE(Tk):
 				n = DAT.DATA_CACHE['IscriptIDList.txt'][id]
 			else:
 				n = 'Unnamed Custom Entry'
-			self.iscriptlist.insert(END, '%03s %s' % (id,n))
+			self.iscriptlist.insert(END, f'{id:03} {n}')
 
 	def open(self, key=None, file=None):
 		if not self.unsaved():
@@ -2981,7 +2981,7 @@ class PyICE(Tk):
 				return
 			self.ibin = ibin
 			self.setuplist()
-			self.title('PyICE %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyICE {LONG_VERSION} ({file})')
 			self.file = file
 			self.status.set('Load Successful!')
 			self.action_states()
@@ -3174,7 +3174,7 @@ def main():
 					ext = 'txt'
 				else:
 					ext = 'bin'
-				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
+				args.append(f'{os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1]))}{os.extsep}{ext}')
 			warnings = []
 			try:
 				if opt.convert:
@@ -3184,7 +3184,7 @@ def main():
 							ids.append(i)
 					else:
 						ids = None
-					print("Loading weapons.dat '%s', flingy.dat '%s', images.dat '%s', sprites.dat '%s', sdxdata.dat '%s', stat_txt.tbl '%s', images.tbl '%s', and sfxdata.tbl '%s'" % (opt.weapons,opt.flingy,opt.sprites,opt.images,opt.sfxdata,opt.stattxt,opt.imagestbl,opt.sfxdatatbl))
+					print(f"Loading weapons.dat '{opt.weapons}', flingy.dat '{opt.flingy}', images.dat '{opt.sprites}', sprites.dat '{opt.images}', sdxdata.dat '{opt.sfxdata}', stat_txt.tbl '{opt.stattxt}', images.tbl '{opt.imagestbl}', and sfxdata.tbl '{opt.sfxdatatbl}'")
 					ibin = IScriptBIN.IScriptBIN(opt.weapons,opt.flingy,opt.images,opt.sprites,opt.sfxdata,opt.stattxt,opt.imagestbl,opt.sfxdatatbl)
 					print(" - Loading finished successfully\nReading BIN '%s'..." % args[0])
 					ibin.load_file(args[0])
@@ -3192,7 +3192,7 @@ def main():
 					ibin.decompile(args[1],opt.reference,ids)
 					print(" - '%s' written succesfully" % args[1])
 				else:
-					print("Loading weapons.dat '%s', flingy.dat '%s', images.dat '%s', sprites.dat '%s', sdxdata.dat '%s', stat_txt.tbl '%s', images.tbl '%s', and sfxdata.tbl '%s'" % (opt.weapons,opt.flingy,opt.sprites,opt.images,opt.sfxdata,opt.stattxt,opt.imagestbl,opt.sfxdatatbl))
+					print(f"Loading weapons.dat '{opt.weapons}', flingy.dat '{opt.flingy}', images.dat '{opt.sprites}', sprites.dat '{opt.images}', sdxdata.dat '{opt.sfxdata}', stat_txt.tbl '{opt.stattxt}', images.tbl '{opt.imagestbl}', and sfxdata.tbl '{opt.sfxdatatbl}'")
 					ibin = IScriptBIN.IScriptBIN(opt.weapons,opt.flingy,opt.images,opt.sprites,opt.sfxdata,opt.stattxt,opt.imagestbl,opt.sfxdatatbl)
 					print(" - Loading finished successfully")
 					if opt.iscript:
@@ -3201,7 +3201,7 @@ def main():
 						print(" - iscript.bin read successfully")
 					print("Interpreting file '%s'..." % args[0])
 					warnings.extend(ibin.interpret(args[0]))
-					print(" - '%s' read successfully\nCompiling file '%s' to iscript.bin '%s'..." % (args[0], args[0], args[1]))
+					print(f" - '{args[0]}' read successfully\nCompiling file '{args[0]}' to iscript.bin '{args[1]}'...")
 					ibin.compile(args[1])
 					print(" - iscript.bin '%s' written succesfully" % args[1])
 				if not opt.hidewarns:

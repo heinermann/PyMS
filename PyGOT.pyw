@@ -88,7 +88,7 @@ class PyGOT(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -301,7 +301,7 @@ class PyGOT(Tk):
 				ErrorDialog(self, e)
 				return
 			self.got = got
-			self.title('PyGOT %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyGOT {LONG_VERSION} ({file})')
 			self.file = file
 			for var,val in zip(self.values,self.got.template):
 				if var == self.teams and val > 1:
@@ -324,7 +324,7 @@ class PyGOT(Tk):
 				ErrorDialog(self, e)
 				return
 			self.got = got
-			self.title('PyGOT %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyGOT {LONG_VERSION} ({file})')
 			self.file = file
 			for var,val in zip(self.values,self.got.template):
 				if var == self.teams and val > 1:
@@ -451,18 +451,18 @@ def main():
 					ext = 'txt'
 				else:
 					ext = 'got'
-				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
+				args.append(f'{os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1]))}{os.extsep}{ext}')
 			try:
 				if opt.convert:
 					print("Reading GOT '%s'..." % args[0])
 					got.load_file(args[0])
-					print(" - '%s' read successfully\nDecompiling GOT file '%s'..." % (args[0],args[0]))
+					print(f" - '{args[0]}' read successfully\nDecompiling GOT file '{args[0]}'...")
 					got.decompile(args[1], opt.reference)
 					print(" - '%s' written succesfully" % args[1])
 				else:
 					print("Interpreting file '%s'..." % args[0])
 					got.interpret(args[0])
-					print(" - '%s' read successfully\nCompiling file '%s' to GOT format..." % (args[0],args[0]))
+					print(f" - '{args[0]}' read successfully\nCompiling file '{args[0]}' to GOT format...")
 					lo.compile(args[1])
 					print(" - '%s' written succesfully" % args[1])
 					if opt.trig:
@@ -473,7 +473,7 @@ def main():
 						path = os.path.dirname(opt.trig)
 						if not path:
 							path = os.path.abspath('')
-						file = '%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[1]).split(os.extsep)[:-1])), os.extsep, 'trg')
+						file = '{}{}{}'.format(os.path.join(path,os.extsep.join(os.path.basename(args[1]).split(os.extsep)[:-1])), os.extsep, 'trg')
 						print("Compiling file '%s' to GOT compatable TRG..." % file)
 						trg.compile(file, True)
 						print(" - '%s' written succesfully" % file)

@@ -44,7 +44,7 @@ def grptobmp(path, pal, uncompressed, onebmp, grp, bmp='', frames=None, mute=Fal
 			elif onebmp == 2:
 				out.image.extend([list(y) for y in frame])
 			else:
-				name = '%s %s%sbmp' % (bmpname, str(n).zfill(3), os.extsep)
+				name = f'{bmpname} {str(n).zfill(3)}{os.extsep}bmp'
 				if not mute:
 					print("Writing BMP '%s'..." % name)
 				out.load_data(frame)
@@ -58,7 +58,7 @@ def grptobmp(path, pal, uncompressed, onebmp, grp, bmp='', frames=None, mute=Fal
 				out.image[-y-1].extend([inp.transindex] * inp.width * (17 - len(frames) % 17))
 		out.height = len(out.image)
 		out.width = len(out.image[0])
-		name = '%s%sbmp' % (bmpname, os.extsep)
+		name = f'{bmpname}{os.extsep}bmp'
 		out.save_file(os.path.join(path,name))
 		if not mute:
 			print(" - '%s' written succesfully" % name)
@@ -80,9 +80,9 @@ def bmptogrp(path, pal, uncompressed, frames, bmp, grp='', issize=None, ret=Fals
 				out.width = inp.width / min(frames,17)
 				out.height = inp.height / int(ceil(frames // 17.0))
 			if out.width > 256 or out.height > 256:
-				raise PyMSError('Load', "Invalid dimensions in the BMP '%s' (Frames have a maximum size of 256x256, got %sx%s)" % (fullfile,out.width,out.height))
+				raise PyMSError('Load', f"Invalid dimensions in the BMP '{fullfile}' (Frames have a maximum size of 256x256, got {out.width}x{out.height})")
 			if issize and out.width != issize[0] and out.height != issize[1]:
-				raise PyMSError('Load',"Invalid dimensions in the BMP '%s' (Expected %sx%s, got %sx%s)" % (fullfile,issize[0],issize[1],out.width,out.height))
+				raise PyMSError('Load',f"Invalid dimensions in the BMP '{fullfile}' (Expected {issize[0]}x{issize[1]}, got {out.width}x{out.height})")
 			for n in range(frames):
 				out.images.append([])
 				for y in range(out.height):
@@ -123,17 +123,17 @@ def bmptogrp(path, pal, uncompressed, frames, bmp, grp='', issize=None, ret=Fals
 						inp.load_file(fullfile)
 						if found % 2:
 							if issize and inp.width != issize[0] and inp.height != issize[1]:
-								raise PyMSError('Load',"Invalid dimensions in the BMP '%s' (Expected %sx%s, got %sx%s)" % (fullfile,issize[0],issize[1],inp.width,inp.height))
+								raise PyMSError('Load',f"Invalid dimensions in the BMP '{fullfile}' (Expected {issize[0]}x{issize[1]}, got {inp.width}x{inp.height})")
 							if inp.width != out.width or inp.height != out.height:
-								raise PyMSError('Input',"Incorrect frame dimensions in BMP '%s' (Expected %sx%s, got %sx%s)" % (fullfile,out.width,out.height,inp.width,inp.height))
+								raise PyMSError('Input',f"Incorrect frame dimensions in BMP '{fullfile}' (Expected {out.width}x{out.height}, got {inp.width}x{inp.height})")
 							out.frames += 1
 							out.images.append(inp.image)
 							out.images_bounds.append(GRP.image_bounds(out.images[-1]))
 						else:
 							if issize and inp.width != issize[0] and inp.height != issize[1]:
-								raise PyMSError('Load',"Invalid dimensions in the BMP '%s' (Expected %sx%s, got %sx%s)" % (fullfile,issize[0],issize[1],inp.width,inp.height))
+								raise PyMSError('Load',f"Invalid dimensions in the BMP '{fullfile}' (Expected {issize[0]}x{issize[1]}, got {inp.width}x{inp.height})")
 							if inp.width > 256 or inp.height > 256:
-								raise PyMSError('Load', "Invalid dimensions in the BMP '%s' (Frames have a maximum size of 256x256, got %sx%s)" % (fullfile,inp.width,inp.height))
+								raise PyMSError('Load', f"Invalid dimensions in the BMP '{fullfile}' (Frames have a maximum size of 256x256, got {inp.width}x{inp.height})")
 							out.load_data(inp.image)
 							found += 1
 						if not mute:
@@ -154,7 +154,7 @@ def bmptogrp(path, pal, uncompressed, frames, bmp, grp='', issize=None, ret=Fals
 		if grp:
 			fullfile = os.path.join(path,grp)
 		else:
-			fullfile = os.path.join(path,'%s%sgrp' % (name, os.extsep))
+			fullfile = os.path.join(path,f'{name}{os.extsep}grp')
 		if not mute:
 			print("Writing GRP '%s'..." % fullfile)
 		out.save_file(fullfile)
@@ -263,7 +263,7 @@ class PyGRP(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -651,7 +651,7 @@ BMP's must be imported with the same style they were exported as.""")
 		f = frame
 		if self.hex.get():
 			f = '0x%02X' % frame
-		self.listbox.insert(END, '%sFrame %s' % ('   ' * (frame // 17 % 2), f))
+		self.listbox.insert(END, '{}Frame {}'.format('   ' * (frame // 17 % 2), f))
 	def update_list(self):
 		s = self.listbox.curselection()
 		y = self.listbox.yview()[0]

@@ -15,7 +15,7 @@ def run():
 		try:
 			succeeded,total = group.do_tests()
 		except:
-			print('%s- Test group "%s" crashed:' % (INDENT, name))
+			print(f'{INDENT}- Test group "{name}" crashed:')
 			log_exception(INDENT)
 		else:
 			print('%s- Test group "%s" completed: %d/%d succeeded' % (INDENT, name, succeeded, total))

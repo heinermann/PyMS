@@ -316,7 +316,7 @@ class FindReplaceDialog(PyMSDialog):
 				m = r.search(self.parent.text.get(INSERT, END))
 				if m:
 					self.parent.text.tag_remove('Selection', '1.0', END)
-					s,e = '%s +%sc' % (INSERT, m.start(0)),'%s +%sc' % (INSERT,m.end(0))
+					s,e = f'{INSERT} +{m.start(0)}c',f'{INSERT} +{m.end(0)}c'
 					self.parent.text.tag_add('Selection', s, e)
 					self.parent.text.mark_set(INSERT, e)
 					self.parent.text.see(s)
@@ -332,15 +332,15 @@ class FindReplaceDialog(PyMSDialog):
 				i = self.parent.text.index(INSERT)
 				if i == e:
 					return
-				if i == self.parent.text.index('%s %s' % (INSERT, rlse)):
-					i = self.parent.text.index('%s %s1lines %s' % (INSERT, s, lse))
+				if i == self.parent.text.index(f'{INSERT} {rlse}'):
+					i = self.parent.text.index(f'{INSERT} {s}1lines {lse}')
 				n = -1
 				while not u or i != e:
 					if u:
-						m = r.search(self.parent.text.get(i, '%s %s' % (i, rlse)))
+						m = r.search(self.parent.text.get(i, f'{i} {rlse}'))
 					else:
 						m = None
-						a = r.finditer(self.parent.text.get('%s %s' % (i, rlse), i))
+						a = r.finditer(self.parent.text.get(f'{i} {rlse}', i))
 						c = 0
 						for x,f in enumerate(a):
 							if x == n or n == -1:
@@ -350,10 +350,10 @@ class FindReplaceDialog(PyMSDialog):
 					if m:
 						self.parent.text.tag_remove('Selection', '1.0', END)
 						if u:
-							s,e = '%s +%sc' % (i,m.start(0)),'%s +%sc' % (i,m.end(0))
+							s,e = f'{i} +{m.start(0)}c',f'{i} +{m.end(0)}c'
 							self.parent.text.mark_set(INSERT, e)
 						else:
-							s,e = '%s linestart +%sc' % (i,m.start(0)),'%s linestart +%sc' % (i,m.end(0))
+							s,e = f'{i} linestart +{m.start(0)}c',f'{i} linestart +{m.end(0)}c'
 							self.parent.text.mark_set(INSERT, s)
 						self.parent.text.tag_add('Selection', s, e)
 						self.parent.text.see(s)
@@ -365,7 +365,7 @@ class FindReplaceDialog(PyMSDialog):
 							p = self.parent
 						askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
 						break
-					i = self.parent.text.index('%s %s1lines %s' % (i, s, lse))
+					i = self.parent.text.index(f'{i} {s}1lines {lse}')
 				else:
 					p = self
 					if key and key.keycode == 13:
@@ -577,7 +577,7 @@ class AICodeText(CodeText):
 			while self.text.compare(head, '<=', tail):
 				m = re.match(r'(\s*)(#?)(.*)', self.get(head, '%s lineend' % head))
 				if m.group(2):
-					self.tk.call(self.text.orig, 'delete', '%s +%sc' % (head, len(m.group(1))))
+					self.tk.call(self.text.orig, 'delete', f'{head} +{len(m.group(1))}c')
 				elif m.group(3):
 					self.tk.call(self.text.orig, 'insert', head, '#')
 				head = self.index('%s +1line' % head)
@@ -676,7 +676,7 @@ class CodeTooltip(Tooltip):
 		t = ''
 		if self.tag:
 			pos = list(self.widget.winfo_pointerxy())
-			head,tail = self.widget.tag_prevrange(self.tag,self.widget.index('@%s,%s+1c' % (pos[0] - self.widget.winfo_rootx(),pos[1] - self.widget.winfo_rooty())))
+			head,tail = self.widget.tag_prevrange(self.tag,self.widget.index(f'@{pos[0] - self.widget.winfo_rootx()},{pos[1] - self.widget.winfo_rooty()}+1c'))
 			t = self.widget.get(head,tail)
 		try:
 			t = self.gettext(t)
@@ -716,7 +716,7 @@ class CommandCodeTooltip(CodeTooltip):
 	def gettext(self, cmd):
 		for help,info in CMD_HELP.items():
 			if cmd in info:
-				text = '%s Command:\n  %s(' % (help, cmd)
+				text = f'{help} Command:\n  {cmd}('
 				break
 		params = self.ai.parameters[self.ai.short_labels.index(cmd)]
 		pinfo = ''
@@ -737,7 +737,7 @@ class TypeCodeTooltip(CodeTooltip):
 	tag = 'Types'
 
 	def gettext(self, type):
-		return '%s:\n%s' % (type, fit('    ', TYPE_HELP[type], end=True)[:-1])
+		return '{}:\n{}'.format(type, fit('    ', TYPE_HELP[type], end=True)[:-1])
 
 class StringCodeTooltip(CodeTooltip):
 	tag = 'HeaderString'
@@ -748,7 +748,7 @@ class StringCodeTooltip(CodeTooltip):
 		if stringid > m:
 			text = 'Invalid String ID (Range is 0 to %s)' % (m-1)
 		else:
-			text = 'String %s:\n  %s' % (stringid, TBL.decompile_string(self.ai.tbl.strings[stringid]))
+			text = f'String {stringid}:\n  {TBL.decompile_string(self.ai.tbl.strings[stringid])}'
 		return text
 
 class FlagCodeTooltip(CodeTooltip):
@@ -876,8 +876,8 @@ class CodeEditDialog(PyMSDialog):
 		self.completing = True
 		self.text.taboverride = ' (,)'
 		def docomplete(s, e, v, t):
-			ss = '%s+%sc' % (s,len(t))
-			se = '%s+%sc' % (s,len(v))
+			ss = f'{s}+{len(t)}c'
+			se = f'{s}+{len(v)}c'
 			self.text.delete(s, ss)
 			self.text.insert(s, v)
 			self.text.tag_remove('Selection', '1.0', END)
@@ -1013,7 +1013,7 @@ class CodeEditDialog(PyMSDialog):
 					for o,l in self.parent.ai.externaljumps[0].items():
 						for cid in l:
 							if not cid in i.ais:
-								raise PyMSError('Interpreting',"You can't edit scripts (%s) that are referenced externally with out editing the scripts with the external references (%s) at the same time." % (id,cid))
+								raise PyMSError('Interpreting',f"You can't edit scripts ({id}) that are referenced externally with out editing the scripts with the external references ({cid}) at the same time.")
 		except PyMSError as e:
 			if e.line != None:
 				self.text.see('%s.0' % e.line)
@@ -1056,7 +1056,7 @@ class CodeEditDialog(PyMSDialog):
 		iimport = self.parent.select_file('Import From', True, '.txt', [('Text Files','*.txt'),('All Files','*')], self)
 		if iimport:
 			try:
-				f = open(iimport, 'r')
+				f = open(iimport)
 				self.text.delete('1.0', END)
 				self.text.insert('1.0', f.read())
 				self.text.edit_reset()
@@ -1108,7 +1108,7 @@ class CodeEditDialog(PyMSDialog):
 			elif line.strip():
 				d = line.lstrip().split(';',1)[0].strip().split(' ')
 				if d[0] in AIBIN.AIBIN.short_labels:
-					data += '    %s(%s)' % (d[0], ', '.join(d[1:]))
+					data += '    {}({})'.format(d[0], ', '.join(d[1:]))
 					if ';' in line:
 						data += ' # ' + line.split('#',1)[1]
 				else:
@@ -1177,7 +1177,7 @@ class CodeEditDialog(PyMSDialog):
 					'debug1':'== Debug %s ==' % d,
 					'debug2':'== Debug %s ==' % (d+1),
 					'debug3':'== Debug %s ==' % (d+2),
-					's':'[Line: %s | Inside script "%s"%s]' % (n, script, inblock),
+					's':f'[Line: {n} | Inside script "{script}"{inblock}]',
 					'c':m.group(4) or '',
 				}
 				params = self.parent.ai.parameters[self.parent.ai.short_labels.index(m.group(2))]
@@ -1378,7 +1378,7 @@ class FindDialog(PyMSDialog):
 			for n,s in enumerate(self.tbl.strings):
 				l = TBL.decompile_string(s)
 				if m[0].match(str(n)) and m[1].match(l):
-					self.listbox.insert(END, '%s%s     %s' % (' ' * (pad - len(str(n))), n, l))
+					self.listbox.insert(END, '{}{}     {}'.format(' ' * (pad - len(str(n))), n, l))
 		else:
 			m = []
 			for t,e in [(self.id, self.identry), (self.flags, self.flagsentry), (self.stringid, self.stringidentry), (self.string, self.stringentry)]:
@@ -1403,7 +1403,7 @@ class FindDialog(PyMSDialog):
 				flags = AIBIN.convflags(ai[2])
 				string = TBL.decompile_string(self.tbl.strings[ai[1]])
 				if m[0].match(id) and (not self.bw.get() or min(ai[0],1) != self.bw.get()-1) and m[1].match(flags) and m[2].match(str(ai[1])) and m[3].match(string):
-					self.listbox.insert(END,'%s     %s     %s     %s' % (id, ['BW','  '][min(ai[0],1)], flags, string))
+					self.listbox.insert(END,'{}     {}     {}     {}'.format(id, ['BW','  '][min(ai[0],1)], flags, string))
 
 	def select(self):
 		if self.findstr:
@@ -1847,7 +1847,7 @@ class StringEditor(PyMSDialog):
 		self.strings = parent.strings
 		self.resort = parent.resort
 		self.select_file = parent.select_file
-		PyMSDialog.__init__(self, parent, '%s (%s)' % (title, parent.stattxt()))
+		PyMSDialog.__init__(self, parent, f'{title} ({parent.stattxt()})')
 
 	def widgetize(self):
 		self.bind('<Control-o>', self.open)
@@ -1999,7 +1999,7 @@ class StringEditor(PyMSDialog):
 		size = len(self.parent.tbl.strings)
 		pad = len(str(size))
 		for n,s in enumerate(self.parent.tbl.strings):
-			self.listbox.insert(END, '%s%s     %s' % (' ' * (pad - len(str(n))), n, TBL.decompile_string(s)))
+			self.listbox.insert(END, '{}{}     {}'.format(' ' * (pad - len(str(n))), n, TBL.decompile_string(s)))
 		self.listbox.select_set(sel)
 		self.listbox.see(sel)
 		self.status.set('Strings: %s' % size)
@@ -2109,7 +2109,7 @@ class StringEditor(PyMSDialog):
 					i += 'And %s other scripts. ' % (e-5)
 				if plural == 2:
 					plural = 1
-				if not askquestion(parent=self, title='Remove String?', message="Deleting string '%s' will effect the AI Script%s:\n%sContinue removing string anyway?" % (string, 's' * plural, i), default=YES):
+				if not askquestion(parent=self, title='Remove String?', message="Deleting string '{}' will effect the AI Script{}:\n{}Continue removing string anyway?".format(string, 's' * plural, i), default=YES):
 					return
 				end = self.listbox.size()-1
 				if end in self.parent.strings:
@@ -2215,7 +2215,7 @@ class ListboxTooltip(Tooltip):
 				flags += d
 		if flags:
 			flags += '\n'
-		text = "Script ID         : %s\nIn bwscript.bin   : %s\n%sString ID         : %s\n" % (id, ['No','Yes'][item[1]], flags, item[3])
+		text = "Script ID         : {}\nIn bwscript.bin   : {}\n{}String ID         : {}\n".format(id, ['No','Yes'][item[1]], flags, item[3])
 		ai = self.widget.master.master.ai
 		text += fit('String            : ', TBL.decompile_string(ai.tbl.strings[ai.ais[id][1]]), end=True)
 		if id in ai.aiinfo and ai.aiinfo[id][0]:
@@ -2366,7 +2366,7 @@ class PyAI(Tk):
 						self.menus[name].add_command(label=l, command=c, state=s, accelerator=a, underline=u)
 					if a:
 						if not a.startswith('F'):
-							self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), c)
+							self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), c)
 						else:
 							self.bind('<%s>' % a, c)
 				else:
@@ -2557,7 +2557,7 @@ class PyAI(Tk):
 	def title(self, text=None):
 		if not text:
 			text = self.titletext
-		Tk.title(self,'PyAI %s (%s)' % (LONG_VERSION, text))
+		Tk.title(self,f'PyAI {LONG_VERSION} ({text})')
 		self.titletext = text
 
 	def get_entry(self, index):
@@ -2573,7 +2573,7 @@ class PyAI(Tk):
 		aiinfo = ''
 		if id in self.ai.aiinfo:
 			aiinfo = self.ai.aiinfo[id][0]
-		return '%s     %s     %s     %s%s%s' % (str(id, 'utf-8'), ['  ','BW'][bw], flags, string, ' ' * (55-len(string)), aiinfo)
+		return '{}     {}     {}     {}{}{}'.format(str(id, 'utf-8'), ['  ','BW'][bw], flags, string, ' ' * (55-len(string)), aiinfo)
 
 	def set_entry(self, index, id, bw, flags, string):
 		if index != END:
@@ -2642,7 +2642,7 @@ class PyAI(Tk):
 			bwscript = self.bwscript
 			if not bwscript:
 				bwscript = 'bwscript.bin'
-			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s' and '%s'?" % (aiscript, bwscript), default=YES)
+			save = askyesnocancel(parent=self, title='Save Changes?', message=f"Save changes to '{aiscript}' and '{bwscript}'?", default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -2736,13 +2736,13 @@ class PyAI(Tk):
 			self.redos = []
 			if not bwscript:
 				bwscript = 'bwscript.bin'
-			self.title('%s, %s' % (aiscript,bwscript))
+			self.title(f'{aiscript}, {bwscript}')
 			self.status.set('Load Successful!')
 			self.resort()
 			self.action_states()
-			s = 'aiscript.bin: %s (%s B) ' % (len(self.ai.ais),sum(self.ai.aisizes.values()))
+			s = f'aiscript.bin: {len(self.ai.ais)} ({sum(self.ai.aisizes.values())} B) '
 			if self.ai.bwscript:
-				s += '     bwscript.bin: %s (%s B)' % (len(self.ai.bwscript.ais),sum(self.ai.bwscript.aisizes.values()))
+				s += f'     bwscript.bin: {len(self.ai.bwscript.ais)} ({sum(self.ai.bwscript.aisizes.values())} B)'
 			self.scriptstatus.set(s)
 			if warnings:
 				WarningDialog(self, warnings)
@@ -2820,7 +2820,7 @@ class PyAI(Tk):
 			bwscript = self.select_file('Save bwscript.bin As (Cancel to save aiscript.bin only)', False)
 		if self.save(ai=aiscript, bw=bwscript):
 			self.tbledited = False
-			self.title('%s, %s' % (self.aiscript,self.bwscript))
+			self.title(f'{self.aiscript}, {self.bwscript}')
 
 	def savempq(self, key=None):
 		file = self.select_file('Save MPQ to...', False, '.mpq', [('MPQ Files','*.mpq'),('Self-executing MPQ','*.exe'),('All Files','*')], self)
@@ -2837,7 +2837,7 @@ class PyAI(Tk):
 			else:
 				h = MpqOpenArchiveForUpdate(file, MOAU_OPEN_ALWAYS | MOAU_MAINTAIN_LISTFILE)
 			if h == -1:
-				ErrorDialog(self, PyMSError('Saving','Could not open %sMPQ "%s".' % (['','SE'][file.endswith('%sexe' % os.extsep)],file)))
+				ErrorDialog(self, PyMSError('Saving','Could not open {}MPQ "{}".'.format(['','SE'][file.endswith('%sexe' % os.extsep)],file)))
 				return
 			ai = SFile()
 			bw = SFile()
@@ -2953,7 +2953,7 @@ class PyAI(Tk):
 				self.listbox.delete(0, END)
 			ais = []
 			for id,ai in self.ai.ais.items():
-				ais.append('%s %s' % (ai[0], id))
+				ais.append(f'{ai[0]} {id}')
 			ais.sort()
 			for a in ais:
 				id = a.split(' ',1)[1]
@@ -2976,7 +2976,7 @@ class PyAI(Tk):
 				self.listbox.delete(0, END)
 			ais = []
 			for id,ai in self.ai.ais.items():
-				ais.append('%s %s' % (AIBIN.convflags(ai[2]), id))
+				ais.append(f'{AIBIN.convflags(ai[2])} {id}')
 			ais.sort()
 			ais.reverse()
 			for a in ais:
@@ -3000,7 +3000,7 @@ class PyAI(Tk):
 				self.listbox.delete(0, END)
 			ais = []
 			for id,ai in self.ai.ais.items():
-				ais.append('%s\x00%s' % (TBL.decompile_string(self.ai.tbl.strings[ai[1]]), id))
+				ais.append(f'{TBL.decompile_string(self.ai.tbl.strings[ai[1]])}\x00{id}')
 			ais.sort()
 			for a in ais:
 				id = a.split('\x00')[-1]
@@ -3048,9 +3048,9 @@ class PyAI(Tk):
 			self.listbox.select_set(start, END)
 			self.listbox.see(start)
 			self.action_states()
-			s = 'aiscript.bin: %s (%s B) ' % (len(self.ai.ais),sum(self.ai.aisizes.values()))
+			s = f'aiscript.bin: {len(self.ai.ais)} ({sum(self.ai.aisizes.values())} B) '
 			if self.ai.bwscript:
-				s += '     bwscript.bin: %s (%s B)' % (len(self.ai.bwscript.ais),sum(self.ai.bwscript.aisizes.values()))
+				s += f'     bwscript.bin: {len(self.ai.bwscript.ais)} ({sum(self.ai.bwscript.aisizes.values())} B)'
 			self.scriptstatus.set(s)
 		elif undo[0] == 'add':
 			id = undo[1][0]
@@ -3063,9 +3063,9 @@ class PyAI(Tk):
 				del self.strings[undo[1][1][1]]
 			self.resort()
 			self.action_states()
-			s = 'aiscript.bin: %s (%s B) ' % (len(self.ai.ais),sum(self.ai.aisizes.values()))
+			s = f'aiscript.bin: {len(self.ai.ais)} ({sum(self.ai.aisizes.values())} B) '
 			if self.ai.bwscript:
-				s += '     bwscript.bin: %s (%s B)' % (len(self.ai.bwscript.ais),sum(self.ai.bwscript.aisizes.values()))
+				s += f'     bwscript.bin: {len(self.ai.bwscript.ais)} ({sum(self.ai.bwscript.aisizes.values())} B)'
 			self.scriptstatus.set(s)
 		elif undo[0] == 'edit':
 			oldid,id,oldflags,flags,oldstrid,strid,oldaiinfo,aiinfo = undo[1]
@@ -3122,9 +3122,9 @@ class PyAI(Tk):
 					del self.strings[ai[1]]
 			self.resort()
 			self.action_states()
-			s = 'aiscript.bin: %s (%s B) ' % (len(self.ai.ais),sum(self.ai.aisizes.values()))
+			s = f'aiscript.bin: {len(self.ai.ais)} ({sum(self.ai.aisizes.values())} B) '
 			if self.ai.bwscript:
-				s += '     bwscript.bin: %s (%s B)' % (len(self.ai.bwscript.ais),sum(self.ai.bwscript.aisizes.values()))
+				s += f'     bwscript.bin: {len(self.ai.bwscript.ais)} ({sum(self.ai.bwscript.aisizes.values())} B)'
 			self.scriptstatus.set(s)
 		elif redo[0] == 'add':
 			id = redo[1][0]
@@ -3139,9 +3139,9 @@ class PyAI(Tk):
 				self.strings[ai[1]].append(id)
 			self.resort()
 			self.action_states()
-			s = 'aiscript.bin: %s (%s B) ' % (len(self.ai.ais),sum(self.ai.aisizes.values()))
+			s = f'aiscript.bin: {len(self.ai.ais)} ({sum(self.ai.aisizes.values())} B) '
 			if self.ai.bwscript:
-				s += '     bwscript.bin: %s (%s B)' % (len(self.ai.bwscript.ais),sum(self.ai.bwscript.aisizes.values()))
+				s += f'     bwscript.bin: {len(self.ai.bwscript.ais)} ({sum(self.ai.bwscript.aisizes.values())} B)'
 			self.scriptstatus.set(s)
 		elif redo[0] == 'edit':
 			id,oldid,flags,oldflags,strid,oldstrid,aiinfo,oldaiinfo = redo[1]
@@ -3199,9 +3199,9 @@ class PyAI(Tk):
 			self.edited = True
 			self.editstatus['state'] = NORMAL
 			self.add_undo('add', [id, ai, e.aiinfo])
-			s = 'aiscript.bin: %s (%s B) ' % (len(self.ai.ais),sum(self.ai.aisizes.values()))
+			s = f'aiscript.bin: {len(self.ai.ais)} ({sum(self.ai.aisizes.values())} B) '
 			if self.ai.bwscript:
-				s += '     bwscript.bin: %s (%s B)' % (len(self.ai.bwscript.ais),sum(self.ai.bwscript.aisizes.values()))
+				s += f'     bwscript.bin: {len(self.ai.bwscript.ais)} ({sum(self.ai.bwscript.aisizes.values())} B)'
 				self.scriptstatus.set(s)
 
 	def remove(self, key=None):
@@ -3224,9 +3224,9 @@ class PyAI(Tk):
 				ids.append(index)
 		if cantremove:
 			more = len(cantremove) != len(indexs)
-			t = '\n'.join(['\t%s referenced by: %s' % (id,', '.join(refs)) for id,refs in cantremove.items()])
+			t = '\n'.join(['\t{} referenced by: {}'.format(id,', '.join(refs)) for id,refs in cantremove.items()])
 			if more:
-				cont = askyesnocancel(parent=self, title='Removing', message="These scripts can not be removed because they are referenced by other scripts:\n%s%s" % (t,'\n\nContinue removing the other scripts?'), default=YES)
+				cont = askyesnocancel(parent=self, title='Removing', message="These scripts can not be removed because they are referenced by other scripts:\n{}{}".format(t,'\n\nContinue removing the other scripts?'), default=YES)
 			else:
 				cont = askquestion(parent=self, title='Removing', message="These scripts can not be removed because they are referenced by other scripts:\n%s" % t, default=None, type=OK)
 		undo = []
@@ -3263,9 +3263,9 @@ class PyAI(Tk):
 		self.edited = True
 		self.editstatus['state'] = NORMAL
 		self.add_undo('remove', undo)
-		s = 'aiscript.bin: %s (%s B) ' % (len(self.ai.ais),sum(self.ai.aisizes.values()))
+		s = f'aiscript.bin: {len(self.ai.ais)} ({sum(self.ai.aisizes.values())} B) '
 		if self.ai.bwscript:
-			s += '     bwscript.bin: %s (%s B)' % (len(self.ai.bwscript.ais),sum(self.ai.bwscript.aisizes.values()))
+			s += f'     bwscript.bin: {len(self.ai.bwscript.ais)} ({sum(self.ai.bwscript.aisizes.values())} B)'
 		self.scriptstatus.set(s)
 
 	def find(self, key=None):
@@ -3321,7 +3321,7 @@ class PyAI(Tk):
 						for o,l in self.ai.externaljumps[0]:
 							for cid in l:
 								if not cid in i.ais:
-									raise PyMSError('Interpreting',"You can't edit scripts (%s) that are referenced externally with out editing the scripts with the external references (%s) at the same time." % (id,cid))
+									raise PyMSError('Interpreting',f"You can't edit scripts ({id}) that are referenced externally with out editing the scripts with the external references ({cid}) at the same time.")
 			except PyMSError as e:
 				ErrorDialog(parent, e)
 				return -1
@@ -3359,9 +3359,9 @@ class PyAI(Tk):
 					if id not in self.strings[ai[1]]:
 						self.strings[ai[1]].append(id)
 					self.resort()
-			s = 'aiscript.bin: %s (%s B) ' % (len(self.ai.ais),sum(self.ai.aisizes.values()))
+			s = f'aiscript.bin: {len(self.ai.ais)} ({sum(self.ai.aisizes.values())} B) '
 			if self.ai.bwscript:
-				s += '     bwscript.bin: %s (%s B)' % (len(self.ai.bwscript.ais),sum(self.ai.bwscript.aisizes.values()))
+				s += f'     bwscript.bin: {len(self.ai.bwscript.ais)} ({sum(self.ai.bwscript.aisizes.values())} B)'
 			self.scriptstatus.set(s)
 			self.action_states()
 			self.edited = True
@@ -3458,7 +3458,7 @@ class PyAI(Tk):
 		file = self.select_file('Load Settings', True, '.txt', [('Text Files','*.txt'),('All Files','*')])
 		if file:
 			try:
-				files = open(file,'r').readlines()
+				files = open(file).readlines()
 			except:
 				showerror('Invalid File',"Could not open '%s'." % file)
 			sets = [
@@ -3486,7 +3486,7 @@ class PyAI(Tk):
 				set = open(file,'w')
 			except:
 				showerror('Invalid File',"Could not save to '%s'." % file)
-			set.write(('%s\n%s\n%s\n%s' % (self.stat_txt, self.settings['self.unitsdat'], self.settings['self.upgradesdat'], self.settings['self.techdat'])).replace(BASE_DIR, '%(path)s'))
+			set.write(('{}\n{}\n{}\n{}'.format(self.stat_txt, self.settings['self.unitsdat'], self.settings['self.upgradesdat'], self.settings['self.techdat'])).replace(BASE_DIR, '%(path)s'))
 			set.close()
 
 def main():
@@ -3524,11 +3524,11 @@ def main():
 				if opt.convert:
 					if len(args) < 2:
 						p.error('Invalid amount of arguments, missing bwscript.bin')
-					args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, 'txt'))
+					args.append('{}{}{}'.format(os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, 'txt'))
 				else:
 					if len(args) < 2:
-						args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, 'bin'))
-					args.append('%s%s%s' % (os.path.join(path,'bw' + os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, 'bin'))
+						args.append('{}{}{}'.format(os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, 'bin'))
+					args.append('{}{}{}'.format(os.path.join(path,'bw' + os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, 'bin'))
 			warnings = []
 			try:
 				if opt.convert:
@@ -3541,20 +3541,20 @@ def main():
 							ids.append(i)
 					else:
 						ids = None
-					print("Loading bwscript.bin '%s', units.dat '%s', upgrades.dat '%s', techdata.dat '%s', and stat_txt.tbl '%s'" % (args[1],opt.units,opt.upgrades,opt.techdata,opt.stattxt))
+					print(f"Loading bwscript.bin '{args[1]}', units.dat '{opt.units}', upgrades.dat '{opt.upgrades}', techdata.dat '{opt.techdata}', and stat_txt.tbl '{opt.stattxt}'")
 					bin = AIBIN.AIBIN(args[1],opt.units,opt.upgrades,opt.techdata,opt.stattxt)
 					warnings.extend(bin.warnings)
-					print(" - Loading finished successfully\nReading BINs '%s' and '%s'..." % (args[0],args[1]))
+					print(f" - Loading finished successfully\nReading BINs '{args[0]}' and '{args[1]}'...")
 					warnings.extend(bin.load_file(args[0]))
 					print(" - BINs read successfully\nWriting AI Scripts to '%s'..." % args[2])
 					warnings.extend(bin.decompile(args[2],opt.deffile,opt.reference,opt.longlabels,ids))
 					print(" - '%s' written succesfully" % args[2])
 				else:
 					if opt.bwscript:
-						print("Loading base bwscript.bin '%s', units.dat '%s', upgrades.dat '%s', techdata.dat '%s', and stat_txt.tbl '%s'" % (os.path.abspath(opt.bwscript),opt.units,opt.upgrades,opt.techdata,opt.stattxt))
+						print(f"Loading base bwscript.bin '{os.path.abspath(opt.bwscript)}', units.dat '{opt.units}', upgrades.dat '{opt.upgrades}', techdata.dat '{opt.techdata}', and stat_txt.tbl '{opt.stattxt}'")
 						bin = AIBIN.AIBIN(os.path.abspath(opt.bwscript),opt.units,opt.upgrades,opt.techdata,opt.stattxt)
 					else:
-						print("Loading units.dat '%s', upgrades.dat '%s', techdata.dat '%s', and stat_txt.tbl '%s'" % (opt.units,opt.upgrades,opt.techdata,opt.stattxt))
+						print(f"Loading units.dat '{opt.units}', upgrades.dat '{opt.upgrades}', techdata.dat '{opt.techdata}', and stat_txt.tbl '{opt.stattxt}'")
 						bin = AIBIN.AIBIN('',opt.units,opt.upgrades,opt.techdata,opt.stattxt)
 					print(" - Loading finished successfully")
 					if opt.aiscript:
@@ -3563,9 +3563,9 @@ def main():
 						print(" - aiscript.bin read successfully")
 					print("Interpreting file '%s'..." % args[0])
 					warnings.extend(bin.interpret(args[0],opt.deffile))
-					print(" - '%s' read successfully\nCompiling file '%s' to aiscript.bin '%s' and bwscript.bin '%s'..." % (args[0], args[0], args[1], args[2]))
+					print(f" - '{args[0]}' read successfully\nCompiling file '{args[0]}' to aiscript.bin '{args[1]}' and bwscript.bin '{args[2]}'...")
 					bin.compile(args[1], args[2])
-					print(" - aiscript.bin '%s' and bwscript.bin '%s' written succesfully" % (args[1], args[2]))
+					print(f" - aiscript.bin '{args[1]}' and bwscript.bin '{args[2]}' written succesfully")
 				if not opt.hidewarns:
 					for warning in warnings:
 						print(repr(warning))

@@ -153,7 +153,7 @@ class CodeTooltip(Tooltip):
 		t = ''
 		if self.tag:
 			pos = list(self.widget.winfo_pointerxy())
-			head,tail = self.widget.tag_prevrange(self.tag,self.widget.index('@%s,%s+1c' % (pos[0] - self.widget.winfo_rootx(),pos[1] - self.widget.winfo_rooty())))
+			head,tail = self.widget.tag_prevrange(self.tag,self.widget.index(f'@{pos[0] - self.widget.winfo_rootx()},{pos[1] - self.widget.winfo_rooty()}+1c'))
 			t = self.widget.get(head,tail)
 		try:
 			t = self.gettext(t)
@@ -379,7 +379,7 @@ class FindReplaceDialog(PyMSDialog):
 				m = r.search(self.parent.text.get(INSERT, END))
 				if m:
 					self.parent.text.tag_remove('Selection', '1.0', END)
-					s,e = '%s +%sc' % (INSERT, m.start(0)),'%s +%sc' % (INSERT,m.end(0))
+					s,e = f'{INSERT} +{m.start(0)}c',f'{INSERT} +{m.end(0)}c'
 					self.parent.text.tag_add('Selection', s, e)
 					self.parent.text.mark_set(INSERT, e)
 					self.parent.text.see(s)
@@ -395,15 +395,15 @@ class FindReplaceDialog(PyMSDialog):
 				i = self.parent.text.index(INSERT)
 				if i == e:
 					return
-				if i == self.parent.text.index('%s %s' % (INSERT, rlse)):
-					i = self.parent.text.index('%s %s1lines %s' % (INSERT, s, lse))
+				if i == self.parent.text.index(f'{INSERT} {rlse}'):
+					i = self.parent.text.index(f'{INSERT} {s}1lines {lse}')
 				n = -1
 				while not u or i != e:
 					if u:
-						m = r.search(self.parent.text.get(i, '%s %s' % (i, rlse)))
+						m = r.search(self.parent.text.get(i, f'{i} {rlse}'))
 					else:
 						m = None
-						a = r.finditer(self.parent.text.get('%s %s' % (i, rlse), i))
+						a = r.finditer(self.parent.text.get(f'{i} {rlse}', i))
 						c = 0
 						for x,f in enumerate(a):
 							if x == n or n == -1:
@@ -413,10 +413,10 @@ class FindReplaceDialog(PyMSDialog):
 					if m:
 						self.parent.text.tag_remove('Selection', '1.0', END)
 						if u:
-							s,e = '%s +%sc' % (i,m.start(0)),'%s +%sc' % (i,m.end(0))
+							s,e = f'{i} +{m.start(0)}c',f'{i} +{m.end(0)}c'
 							self.parent.text.mark_set(INSERT, e)
 						else:
-							s,e = '%s linestart +%sc' % (i,m.start(0)),'%s linestart +%sc' % (i,m.end(0))
+							s,e = f'{i} linestart +{m.start(0)}c',f'{i} linestart +{m.end(0)}c'
 							self.parent.text.mark_set(INSERT, s)
 						self.parent.text.tag_add('Selection', s, e)
 						self.parent.text.see(s)
@@ -428,7 +428,7 @@ class FindReplaceDialog(PyMSDialog):
 							p = self.parent
 						askquestion(parent=p, title='Find', message="Can't find text.", type=OK)
 						break
-					i = self.parent.text.index('%s %s1lines %s' % (i, s, lse))
+					i = self.parent.text.index(f'{i} {s}1lines {lse}')
 				else:
 					p = self
 					if key and key.keycode == 13:
@@ -791,7 +791,7 @@ class PyTRG(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -935,7 +935,7 @@ class PyTRG(Tk):
 					return
 			self.text.re = None
 			self.trg = trg
-			self.title('PyTRG %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyTRG {LONG_VERSION} ({file})')
 			self.file = file
 			self.status.set('Load Successful!')
 			self.action_states()
@@ -952,13 +952,13 @@ class PyTRG(Tk):
 			if not file:
 				return
 			try:
-				text = open(file,'r').read()
+				text = open(file).read()
 			except:
 				ErrorDialog(self, PyMSError('Import','Could not open file "%s"' % file))
 				return
 			self.text.re = None
 			self.trg = TRG.TRG()
-			self.title('PyTRG %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyTRG {LONG_VERSION} ({file})')
 			self.file = file
 			self.status.set('Import Successful!')
 			self.action_states()
@@ -1114,8 +1114,8 @@ class PyTRG(Tk):
 		self.completing = True
 		self.text.taboverride = ' (,):'
 		def docomplete(s, e, v, t):
-			ss = '%s+%sc' % (s,len(t))
-			se = '%s+%sc' % (s,len(v))
+			ss = f'{s}+{len(t)}c'
+			se = f'{s}+{len(v)}c'
 			self.text.delete(s, ss)
 			self.text.insert(s, v)
 			self.text.tag_remove('Selection', '1.0', END)
@@ -1217,7 +1217,7 @@ def main():
 					ext = 'txt'
 				else:
 					ext = 'trg'
-				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
+				args.append(f'{os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1]))}{os.extsep}{ext}')
 			try:
 				if opt.convert:
 					if opt.trig:
@@ -1225,7 +1225,7 @@ def main():
 					else:
 						print("Reading TRG '%s'..." % args[0])
 					trg.load_file(args[0], opt.trig)
-					print(" - '%s' read successfully\nDecompiling TRG file '%s'..." % (args[0],args[0]))
+					print(f" - '{args[0]}' read successfully\nDecompiling TRG file '{args[0]}'...")
 					trg.decompile(args[1], opt.reference)
 					print(" - '%s' written succesfully" % args[1])
 				else:

@@ -35,9 +35,9 @@ def build_user_agent():
 	if system == 'darwin':
 		user_agent += ' (Macintosh; Intel Mac OS X %s)' % version.replace('.','_')
 	elif system == 'windows':
-		user_agent += ' (Windows NT %s%s)' % (version, '; WOW64' if bits == 64 else '')
+		user_agent += ' (Windows NT {}{})'.format(version, '; WOW64' if bits == 64 else '')
 	else:
-		user_agent += ' (%s %s)' % (system, version)
+		user_agent += f' ({system} {version})'
 	return user_agent
 
 class GAAPITarget(threading.Thread):

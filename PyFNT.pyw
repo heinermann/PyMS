@@ -132,7 +132,7 @@ class PyFNT(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -342,7 +342,7 @@ class PyFNT(Tk):
 				except PyMSError as e:
 					ErrorDialog(self, e)
 					return
-				self.title('PyFNT %s (%s)' % (LONG_VERSION,file))
+				self.title(f'PyFNT {LONG_VERSION} ({file})')
 				self.file = file
 			self.fnt = fnt
 			self.updatelist()
@@ -373,7 +373,7 @@ class PyFNT(Tk):
 		if not file:
 			return True
 		self.file = file
-		self.title('PyFNT %s (%s)' % (LONG_VERSION,self.file))
+		self.title(f'PyFNT {LONG_VERSION} ({self.file})')
 		self.type = type
 		self.save()
 		self.action_states()
@@ -474,13 +474,13 @@ def main():
 				path = os.path.abspath('')
 			ext = ['bmp','fnt'][opt.convert]
 			if len(args) == 1:
-				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
+				args.append(f'{os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1]))}{os.extsep}{ext}')
 			if opt.convert:
 				fnt = FNT()
 				print("Reading FNT '%s'..." % args[0])
 				try:
 					fnt.load_file(args[0])
-					print(" - '%s' read successfully\nDecompiling FNT to file '%s'..." % (args[0], args[1]))
+					print(f" - '{args[0]}' read successfully\nDecompiling FNT to file '{args[1]}'...")
 					fnttobmp(fnt,args[1])
 					print(" - '%s' written succesfully" % args[1])
 				except PyMSError as e:
@@ -505,7 +505,7 @@ def main():
 						print("Reading BMP '%s'..." % args[0])
 						try:
 							bmp.load_file(args[0])
-							print(" - '%s' read successfully\nDecompiling BMP to file '%s'..." % (args[0], args[1]))
+							print(f" - '{args[0]}' read successfully\nDecompiling BMP to file '{args[1]}'...")
 							bmptofnt(fnt,args[1])
 							print(" - '%s' written succesfully" % args[1])
 						except PyMSError as e:

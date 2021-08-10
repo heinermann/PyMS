@@ -62,7 +62,7 @@ for c in compile:
 	optlist = False
 	lastheader = False
 	pre = 0
-	for n,l in enumerate(open('%s.txt' % c,'r')):
+	for n,l in enumerate(open('%s.txt' % c)):
 		l = l.rstrip('\n')
 		if n == 0:
 			out = open(l,'w')
@@ -70,11 +70,11 @@ for c in compile:
 			name = l
 			out.write(infoheaderstart % name)
 			for n,d in files.items():
-				print('%s - %s' % (name, '%s %s' % (n,d[0])))
+				print('{} - {}'.format(name, f'{n} {d[0]}'))
 				if name.split(' ')[0] == n:
 					out.write('				<li><b>%s</b>\n' % name)
 				else:
-					out.write('				<li><a class="tree" href="%s">%s %s</a>\n' % (d[1],n,d[0]))
+					out.write(f'				<li><a class="tree" href="{d[1]}">{n} {d[0]}</a>\n')
 		elif n == 2:
 			out.write(infoheadermid % (name,tags(l)))
 		elif optlist:
@@ -116,15 +116,15 @@ for c in compile:
 					comp += '<br><br>'
 					lastheader = False
 				txt,ref = l[2:].split('	')
-				out.write('				<li><a href="#%s">%s</a>\n' % (ref,txt))
-				comp += '<a name="%s" class="subheader">%s</a><a href="#top" class="top">^</a><br><br>\n' % (ref,txt)
+				out.write(f'				<li><a href="#{ref}">{txt}</a>\n')
+				comp += f'<a name="{ref}" class="subheader">{txt}</a><a href="#top" class="top">^</a><br><br>\n'
 			elif l.startswith('	'):
 				if subheader:
 					out.write('			</ol>\n')
 					subheader = False
 				txt,ref = l[1:].split('	')
-				out.write('				<li><a href="#%s">%s</a>\n' % (ref,txt))
-				comp += '<br><br><a name="%s" class="header">%s</a><a href="#top" class="top">^</a><br><br>\n' % (ref,txt)
+				out.write(f'				<li><a href="#{ref}">{txt}</a>\n')
+				comp += f'<br><br><a name="{ref}" class="header">{txt}</a><a href="#top" class="top">^</a><br><br>\n'
 				lastheader = True
 			elif l == '+u':
 				comp += '</ul>\n'
@@ -171,25 +171,25 @@ for c in compile:
 				fs = l[1:].split('	')
 				prev = ''
 				if fs[0]:
-					prev = '<a class="nav" href="%s">&#171; %s</a></td>' % (files[fs[0]][1], fs[0])
+					prev = f'<a class="nav" href="{files[fs[0]][1]}">&#171; {fs[0]}</a></td>'
 				next = ''
 				if fs[1]:
-					next = '<a class="nav" href="%s">%s &#187;</a>' % (files[fs[1]][1], fs[1])
+					next = f'<a class="nav" href="{files[fs[1]][1]}">{fs[1]} &#187;</a>'
 				if subheader:
 					out.write('			</ol>\n')
 				out.write("""			</ol>
 		</td>
 	</tr>
 </table>\n""" + comp + """<br><br><br><br>
-<table align="center" width="80%%"  cellspacing="1">
+<table align="center" width="80%"  cellspacing="1">
 	<tr>
-		<td class="blue" width="20%%">%s</td>
-		<td class="blue" align="center"><a class="nav" href="#top">%s</a></td>
-		<td class="blue" width="20%%" align="right">%s</td>
+		<td class="blue" width="20%">{}</td>
+		<td class="blue" align="center"><a class="nav" href="#top">{}</a></td>
+		<td class="blue" width="20%" align="right">{}</td>
 	</tr>
 </table>
 </body>
-</html>""" % (prev, name.split(' ')[0], next))
+</html>""".format(prev, name.split(' ')[0], next))
 				out.close()
 				break
 			else:

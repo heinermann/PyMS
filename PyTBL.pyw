@@ -374,7 +374,7 @@ class PyTBL(Tk):
 					a = btn[4]
 					if a:
 						if not a.startswith('F'):
-							self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+							self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 						else:
 							self.bind('<%s>' % a, btn[1])
 			else:
@@ -546,7 +546,7 @@ class PyTBL(Tk):
 			if not status:
 				self.text_delete('1.0', END)
 				self.text_insert('1.0', TBL.decompile_string(self.tbl.strings[s], '\n'))
-			self.stringstatus.set('String: %s / %s' % (s+1,self.listbox.size()))
+			self.stringstatus.set(f'String: {s+1} / {self.listbox.size()}')
 
 	def popup(self, e):
 		if self.tbl:
@@ -645,7 +645,7 @@ class PyTBL(Tk):
 				ErrorDialog(self, e)
 				return
 			self.tbl = tbl
-			self.title('PyTBL %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyTBL {LONG_VERSION} ({file})')
 			self.listbox['state'] = NORMAL
 			self.listbox.delete(0, END)
 			self.text_delete('1.0', END)
@@ -676,7 +676,7 @@ class PyTBL(Tk):
 				ErrorDialog(self, e)
 				return
 			self.tbl = tbl
-			self.title('PyTBL %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyTBL {LONG_VERSION} ({file})')
 			self.listbox['state'] = NORMAL
 			self.listbox.delete(0, END)
 			self.text_delete('1.0', END)
@@ -889,18 +889,18 @@ def main():
 					ext = 'txt'
 				else:
 					ext = 'tbl'
-				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
+				args.append(f'{os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1]))}{os.extsep}{ext}')
 			try:
 				if opt.convert:
 					print("Reading TBL '%s'..." % args[0])
 					tbl.load_file(args[0])
-					print(" - '%s' read successfully\nDecompiling TBL file '%s'..." % (args[0],args[0]))
+					print(f" - '{args[0]}' read successfully\nDecompiling TBL file '{args[0]}'...")
 					tbl.decompile(args[1], opt.reference)
 					print(" - '%s' written succesfully" % args[1])
 				else:
 					print("Interpreting file '%s'..." % args[0])
 					tbl.interpret(args[0])
-					print(" - '%s' read successfully\nCompiling file '%s' to TBL format..." % (args[0],args[0]))
+					print(f" - '{args[0]}' read successfully\nCompiling file '{args[0]}' to TBL format...")
 					tbl.compile(args[1])
 					print(" - '%s' written succesfully" % args[1])
 			except PyMSError as e:

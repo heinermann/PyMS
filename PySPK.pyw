@@ -568,7 +568,7 @@ class PySPK(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -1046,7 +1046,7 @@ class PySPK(Tk):
 				self.selected_image = self.spk.images[0]
 			self.palette_tab.reload_palette()
 			self.update_stars()
-			self.title('PySPK %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PySPK {LONG_VERSION} ({file})')
 			self.file = file
 			self.status.set('Load Successful!')
 			self.edited = False
@@ -1077,7 +1077,7 @@ class PySPK(Tk):
 				self.selected_image = self.spk.images[0]
 			self.palette_tab.reload_palette()
 			self.update_stars()
-			self.title('PySPK %s (%s)' % (LONG_VERSION,filepath))
+			self.title(f'PySPK {LONG_VERSION} ({filepath})')
 			self.file = None
 			self.status.set('Import Successful!')
 			self.edited = False
