@@ -1,13 +1,15 @@
-from utils import *
-from fileutils import *
-import TBL,DAT
+from .utils import *
+from .fileutils import *
+from . import TBL,DAT
 
 import struct, re, os
 try:
-	from cPickle import *
+	from pickle import *
 except ImportError:
 	from pickle import *
 from zlib import compress, decompress
+
+from collections import OrderedDict
 
 # import sys
 # sys.stdout = open('stdieo.txt','w')
@@ -143,8 +145,8 @@ def type_frame(stage, bin, data=None):
 		return 2
 	if stage == 1:
 		if data % 17:
-			return (str(data),'Frame set %s, direction %s' % (data/17,data%17))
-		return ('0x' + hex(data)[2:].zfill(2),'Frame set %s' % (data/17))
+			return (str(data),f'Frame set {data//17}, direction {data%17}')
+		return ('0x' + hex(data)[2:].zfill(2),'Frame set %s' % (data//17))
 	try:
 		if data.startswith('0x'):
 			v = int(data[2:], 16)
@@ -153,9 +155,9 @@ def type_frame(stage, bin, data=None):
 		if 0 > v or v > 65535:
 			raise
 		if bin and bin.grpframes and v > bin.grpframes:
-			raise PyMSWarning('Parameter',"'%s' is an invalid frame for one or more of the GRP's specified in the header, and may cause a crash (max frame value is %s, or frameset 0x%02x)" % (data, bin.grpframes, (bin.grpframes - 17) / 17 * 17),extra=v)
+			raise PyMSWarning('Parameter',f"'{data}' is an invalid frame for one or more of the GRP's specified in the header, and may cause a crash (max frame value is {bin.grpframes}, or frameset 0x{(bin.grpframes - 17) // 17 * 17:02x})",extra=v)
 		if bin and bin.grpframes and v > bin.grpframes - 17:
-			raise PyMSWarning('Parameter',"'%s' is an invalid frameset for one or more of the GRP's specified in the header, and may cause a crash (max frame value is %s, or frameset 0x%02x)" % (data, bin.grpframes , (bin.grpframes - 17) / 17 * 17),extra=v)
+			raise PyMSWarning('Parameter',f"'{data}' is an invalid frameset for one or more of the GRP's specified in the header, and may cause a crash (max frame value is {bin.grpframes}, or frameset 0x{(bin.grpframes - 17) // 17 * 17:02x})",extra=v)
 	except PyMSWarning:
 		raise
 	except:
@@ -173,9 +175,9 @@ def type_frameset(stage, bin, data=None):
 		if 0 > v or v > 255:
 			raise
 		if bin and bin.grpframes and v*17 > bin.grpframes:
-			raise PyMSWarning('Parameter',"'%s' is an invalid frameset for one or more of the GRP's specified in the header, and may cause a crash (max frameset value is %s)" % (data, int((bin.grpframes - 17) / 17)),extra=v)
+			raise PyMSWarning('Parameter',f"'{data}' is an invalid frameset for one or more of the GRP's specified in the header, and may cause a crash (max frameset value is {int((bin.grpframes - 17) // 17)})",extra=v)
 		if bin and bin.grpframes and v*17 > bin.grpframes - 17:
-			raise PyMSWarning('Parameter',"'%s' is an invalid frameset for one or more of the GRP's specified in the header, and may cause a crash (max frameset value is %s)" % (data, int((bin.grpframes - 17) / 17)),extra=v)
+			raise PyMSWarning('Parameter',f"'{data}' is an invalid frameset for one or more of the GRP's specified in the header, and may cause a crash (max frameset value is {int((bin.grpframes - 17) // 17)})",extra=v)
 	except PyMSWarning:
 		raise
 	except:
@@ -237,13 +239,13 @@ def type_imageid(stage, bin, data=None):
 	if data == None:
 		return 2
 	if stage == 1:
-		return (str(data),'%s (%s)' % (DAT.DATA_CACHE['Images.txt'][data], TBL.decompile_string(bin.imagestbl.strings[bin.imagesdat.get_value(data,'GRPFile')-1][:-1])))
+		return (str(data),'{} ({})'.format(DAT.DATA_CACHE['Images.txt'][data], TBL.decompile_string(bin.imagestbl.strings[bin.imagesdat.get_value(data,'GRPFile')-1][:-1])))
 	try:
 		v = int(data)
 		if 0 > v or v > DAT.ImagesDAT.count:
 			raise
 	except:
-		raise PyMSError('Parameter',"Invalid ImageID value '%s', it must be a number in the range 0 to %s" % (data,DAT.ImagesDAT.count))
+		raise PyMSError('Parameter',f"Invalid ImageID value '{data}', it must be a number in the range 0 to {DAT.ImagesDAT.count}")
 	return v
 
 def type_spriteid(stage, bin, data=None):
@@ -251,13 +253,13 @@ def type_spriteid(stage, bin, data=None):
 	if data == None:
 		return 2
 	if stage == 1:
-		return (str(data),'%s (%s)' % (DAT.DATA_CACHE['Sprites.txt'][data], TBL.decompile_string(bin.imagestbl.strings[bin.imagesdat.get_value(bin.spritesdat.get_value(data,'ImageFile'),'GRPFile')-1][:-1])))
+		return (str(data),'{} ({})'.format(DAT.DATA_CACHE['Sprites.txt'][data], TBL.decompile_string(bin.imagestbl.strings[bin.imagesdat.get_value(bin.spritesdat.get_value(data,'ImageFile'),'GRPFile')-1][:-1])))
 	try:
 		v = int(data)
 		if 0 > v or v > DAT.SpritesDAT.count:
 			raise
 	except:
-		raise PyMSError('Parameter',"Invalid SpriteID value '%s', it must be a number in the range 0 to %s" % (data,DAT.SpritesDAT.count))
+		raise PyMSError('Parameter',f"Invalid SpriteID value '{data}', it must be a number in the range 0 to {DAT.SpritesDAT.count}")
 	return v
 
 def type_flingy(stage, bin, data=None):
@@ -265,13 +267,13 @@ def type_flingy(stage, bin, data=None):
 	if data == None:
 		return 2
 	if stage == 1:
-		return (str(data),'%s (%s)' % (DAT.DATA_CACHE['Flingy.txt'][data], TBL.decompile_string(bin.imagestbl.strings[bin.imagesdat.get_value(bin.spritesdat.get_value(bin.flingydat.get_value(data,'Sprite'),'ImageFile'),'GRPFile')-1][:-1])))
+		return (str(data),'{} ({})'.format(DAT.DATA_CACHE['Flingy.txt'][data], TBL.decompile_string(bin.imagestbl.strings[bin.imagesdat.get_value(bin.spritesdat.get_value(bin.flingydat.get_value(data,'Sprite'),'ImageFile'),'GRPFile')-1][:-1])))
 	try:
 		v = int(data)
 		if 0 > v or v > DAT.FlingyDAT.count:
 			raise
 	except:
-		raise PyMSError('Parameter',"Invalid FlingyID value '%s', it must be a number in the range 0 to %s" % (data,DAT.FlingyDAT.count))
+		raise PyMSError('Parameter',f"Invalid FlingyID value '{data}', it must be a number in the range 0 to {DAT.FlingyDAT.count}")
 	return v
 
 def type_overlayid(stage, bin, data=None):
@@ -318,7 +320,7 @@ def type_soundid(stage, bin, data=None):
 		if 0 > v or v > DAT.SoundsDAT.count:
 			raise
 	except:
-		raise PyMSError('Parameter',"Invalid SoundID value '%s', it must be a number in the range 0 to %s" % (data,DAT.SoundsDAT.count))
+		raise PyMSError('Parameter',f"Invalid SoundID value '{data}', it must be a number in the range 0 to {DAT.SoundsDAT.count}")
 	return v
 
 def type_sounds(stage, bin, data=None):
@@ -368,13 +370,13 @@ def type_weaponid(stage, bin, data=None):
 	if data == None:
 		return 1
 	if stage == 1:
-		return (str(data),'%s (%s)' % (DAT.DATA_CACHE['Weapons.txt'][data], TBL.decompile_string(bin.tbl.strings[bin.weaponsdat.get_value(data,'Label')-1][:-1])))
+		return (str(data),'{} ({})'.format(DAT.DATA_CACHE['Weapons.txt'][data], TBL.decompile_string(bin.tbl.strings[bin.weaponsdat.get_value(data,'Label')-1][:-1])))
 	try:
 		v = int(data)
 		if 0 > v or v > DAT.WeaponsDAT.count:
 			raise
 	except:
-		raise PyMSError('Parameter',"Invalid WeaponID value '%s', it must be a number in the range 0 to %s" % (data,DAT.WeaponsDAT.count))
+		raise PyMSError('Parameter',f"Invalid WeaponID value '{data}', it must be a number in the range 0 to {DAT.WeaponsDAT.count}")
 	return v
 
 def type_speed(stage, bin, data=None):
@@ -554,7 +556,7 @@ class IScriptBIN:
 			sfxdatatbl = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'sfxdata.tbl')
 		self.headers = {}
 		self.offsets = {}
-		self.code = odict()
+		self.code = OrderedDict()
 		self.extrainfo = {}
 		if isinstance(stat_txt, TBL.TBL):
 			self.tbl = stat_txt
@@ -616,7 +618,7 @@ class IScriptBIN:
 					co = curoffset
 					if co in code:
 						break
-					c,curoffset = ord(data[curoffset]),co + 1
+					c, curoffset = data[curoffset], co + 1
 					if c >= len(OPCODES):
 						raise PyMSError('Load','Invalid command, could possibly be a corrrupt iscript.bin')
 					cmd = [c]
@@ -630,8 +632,8 @@ class IScriptBIN:
 								curoffset += p
 						else:
 							secondparam = params[1](0, self)
-							a,curoffset = ord(data[curoffset:curoffset-firstparam]),curoffset - firstparam
-							cmd.extend((a,) + struct.unpack('<%s%s' % (a,['','B','H'][secondparam]), data[curoffset:curoffset+secondparam*a]))
+							a, curoffset = int.from_bytes(data[curoffset:curoffset-firstparam], 'little'), curoffset - firstparam
+							cmd.extend((a,) + struct.unpack('<{}{}'.format(a,['','B','H'][secondparam]), data[curoffset:curoffset+secondparam*a]))
 							curoffset += secondparam*a
 					code[co] = cmd
 					if c == 7:
@@ -654,10 +656,10 @@ class IScriptBIN:
 					break
 				if id in headers:
 					raise PyMSError('Load',"Duplicate entry ID's, could possibly be a corrupt iscript.bin")
-				if data[offset:offset+4] != 'SCPE':
+				if data[offset:offset+4] != b'SCPE':
 					raise PyMSError('Load','Invalid iscript entry (missing header), could possibly be a corrupt iscript.bin')
 				try:
-					header = [ord(data[offset+4]),offset,[]]
+					header = [data[offset+4], offset, []]
 					for n,p in enumerate(struct.unpack('<%sH' % ENTRY_TYPES[header[0]],data[offset+8:offset+8+2*ENTRY_TYPES[header[0]]])):
 						if p:
 							header[2].append(p)
@@ -671,7 +673,7 @@ class IScriptBIN:
 					raise PyMSError('Load','Invalid iscript entry header, could possibly be a corrupt iscript.bin')
 				headers[id] = header
 				cur_offset += 4
-			for id,dat in headers.iteritems():
+			for id,dat in headers.items():
 				for n,o in enumerate(dat[2]):
 					if o != None:
 						if not o in offsets:
@@ -679,9 +681,8 @@ class IScriptBIN:
 						elif not [id,n] in offsets[o]:
 							offsets[o].append([id,n])
 						load_offset(o, id)
-			k = code.keys()
-			k.sort()
-			ocode = odict(code,k)
+
+			ocode = OrderedDict(sorted(code.items()))
 			self.headers = headers
 			self.offsets = offsets
 			self.code = ocode
@@ -731,7 +732,7 @@ class IScriptBIN:
 		for file in files:
 			try:
 				if isstr(file):
-					f = open(file,'r')
+					f = open(file)
 					alldata.append(f.readlines())
 					f.close()
 				else:
@@ -743,7 +744,7 @@ class IScriptBIN:
 		def interpret_params(cmd,p,d):
 			try:
 				cmd.append(p(2, self, d))
-			except PyMSWarning, w:
+			except PyMSWarning as w:
 				cmd.append(w.extra)
 				# ai[4][-1].append(w.extra)
 				w.line = n + 1
@@ -752,7 +753,7 @@ class IScriptBIN:
 				# if var:
 					# var.warning += ' when the above warning happened'
 					# warnings.append(var)
-			except PyMSError, e:
+			except PyMSError as e:
 				e.line = n + 1
 				e.code = line
 				e.warnings = warnings
@@ -761,7 +762,7 @@ class IScriptBIN:
 					# e.warnings.append(var)
 				raise e
 			except:
-				raise PyMSError('Parameter',"Invalid parameter data '%s', looking for type '%s'" % (d,p.__doc__),n,line, warnings=warnings)
+				raise PyMSError('Parameter',f"Invalid parameter data '{d}', looking for type '{p.__doc__}'",n,line, warnings=warnings)
 			s = p(0, self)
 			return s
 		headers = {}
@@ -769,7 +770,7 @@ class IScriptBIN:
 		code = {}
 		labels = {}
 		extrainfo = {}
-		findlabels = odict()
+		findlabels = OrderedDict()
 		unused = []
 		flowthrough = 1
 		if offset == None:
@@ -782,7 +783,7 @@ class IScriptBIN:
 					if p1 < 0:
 						offset += sum([-p1,ps[1](0,self)*cmd[1]])
 					else:
-						offset += sum([p(0,self) for p in ps])
+						offset += sum(p(0,self) for p in ps)
 				offset += 1
 			except:
 				offset = 0
@@ -847,7 +848,7 @@ class IScriptBIN:
 								if not type in ENTRY_TYPES:
 									raise
 							except:
-								raise PyMSError('Interpreting', 'Invalid Type value, must be one of the numbers: %s' % ', '.join([str(n) for n in ENTRY_TYPES.keys()]))
+								raise PyMSError('Interpreting', 'Invalid Type value, must be one of the numbers: %s' % ', '.join([str(n) for n in list(ENTRY_TYPES.keys())]))
 							header.extend([type,0,[]])
 							state = 3
 						elif state == 3:
@@ -912,12 +913,12 @@ class IScriptBIN:
 												raise PyMSError('Interpreting','Incorrect amount of parameters (need at least 1)',n,line, warnings=warnings)
 											offset += interpret_params(cmd,params[0],dat[0])
 											if len(dat)-1 != cmd[-1]:
-												raise PyMSError('Interpreting','Incorrect amount of parameters (got %s, needed %s)' % (len(dat)-1, cmd[-1]),n,line, warnings=warnings)
+												raise PyMSError('Interpreting',f'Incorrect amount of parameters (got {len(dat)-1}, needed {cmd[-1]})',n,line, warnings=warnings)
 											for v in dat[1:]:
 												offset += interpret_params(cmd,params[1],v)
 										else:
 											if params and len(dat) != len(params):
-												raise PyMSError('Interpreting','Incorrect amount of parameters (got %s, needed %s)' % (len(dat), len(params)),n,line, warnings=warnings)
+												raise PyMSError('Interpreting',f'Incorrect amount of parameters (got {len(dat)}, needed {len(params)})',n,line, warnings=warnings)
 											if not params and dat:
 												raise PyMSError('Interpreting','Command requires no parameters, but got %s' % len(dat),n,line, warnings=warnings)
 											if params and dat:
@@ -955,7 +956,7 @@ class IScriptBIN:
 		if unused:
 			for l in unused:
 				warnings.append(PyMSWarning('Interpeting', "The label '%s' is unused, label is discarded" % l))
-				r = odict(code, sorted(code.keys()))
+				r = OrderedDict(sorted(code.items()))
 				self.remove_code(labels[l], code=r, offsets=offsets)
 				code = r.dict
 		# print 'Headers: ' + pprint(headers)
@@ -963,20 +964,19 @@ class IScriptBIN:
 		# print 'Code   : ' + pprint(code)
 		# print 'Labels : ' + pprint(labels)
 		# print 'FLabels: ' + pprint(findlabels)
-		for id in headers.keys():
+		for id in list(headers.keys()):
 			if id in self.headers:
 				for o in self.headers[id][2]:
 					if o != None and o in self.offsets:
 						self.remove_code(o,id)
 			self.headers[id] = headers[id]
-		for o,i in offsets.iteritems():
+		for o,i in offsets.items():
 			self.offsets[o] = i
 		c = dict(self.code.dict)
-		for o,cmd in code.iteritems():
+		for o,cmd in code.items():
 			c[o] = cmd
-		k = c.keys()
-		k.sort()
-		self.code = odict(c,k)
+
+		self.code = OrderedDict(sorted(c.items()))
 		self.extrainfo.update(extrainfo)
 		return warnings
 
@@ -989,7 +989,7 @@ class IScriptBIN:
 		else:
 			f = file
 		if ids == None:
-			ids = self.headers.keys()
+			ids = list(self.headers.keys())
 		longheader = max([len(h[0]) for h in HEADER] + [13]) + 1
 		longopcode = max([len(o[0][0]) for o in OPCODES] + [13]) + 1
 		warnings = []
@@ -1036,7 +1036,7 @@ class IScriptBIN:
 					if cmd[0] == 7:
 						if not cmd[1] in labels:
 							local += setlabel(cmd[1],local,entry)
-						code += '	%s%s	%s\n\n' % (c,' ' * (longopcode-len(c)),labels[cmd[1]])
+						code += '	{}{}	{}\n\n'.format(c,' ' * (longopcode-len(c)),labels[cmd[1]])
 						code,local,curcmd = decompile_offset(cmd[1],code,local,id)
 						break
 					elif cmd[0] in [22,54]: #end,return
@@ -1048,7 +1048,7 @@ class IScriptBIN:
 						if not cmd[-1] in donext:
 							donext.append(cmd[-1])
 						extra = []
-						code += '	%s%s	' % (c,' ' * (longopcode-len(c)))
+						code += '	{}{}	'.format(c,' ' * (longopcode-len(c)))
 						for v,t in zip(cmd[1:-1],OPCODES[cmd[0]][1][:-1]):
 							p,e = t(1,self,v)
 							if e:
@@ -1090,7 +1090,7 @@ class IScriptBIN:
 			if id in ids:
 				if not id in usedby:
 					usedby[id] = '# This header is used by images.dat entries:\n'
-				usedby[id] += '# %s %s (%s)\n' % (str(i).zfill(3), DAT.DATA_CACHE['Images.txt'][i], TBL.decompile_string(self.imagestbl.strings[self.imagesdat.get_value(i,'GRPFile')-1][:-1]))
+				usedby[id] += '# {} {} ({})\n'.format(str(i).zfill(3), DAT.DATA_CACHE['Images.txt'][i], TBL.decompile_string(self.imagestbl.strings[self.imagesdat.get_value(i,'GRPFile')-1][:-1]))
 		invalid = []
 		unknownid = 0
 		for id in ids:
@@ -1103,7 +1103,7 @@ class IScriptBIN:
 			u = ''
 			if id in usedby:
 				u = usedby[id]
-			f.write('# ----------------------------------------------------------------------------- #\n%s.headerstart\nIsId          	%s\nType          	%s\n' % (u, id, type))
+			f.write(f'# ----------------------------------------------------------------------------- #\n{u}.headerstart\nIsId          	{id}\nType          	{type}\n')
 			for o,l in zip(header,HEADER[:ENTRY_TYPES[type]]):
 				if o == None:
 					label = '[NONE]'
@@ -1118,7 +1118,7 @@ class IScriptBIN:
 						entry = 'Unnamed Custom Entry'
 					local += setlabel(o,local,entry)
 					label = labels[o]#'%s%s' % (DAT.DATA_CACHE['IscriptIDList.txt'][id],l[0])
-				f.write('%s%s	%s\n' % (l[0],' ' * (longheader-len(l[0])),label))
+				f.write('{}{}	{}\n'.format(l[0],' ' * (longheader-len(l[0])),label))
 				if o != None:
 					code,local,curcmd = decompile_offset(o,code,local,id)
 			if id in self.extrainfo:
@@ -1134,7 +1134,7 @@ class IScriptBIN:
 		code = ''
 		offsets = {}
 		offset = 1372
-		for o,cmd in self.code.iteritems():
+		for o,cmd in self.code.items():
 			offsets[o] = offset
 			#print sum([1] + [p(0,self) for p in OPCODES[cmd[0]][1]])
 			offset += 1
@@ -1144,13 +1144,13 @@ class IScriptBIN:
 				if p1 < 0:
 					offset += sum([-p1,ps[1](0,self)*cmd[1]])
 				else:
-					offset += sum([p(0,self) for p in ps])
-		for o,cmd in self.code.iteritems():
+					offset += sum(p(0,self) for p in ps)
+		for o,cmd in self.code.items():
 			ps = OPCODES[cmd[0]][1]
 			if ps:
 				p1 = ps[0](0,self)
 				if p1 < 0:
-					code += struct.pack('<B%s%s%s' % (['','B','H'][-p1],len(cmd)-2,['','B','H'][ps[1](0,self)]), *cmd)
+					code += struct.pack('<B{}{}{}'.format(['','B','H'][-p1],len(cmd)-2,['','B','H'][ps[1](0,self)]), *cmd)
 				else:
 					code += chr(cmd[0])
 					for v,p in zip(cmd[1:],ps):
@@ -1163,7 +1163,7 @@ class IScriptBIN:
 		# print offset-1372
 		# print len(code)
 		table = ''
-		for id,dat in self.headers.iteritems():
+		for id,dat in self.headers.items():
 			table += struct.pack('<HH', id,offset)
 			entry = 'SCPE%s\x00\x00\x00' % chr(dat[0])
 			for o in dat[2]:
@@ -1173,7 +1173,7 @@ class IScriptBIN:
 					entry += struct.pack('<H', offsets[o])
 			offset += len(entry)
 			code += entry
-		f.write('%s%s\xFF\xFF\x00\x00' % (struct.pack('<H',offset),'\x00' * 1366) + code + table + '\xFF\xFF\x00\x00')
+		f.write('{}{}\xFF\xFF\x00\x00'.format(struct.pack('<H',offset),'\x00' * 1366) + code + table + '\xFF\xFF\x00\x00')
 		if self.extrainfo:
 			f.write(compress(dumps(self.extrainfo),9))
 		f.close()

@@ -10,12 +10,14 @@ from Libs.analytics import *
 	# trg.dynamic_actions[255] = ['StickUnit',[]]
 # TRG.REGISTER.append(customs)
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog,tkColorChooser
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog,tkinter.colorchooser
 
-from thread import start_new_thread
+from _thread import start_new_thread
 import optparse, os, webbrowser, sys
+
+from collections import OrderedDict
 
 LONG_VERSION = 'v%s' % VERSIONS['PyTRG']
 
@@ -480,7 +482,7 @@ class CodeColors(PyMSDialog):
 	def __init__(self, parent):
 		self.cont = False
 		self.tags = dict(parent.text.tags)
-		self.info = odict()
+		self.info = OrderedDict()
 		self.info['Comment'] = 'The color of a comment.'
 		self.info['Headers'] = 'The color of any header.'
 		self.info['Conditions'] = 'All Condition names'
@@ -547,7 +549,7 @@ class CodeColors(PyMSDialog):
 		return ok
 
 	def select(self, e=None, n=None):
-		i = self.info.getkey(int(self.listbox.curselection()[0]))
+		i = self.listbox.get(self.listbox.curselection()[0])
 		s = self.tags[i.replace(' ', '')]
 		if n == None:
 			if isinstance(self.info[i], list):
@@ -588,10 +590,10 @@ class CodeColors(PyMSDialog):
 		if [self.fg,self.bg][i].get():
 			v = [self.fgcanvas,self.bgcanvas][i]
 			g = ['foreground','background'][i]
-			c = tkColorChooser.askcolor(parent=self, initialcolor=v['background'], title='Select %s color' % g)
+			c = tkinter.colorchooser.askcolor(parent=self, initialcolor=v['background'], title='Select %s color' % g)
 			if c[1]:
 				v['background'] = c[1]
-				k = self.info.getkey(int(self.listbox.curselection()[0])).replace(' ','')
+				k = self.listbox.get(self.listbox.curselection()[0]).replace(' ','')
 				self.tags[k][g] = c[1]
 				if isinstance(self.info[k], list):
 					self.tags[self.info[k][1]][g] = c[1]
@@ -649,7 +651,7 @@ class TRGCodeText(CodeText):
 		constants = '(?P<Constants>\\{\\w+\\})'
 		constdef = '(?<=Constant )(?P<ConstDef>\\w+)(?=:)'
 		keywords = '\\b(?P<Keywords>%s)(?=[ \\),])' % '|'.join(TRG.keywords)
-		tblformat = '(?P<TBLFormat><0*(?:25[0-5]|2[0-4]\d|1?\d?\d)?>)'
+		tblformat = r'(?P<TBLFormat><0*(?:25[0-5]|2[0-4]\d|1?\d?\d)?>)'
 		num = '\\b(?P<Number>\\d+|x(?:2|4|8|16|32)|0x[0-9a-fA-F]+)\\b'
 		operators = '(?P<Operators>[():,\\-])'
 		self.basic = '|'.join((comment, header, keywords, conditions, actions, trigplugactions, constants, constdef, tblformat, num, operators))
@@ -845,7 +847,7 @@ class PyTRG(Tk):
 			aibin = AIBIN.AIBIN()
 			tbl.load_file(self.mpqhandler.get_file(self.settings['stat_txt']))
 			aibin.load_file(self.mpqhandler.get_file(self.settings['aiscript']))
-		except PyMSError, e:
+		except PyMSError as e:
 			err = e
 		else:
 			self.tbl = tbl
@@ -858,7 +860,7 @@ class PyTRG(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.trg'
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -872,7 +874,7 @@ class PyTRG(Tk):
 			parent = self
 		path = self.settings.get('lastpath', BASE_DIR)
 		parent._pyms__window_blocking = True
-		file = [tkFileDialog.asksaveasfilename,tkFileDialog.askopenfilename][open](parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
+		file = [tkinter.filedialog.asksaveasfilename,tkinter.filedialog.askopenfilename][open](parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
 		parent._pyms__window_blocking = False
 		if file:
 			self.settings['lastpath'] = os.path.dirname(file)
@@ -923,12 +925,12 @@ class PyTRG(Tk):
 			try:
 				trg.load_file(file)
 				trg.decompile(d)
-			except PyMSError, e:
+			except PyMSError as e:
 				d.text = ''
 				try:
 					trg.load_file(file, True)
 					trg.decompile(d)
-				except PyMSError, e:
+				except PyMSError as e:
 					ErrorDialog(self, e)
 					return
 			self.text.re = None
@@ -975,7 +977,7 @@ class PyTRG(Tk):
 		try:
 			self.trg.interpret(self.text)
 			self.trg.compile(self.file)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 			return
 		self.status.set('Save Successful!')
@@ -1000,7 +1002,7 @@ class PyTRG(Tk):
 		try:
 			self.trg.interpret(self.text)
 			self.trg.compile(file, True)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 			return
 		self.status.set('*.got Compatable *.trg Saved Successfully!')
@@ -1016,14 +1018,14 @@ class PyTRG(Tk):
 			f.write(self.text.get('1.0',END))
 			f.close()
 			self.status.set('Export Successful!')
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def test(self, key=None):
 		i = TRG.TRG()
 		try:
 			warnings = i.interpret(self)
-		except PyMSError, e:
+		except PyMSError as e:
 			if e.line != None:
 				self.text.see('%s.0' % e.line)
 				self.text.tag_add('Error', '%s.0' % e.line, '%s.end' % e.line)
@@ -1086,7 +1088,7 @@ class PyTRG(Tk):
 	def register(self, e=None):
 		try:
 			register_registry('PyTRG','','trg',os.path.join(BASE_DIR, 'PyTRG.pyw'),os.path.join(BASE_DIR,'Images','PyTRG.ico'))
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def help(self, e=None):
@@ -1133,7 +1135,7 @@ class PyTRG(Tk):
 			m = re.match('\\A\\s*[a-z\\{]+\\Z',t)
 			if not m:
 				ac.extend(list(TRG.TRG.conditions) + list(TRG.TRG.actions) + list(TRG.TRG.new_actions))
-			for id,ai in self.aibin.ais.iteritems():
+			for id,ai in self.aibin.ais.items():
 				if not id in ac:
 					ac.append(id)
 				cs = TBL.decompile_string(self.tbl.strings[ai[1]][:-1], '\x0A\x28\x29\x2C')
@@ -1219,25 +1221,25 @@ def main():
 			try:
 				if opt.convert:
 					if opt.trig:
-						print "Reading GOT compatable TRG '%s'..." % args[0]
+						print("Reading GOT compatable TRG '%s'..." % args[0])
 					else:
-						print "Reading TRG '%s'..." % args[0]
+						print("Reading TRG '%s'..." % args[0])
 					trg.load_file(args[0], opt.trig)
-					print " - '%s' read successfully\nDecompiling TRG file '%s'..." % (args[0],args[0])
+					print(" - '%s' read successfully\nDecompiling TRG file '%s'..." % (args[0],args[0]))
 					trg.decompile(args[1], opt.reference)
-					print " - '%s' written succesfully" % args[1]
+					print(" - '%s' written succesfully" % args[1])
 				else:
-					print "Interpreting file '%s'..." % args[0]
+					print("Interpreting file '%s'..." % args[0])
 					trg.interpret(args[0])
-					print " - '%s' read successfully" % args[0]
+					print(" - '%s' read successfully" % args[0])
 					if opt.trig:
-						print "Compiling file '%s' to GOT compatable TRG format..." % args[0]
+						print("Compiling file '%s' to GOT compatable TRG format..." % args[0])
 					else:
-						print "Compiling file '%s' to TRG format..." % args[0]
+						print("Compiling file '%s' to TRG format..." % args[0])
 					trg.compile(args[1], opt.trig)
-					print " - '%s' written succesfully" % args[1]
-			except PyMSError, e:
-				print repr(e)
+					print(" - '%s' written succesfully" % args[1])
+			except PyMSError as e:
+				print(repr(e))
 
 if __name__ == '__main__':
 	main()

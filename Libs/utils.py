@@ -1,8 +1,8 @@
 # from SFmpq import *
 
-from Tkinter import *
-from tkMessageBox import askquestion,OK
-import tkFileDialog
+from tkinter import *
+from tkinter.messagebox import askquestion,OK
+import tkinter.filedialog
 from textwrap import wrap
 import os,re,webbrowser,sys,traceback,urllib,errno,tempfile,codecs,copy,platform
 win_reg = True
@@ -12,9 +12,9 @@ except:
 	win_reg = False
 
 if hasattr(sys, 'frozen'):
-	BASE_DIR = os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding()))
+	BASE_DIR = os.path.dirname(sys.executable)
 else:
-	BASE_DIR = os.path.dirname(os.path.dirname(unicode(__file__, sys.getfilesystemencoding())))
+	BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 if os.path.exists(BASE_DIR):
 	os.chdir(BASE_DIR)
 
@@ -54,19 +54,19 @@ def debug_func_log(should_log_call=None):
 			ref = uuid.uuid4().hex
 			log = not should_log_call or should_log_call(func, args, kwargs)
 			if log:
-				print "Func  : %s (%s)" % (func.__name__, ref)
-				print "\tArgs  : %s" % (args,)
-				print "\tkwargs: %s" % kwargs
+				print("Func  : %s (%s)" % (func.__name__, ref))
+				print("\tArgs  : %s" % (args,))
+				print("\tkwargs: %s" % kwargs)
 			result = func(*args, **kwargs)
 			if log:
-				print "Func  : %s (%s)" % (func.__name__, ref)
-				print "\tResult: %s" % (result,)
+				print("Func  : %s (%s)" % (func.__name__, ref))
+				print("\tResult: %s" % (result,))
 			return result
 		return do_log
 	return decorator
 def debug_state(states, history=[]):
 	n = len(history)
-	print '##### %d: %s' % (n, states[n] if n < len(states) else 'Unknown')
+	print('##### %d: %s' % (n, states[n] if n < len(states) else 'Unknown'))
 	history.append(None)
 
 def parse_geometry(geometry):
@@ -77,7 +77,7 @@ def parse_scrollregion(scrollregion):
 	return tuple(int(v) for v in scrollregion.split(' '))
 
 def isstr(s):
-	return isinstance(s,str) or isinstance(s,unicode)
+	return isinstance(s,str) or isinstance(s,bytes)
 
 def nearest_multiple(v, m, r=round):
 	return m * int(r(v / float(m)))
@@ -88,7 +88,7 @@ def register_registry(prog,type,filetype,progpath,icon):
 	def delkey(key,sub_key):
 		try:
 			h = OpenKey(key,sub_key)
-		except WindowsError, e:
+		except WindowsError as e:
 			if e.errno == 2:
 				return
 			raise
@@ -182,7 +182,7 @@ class DependencyError(Tk):
 		Button(self, text='Ok', width=10, command=self.destroy).pack(side=TOP, pady=2)
 		self.update_idletasks()
 		w,h = self.winfo_width(),self.winfo_height()
-		self.geometry('%ix%i+%i+%i' % (w,h,(self.winfo_screenwidth() - w)/2,(self.winfo_screenheight() - h)/2))
+		self.geometry('%ix%i+%i+%i' % (w,h,(self.winfo_screenwidth() - w)//2,(self.winfo_screenheight() - h)//2))
 
 class PyMSError(Exception):
 	def __init__(self, type, error, line=None, code=None, warnings=[], exception=None):
@@ -272,7 +272,7 @@ class PyMSDialog(Toplevel):
 		screen_w = self.winfo_screenwidth()
 		screen_h = self.winfo_screenheight()
 		if center:
-			self.geometry('+%d+%d' % ((screen_w-w)/2,(screen_h-h)/2))
+			self.geometry('+%d+%d' % ((screen_w-w)//2,(screen_h-h)//2))
 		self.resizable(*resizable)
 		min_w = 0
 		max_w = screen_w
@@ -323,7 +323,7 @@ class InternalErrorDialog(PyMSDialog):
 		if debug == InternalErrorDialog.CAPTURE_DIALOG:
 			InternalErrorDialog(parent, prog, txt=trace)
 		elif debug == InternalErrorDialog.CAPTURE_PRINT:
-			print trace
+			print(trace)
 
 	def __init__(self, parent, prog, handler=None, txt=None):
 		self.prog = prog
@@ -1445,80 +1445,6 @@ class SStringVar(StringVar):
 			self.lastvalid = self.get()
 			self.check = True
 
-class odict:
-	def __init__(self, d=None, k=None):
-		self.keynames = []
-		self.dict = {}
-		if d:
-			if k:
-				self.keynames = list(k)
-				self.dict = dict(d)
-			else:
-				self.keynames = list(d.keynames)
-				self.dict = dict(d.dict)
-
-	def __delitem__(self, key):
-		del self.dict[key]
-		self.keynames.remove(key)
-
-	def __setitem__(self, key, item):
-		self.dict[key] = item
-		if key not in self.keynames:
-			self.keynames.append(key)
-
-	def __getitem__(self, key):
-		return self.dict[key]
-
-	def __contains__(self, key):
-		if key in self.keynames:
-			return True
-		return False
-
-	def __len__(self):
-		return len(self.keynames)
-
-	def iteritems(self):
-		iter = []
-		for k in self.keynames:
-			iter.append((k,self.dict[k]))
-		return iter
-
-	def iterkeys(self):
-		return list(self.keynames)
-
-	def peek(self):
-		return (self.keynames[0],self.dict[self.keynames[0]])
-
-	def keys(self):
-		return list(self.keynames)
-
-	def index(self, key):
-		return self.keynames.index(key)
-
-	def get(self, key, default=None):
-		if not key in self.keynames:
-			return default
-		return self.dict[key]
-
-	def getkey(self, n):
-		return self.keynames[n]
-
-	def getitem(self, n):
-		return self.dict[self.keynames[n]]
-
-	def remove(self, n):
-		self.keynames.remove(n)
-		del self.dict[n]
-
-	def __repr__(self):
-		return '%s@%s' % (self.keynames,self.dict)
-
-	def copy(self):
-		return odict(self)
-
-	def sort(self):
-		self.keynames.sort()
-
 def get_umask():
 	umask = os.umask(0)
 	os.umask(umask)
@@ -1581,7 +1507,7 @@ class AtomicWriter:
 					pass
 			try:
 				os.rename(self.temp_file, self.real_file)
-			except Exception, e:
+			except Exception as e:
 				if bak_file:
 					try:
 						os.rename(bak_file, self.real_file)

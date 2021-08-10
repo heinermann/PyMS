@@ -4,11 +4,11 @@ from Libs.trace import setup_trace
 from Libs import BMP, GRP, PAL
 from Libs.analytics import *
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog,tkColorChooser
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog,tkinter.colorchooser
 
-from thread import start_new_thread
+from _thread import start_new_thread
 from math import ceil
 import optparse, os, re, webbrowser, sys
 
@@ -19,10 +19,10 @@ def grptobmp(path, pal, uncompressed, onebmp, grp, bmp='', frames=None, mute=Fal
 	if isstr(grp):
 		inp = GRP.GRP(pal.palette, uncompressed)
 		if not mute:
-			print "Reading GRP '%s'..." % grp
+			print("Reading GRP '%s'..." % grp)
 		inp.load_file(grp)
 		if not mute:
-			print " - '%s' read successfully" % grp
+			print(" - '%s' read successfully" % grp)
 	else:
 		inp = grp
 	if bmp:
@@ -40,20 +40,20 @@ def grptobmp(path, pal, uncompressed, onebmp, grp, bmp='', frames=None, mute=Fal
 					out.image.extend([list(y) for y in frame])
 				else:
 					for y,d in enumerate(frame):
-						out.image[(n / 17) * inp.height + y].extend(d)
+						out.image[(n // 17) * inp.height + y].extend(d)
 			elif onebmp == 2:
 				out.image.extend([list(y) for y in frame])
 			else:
 				name = '%s %s%sbmp' % (bmpname, str(n).zfill(3), os.extsep)
 				if not mute:
-					print "Writing BMP '%s'..." % name
+					print("Writing BMP '%s'..." % name)
 				out.load_data(frame)
 				out.save_file(os.path.join(path,name))
 				if not mute:
-					print " - '%s' written succesfully" % name
+					print(" - '%s' written succesfully" % name)
 			n += 1
 	if onebmp:
-		if onebmp == 1 and len(frames) % 17 and len(frames) / 17:
+		if onebmp == 1 and len(frames) % 17 and len(frames) // 17:
 			for y in range(inp.height):
 				out.image[-y-1].extend([inp.transindex] * inp.width * (17 - len(frames) % 17))
 		out.height = len(out.image)
@@ -61,7 +61,7 @@ def grptobmp(path, pal, uncompressed, onebmp, grp, bmp='', frames=None, mute=Fal
 		name = '%s%sbmp' % (bmpname, os.extsep)
 		out.save_file(os.path.join(path,name))
 		if not mute:
-			print " - '%s' written succesfully" % name
+			print(" - '%s' written succesfully" % name)
 
 def bmptogrp(path, pal, uncompressed, frames, bmp, grp='', issize=None, ret=False, mute=False, vertical=False, transindex=0):
 	out = GRP.GRP(pal.palette, uncompressed, transindex)
@@ -70,7 +70,7 @@ def bmptogrp(path, pal, uncompressed, frames, bmp, grp='', issize=None, ret=Fals
 		if frames:
 			fullfile = os.path.join(path,bmp)
 			if not mute:
-				print "Reading BMP '%s'..." % fullfile
+				print("Reading BMP '%s'..." % fullfile)
 			inp.load_file(fullfile)
 			out.frames = frames
 			if vertical:
@@ -78,7 +78,7 @@ def bmptogrp(path, pal, uncompressed, frames, bmp, grp='', issize=None, ret=Fals
 				out.height = inp.height / frames
 			else:
 				out.width = inp.width / min(frames,17)
-				out.height = inp.height / int(ceil(frames / 17.0))
+				out.height = inp.height / int(ceil(frames // 17.0))
 			if out.width > 256 or out.height > 256:
 				raise PyMSError('Load', "Invalid dimensions in the BMP '%s' (Frames have a maximum size of 256x256, got %sx%s)" % (fullfile,out.width,out.height))
 			if issize and out.width != issize[0] and out.height != issize[1]:
@@ -90,10 +90,10 @@ def bmptogrp(path, pal, uncompressed, frames, bmp, grp='', issize=None, ret=Fals
 						out.images[-1].append(inp.image[n * out.height + y])
 					else:
 						x = (n % 17) * out.width
-						out.images[-1].append(inp.image[(n / 17) * out.height + y][x:x+out.width])
+						out.images[-1].append(inp.image[(n // 17) * out.height + y][x:x+out.width])
 				out.images_bounds.append(GRP.image_bounds(out.images[-1]))
 			if not mute:
-				print " - '%s' read successfully" % fullfile
+				print(" - '%s' read successfully" % fullfile)
 			if ret:
 				return out
 		else:
@@ -119,7 +119,7 @@ def bmptogrp(path, pal, uncompressed, frames, bmp, grp='', issize=None, ret=Fals
 					if found > 1 or (f.startswith(name) and len(f) > len(name)+2):
 						fullfile = os.path.join(path,f)
 						if not mute:
-							print "Reading BMP '%s'..." % fullfile
+							print("Reading BMP '%s'..." % fullfile)
 						inp.load_file(fullfile)
 						if found % 2:
 							if issize and inp.width != issize[0] and inp.height != issize[1]:
@@ -137,7 +137,7 @@ def bmptogrp(path, pal, uncompressed, frames, bmp, grp='', issize=None, ret=Fals
 							out.load_data(inp.image)
 							found += 1
 						if not mute:
-							print " - '%s' read successfully" % fullfile
+							print(" - '%s' read successfully" % fullfile)
 						if single:
 							break
 						#if ret:
@@ -156,10 +156,10 @@ def bmptogrp(path, pal, uncompressed, frames, bmp, grp='', issize=None, ret=Fals
 		else:
 			fullfile = os.path.join(path,'%s%sgrp' % (name, os.extsep))
 		if not mute:
-			print "Writing GRP '%s'..." % fullfile
+			print("Writing GRP '%s'..." % fullfile)
 		out.save_file(fullfile)
 		if not mute:
-			print " - '%s' written successfully" % fullfile
+			print(" - '%s' written successfully" % fullfile)
 
 class FramesDialog(PyMSDialog):
 	def __init__(self, parent):
@@ -462,7 +462,7 @@ BMP's must be imported with the same style they were exported as.""")
 			file = self.file
 			if not file:
 				file = 'Unnamed.grp'
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -497,7 +497,7 @@ BMP's must be imported with the same style they were exported as.""")
 		if offset == END:
 			index = listbox.size()-1
 		elif offset not in [0,END] and listbox.curselection():
-			print listbox.curselection()
+			print(listbox.curselection())
 			index = max(min(listbox.size()-1, int(listbox.curselection()[0]) + offset),0)
 		listbox.select_clear(0,END)
 		listbox.select_set(index)
@@ -521,7 +521,7 @@ BMP's must be imported with the same style they were exported as.""")
 	def grpoutline(self):
 		if self.grpo.get() and self.listbox.curselection() and self.showpreview.get():
 			if self.grp:
-				x,y = 131 - self.grp.width/2, 131 - self.grp.height/2
+				x,y = 131 - self.grp.width//2, 131 - self.grp.height//2
 				w,h = x + self.grp.width + 1, y + self.grp.height + 1
 			else:
 				x,y,w,h = 0,0,0,0
@@ -534,8 +534,8 @@ BMP's must be imported with the same style they were exported as.""")
 		if self.grp and self.frameo.get() and self.listbox.curselection() and self.showpreview.get():
 			frame = int(self.listbox.curselection()[0])
 			x1,y1,x2,y2 = self.grp.images_bounds[frame]
-			dx = 131 - self.grp.width/2
-			dy = 131 - self.grp.height/2
+			dx = 131 - self.grp.width//2
+			dy = 131 - self.grp.height//2
 			x1 += dx
 			x2 += dx + 2
 			y1 += dy
@@ -624,7 +624,7 @@ BMP's must be imported with the same style they were exported as.""")
 		self.stopframe()
 
 	def bgcolor(self, e=None):
-		c = tkColorChooser.askcolor(parent=self, initialcolor=self.canvas['background'], title='Select a background color')
+		c = tkinter.colorchooser.askcolor(parent=self, initialcolor=self.canvas['background'], title='Select a background color')
 		if c[1]:
 			self.canvas['background'] = c[1]
 
@@ -651,7 +651,7 @@ BMP's must be imported with the same style they were exported as.""")
 		f = frame
 		if self.hex.get():
 			f = '0x%02X' % frame
-		self.listbox.insert(END, '%sFrame %s' % ('   ' * (frame / 17 % 2), f))
+		self.listbox.insert(END, '%sFrame %s' % ('   ' * (frame // 17 % 2), f))
 	def update_list(self):
 		s = self.listbox.curselection()
 		y = self.listbox.yview()[0]
@@ -692,7 +692,7 @@ BMP's must be imported with the same style they were exported as.""")
 			grp = GRP.GRP(self.palettes[self.pal])
 			try:
 				grp.load_file(file, transindex=self.transid.get())
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.frame = None
@@ -725,7 +725,7 @@ BMP's must be imported with the same style they were exported as.""")
 			self.status.set('Save Successful!')
 			self.edited = False
 			self.editstatus['state'] = DISABLED
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def saveas(self, key=None):
@@ -769,7 +769,7 @@ BMP's must be imported with the same style they were exported as.""")
 			self.update_idletasks()
 			try:
 				grptobmp(os.path.dirname(file), self.palettes[self.pal], self.uncompressed.get(), self.bmp_style.get(), self.grp, name, indexs, True)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.status.set('Frames extracted successfully!')
@@ -795,7 +795,7 @@ BMP's must be imported with the same style they were exported as.""")
 				size = [self.grp.width,self.grp.height]
 			try:
 				fs = bmptogrp(os.path.dirname(files[0]), self.palettes[self.pal], self.uncompressed.get(), frames, files, None, size, True, True, BMP_STYLES[self.bmp_style.get()][0] == BMP_STYLE_SINGLE_BMP_VERTICAL, self.transid.get())
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 			else:
 				frame = self.grp.frames
@@ -880,7 +880,7 @@ BMP's must be imported with the same style they were exported as.""")
 	def register(self, e=None):
 		try:
 			register_registry('PyGRP','','grp',os.path.join(BASE_DIR, 'PyGRP.pyw'),os.path.join(BASE_DIR,'Images','PyGRP.ico'))
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def help(self, e=None):
@@ -934,10 +934,10 @@ def main():
 			ext = os.extsep + 'pal'
 			if not fullfile.endswith(ext):
 				fullfile += ext
-			print "Reading palette '%s'..." % fullfile
+			print("Reading palette '%s'..." % fullfile)
 			try:
 				pal.load_file(fullfile)
-				print " - '%s' read successfully" % fullfile
+				print(" - '%s' read successfully" % fullfile)
 				path = os.path.dirname(args[0])
 				if not path:
 					path = os.path.abspath('')
@@ -946,8 +946,8 @@ def main():
 					grptobmp(path, pal, opt.uncompressed, opt.onebmp, *args)
 				else:
 					bmptogrp(path, pal, opt.uncompressed, opt.frames, *args)
-			except PyMSError, e:
-				print repr(e)
+			except PyMSError as e:
+				print(repr(e))
 
 if __name__ == '__main__':
 	main()

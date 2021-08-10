@@ -1,5 +1,5 @@
-from utils import *
-from fileutils import *
+from .utils import *
+from .fileutils import *
 
 import struct, math
 
@@ -15,13 +15,13 @@ class BMP:
 
 	def load_file(self, file, issize=None):
 		data = load_file(file, 'BMP')
-		if data[:2] != 'BM':
+		if data[:2] != b'BM':
 			raise PyMSError('Load',"'%s' is not a BMP file (no BMP header)" % file)
 		try:
 			width, height, bitcount, compression, colors_used = \
 				struct.unpack('<LLxxHL12xL',data[18:50])
 			if issize and width != issize[0] and height != issize[1]:
-				raise PyMSError('Load', "Invalid dimensions in the BMP '%s' (Expected %sx%s, got %sx%s)" % (file,issize[0],issize[1],width,height))
+				raise PyMSError('Load', f"Invalid dimensions in the BMP '{file}' (Expected {issize[0]}x{issize[1]}, got {width}x{height})")
 			if bitcount != 8 or not compression in [0,1]:
 				raise PyMSError('Load',"The BMP '%s' is not in the correct form. It must be 256 color (8 bit), with RLE compression or no compression at all." % file)
 			if not colors_used:
@@ -37,15 +37,15 @@ class BMP:
 				pad = getPadding(width,4)
 				for y in range(height):
 					x = 4*colors_used+54+(width+pad)*y
-					image.append(list(struct.unpack('%sB%s' % (width, 'x' * pad),data[x:x+width+pad])))
+					image.append(list(struct.unpack('{}B{}'.format(width, 'x' * pad),data[x:x+width+pad])))
 			else:
 				x = 4*colors_used+54
 				image.append([])
 				while True:
-					if data[x] == '\x00':
-						if ord(data[x+1]) < 3:
-							if data[x+1] == '\x02':
-								xoffset, yoffset = ord(data[x+2]), ord(data[x+3])
+					if data[x] == 0:
+						if data[x+1] < 3:
+							if data[x+1] == 2:
+								xoffset, yoffset = data[x+2], data[x+3]
 								if not image[-1]:
 									image.pop()
 								elif len(image[-1]) < width and yoffset > 0:
@@ -55,17 +55,17 @@ class BMP:
 							else:
 								if image[-1] and len(image[-1]) < width:
 									image[-1].extend([0] * (width - len(image[-1])))
-								if data[x+1] == '\x01':
+								if data[x+1] == 1:
 									if len(image) < height:
 										image.extend([[0] * width] * (height - len(image)))
 									break
 								image.append([])
 						else:
-							n = ord(data[x+1])
-							image[-1].extend([ord(i) for i in data[x+2:x+2+n]])
+							n = data[x+1]
+							image[-1].extend([i for i in data[x+2:x+2+n]])
 							x += n + getPadding(n,2)
 					else:
-						image[-1].extend([ord(data[x+1])] * ord(data[x]))
+						image[-1].extend([data[x+1]] * data[x])
 					x += 2
 			image.reverse()
 			for y in range(len(image)):
@@ -95,7 +95,7 @@ class BMP:
 		data = ''
 		pad = getPadding(self.width,4)
 		for y in self.image:
-			data = struct.pack('<%sB%s' % (self.width, 'x' * pad), *y) + data
+			data = struct.pack('<{}B{}'.format(self.width, 'x' * pad), *y) + data
 		palette = list(self.palette)
 		if len(palette) < 256:
 			palette.extend([[0,0,0] for _ in range(256-len(palette))])

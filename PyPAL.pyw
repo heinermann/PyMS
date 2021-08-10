@@ -4,11 +4,11 @@ from Libs.trace import setup_trace
 from Libs import PAL,BMP
 from Libs.analytics import *
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog,tkColorChooser
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog,tkinter.colorchooser
 
-from thread import start_new_thread
+from _thread import start_new_thread
 import optparse, os, webbrowser, sys
 
 LONG_VERSION = 'v%s' % VERSIONS['PyPAL']
@@ -92,7 +92,7 @@ class PyPAL(Tk):
 		self.canvas = Canvas(self, width=273, height=273, background='#000000')
 		self.canvas.pack(padx=2, pady=2)
 		for n in range(256):
-			x,y = 3+17*(n%16),3+17*(n/16)
+			x, y = 3 + 17 * (n % 16), 3 + 17 * (n // 16)
 			self.canvas.create_rectangle(x, y, x+15, y+15, fill='#000000', outline='#000000')
 			self.canvas.tag_bind(n+1, '<Enter>', lambda e,i=n: self.colorstatus(e,i))
 			self.canvas.tag_bind(n+1, '<Leave>', lambda e,i=-1: self.colorstatus(e,i))
@@ -128,7 +128,7 @@ class PyPAL(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.pal'
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -166,13 +166,13 @@ class PyPAL(Tk):
 	def select(self, e, i):
 		if self.palette:
 			self.selected = i
-			x,y = 2+17*(i%16),2+17*(i/16)
+			x,y = 2 + 17 * (i % 16), 2 + 17 * (i // 16)
 			self.canvas.coords(self.sel, x, y, x+17, y+17)
 
 	def changecolor(self, e, i):
 		if self.palette:
 			self.select(None,i)
-			c = tkColorChooser.askcolor(parent=self, initialcolor='#%02X%02X%02X' % tuple(self.palette.palette[i]), title='Select Color')
+			c = tkinter.colorchooser.askcolor(parent=self, initialcolor='#%02X%02X%02X' % tuple(self.palette.palette[i]), title='Select Color')
 			if c[1]:
 				self.edited = True
 				self.editstatus['state'] = NORMAL
@@ -191,7 +191,7 @@ class PyPAL(Tk):
 		except:
 			pass
 		else:
-			m = re.match('^#([\dA-Fa-f]{2})([\dA-Fa-f]{2})([\dA-Fa-f]{2})$', c)
+			m = re.match(r'^#([\dA-Fa-f]{2})([\dA-Fa-f]{2})([\dA-Fa-f]{2})$', c)
 			if m:
 				return [int(c,16) for c in m.groups()]
 
@@ -235,11 +235,11 @@ class PyPAL(Tk):
 			try:
 				pal.load_file(file)
 				self.type = pal.type
-			except PyMSError, e:
+			except PyMSError as e:
 				bmp = BMP.BMP()
 				try:
 					bmp.load_file(file)
-				except PyMSError, b:
+				except PyMSError as b:
 					ErrorDialog(self, e)
 					return
 				pal.palette = bmp.palette
@@ -268,7 +268,7 @@ class PyPAL(Tk):
 			self.status.set('Save Successful!')
 			self.edited = False
 			self.editstatus['state'] = DISABLED
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def saveas(self, key=None, type=0):
@@ -304,7 +304,7 @@ class PyPAL(Tk):
 		for type,ext in [('','pal'),('Tileset ','wpe')]:
 			try:
 				register_registry('PyPAL',type + 'Palette',ext,os.path.join(BASE_DIR, 'PyPAL.pyw'),os.path.join(BASE_DIR,'Images','PyPAL.ico'))
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				break
 
@@ -346,14 +346,14 @@ def main():
 			ext = ['pal','wpe','pal','pal'][opt.format]
 			if len(args) == 1:
 				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
-			print "Reading Palette '%s'..." % args[0]
+			print("Reading Palette '%s'..." % args[0])
 			try:
 				pal.load_file(args[0])
-				print " - '%s' read successfully\nConverting '%s' to %s file '%s'..." % (args[0], ext.upper(), args[1])
+				print(" - '%s' read successfully\nConverting '%s' to %s file '%s'..." % (args[0], ext.upper(), args[1]))
 				[pal.save_sc_pal,pal.save_sc_wpe,pal.save_riff_pal,pal.save_jasc_pal][opt.format](args[1])
-				print " - '%s' written succesfully" % args[1]
-			except PyMSError, e:
-				print repr(e)
+				print(" - '%s' written succesfully" % args[1])
+			except PyMSError as e:
+				print(repr(e))
 
 if __name__ == '__main__':
 	main()

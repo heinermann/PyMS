@@ -9,11 +9,11 @@ from Libs.MaskedRadiobutton import MaskedRadiobutton
 from Libs.ScrolledListbox import ScrolledListbox
 from Libs.analytics import *
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog,tkColorChooser
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog,tkinter.colorchooser
 
-from thread import start_new_thread
+from _thread import start_new_thread
 from math import ceil,floor
 import optparse, os, webbrowser, sys
 
@@ -80,7 +80,7 @@ class MegaEditorView(Frame):
 		def mouse_to_mini(e):
 			if e.x < 1 or e.x > 96 or e.y < 1 or e.y > 96:
 				return None
-			return (e.y - 1) / 24 * 4 + (e.x - 1) / 24
+			return (e.y - 1) // 24 * 4 + (e.x - 1) // 24
 		def click(e):
 			mini = mouse_to_mini(e)
 			if mini != None:
@@ -176,13 +176,13 @@ class MegaEditorView(Frame):
 
 	def draw_border(self, minitile_n, color='#FFFFFF'):
 		x = 3 + 24 * (minitile_n % 4)
-		y = 3 + 24 * (minitile_n / 4)
+		y = 3 + 24 * (minitile_n // 4)
 		self.canvas.create_rectangle(x,y, x+21,y+21, outline=color, tags='mode')
 
 	def draw_selection(self):
 		self.draw_border(self.minitile_n)
 	def draw_height(self):
-		for n in xrange(16):
+		for n in range(16):
 			flags = self.delegate.tileset.vf4.flags[self.megatile_id][n]
 			color = '#FF0000'
 			if flags & HEIGHT_MID:
@@ -191,15 +191,15 @@ class MegaEditorView(Frame):
 				color = '#FFFF00'
 			self.draw_border(n, color)
 	def draw_walkability(self):
-		for n in xrange(16):
+		for n in range(16):
 			flags = self.delegate.tileset.vf4.flags[self.megatile_id][n]
 			self.draw_border(n, '#00FF00' if flags & 1 else '#FF0000')
 	def draw_blocking(self):
-		for n in xrange(16):
+		for n in range(16):
 			flags = self.delegate.tileset.vf4.flags[self.megatile_id][n]
 			self.draw_border(n, '#FF0000' if flags & 8 else '#00FF00')
 	def draw_ramp(self):
-		for n in xrange(16):
+		for n in range(16):
 			flags = self.delegate.tileset.vf4.flags[self.megatile_id][n]
 			self.draw_border(n, '#00FF00' if flags & 16 else '#FF0000')
 	def draw_edit_mode(self):
@@ -266,7 +266,7 @@ class MegaEditorView(Frame):
 
 	def fill_height(self):
 		edited = False
-		for n in xrange(16):
+		for n in range(16):
 			flags = self.delegate.tileset.vf4.flags[self.megatile_id][n]
 			new_flags = flags & ~(HEIGHT_MID | HEIGHT_HIGH)
 			new_flags |= [HEIGHT_LOW,HEIGHT_MID,HEIGHT_HIGH][self.height.get()]
@@ -278,7 +278,7 @@ class MegaEditorView(Frame):
 			self.mark_edited()
 	def fill_flag(self, minitile_n, flag):
 		enable = not (self.delegate.tileset.vf4.flags[self.megatile_id][minitile_n] & flag)
-		for n in xrange(16):
+		for n in range(16):
 			if enable:
 				self.delegate.tileset.vf4.flags[self.megatile_id][n] |= flag
 			else:
@@ -305,7 +305,7 @@ class MegaEditorView(Frame):
 			return
 		for n,m in enumerate(self.delegate.tileset.vx4.graphics[self.megatile_id]):
 			self.canvas.images.append(self.delegate.gettile(m))
-			self.canvas.create_image(2 + 24 * (n % 4), 2 + 24 * (n / 4), anchor=NW, image=self.canvas.images[-1], tags='tile')
+			self.canvas.create_image(2 + 24 * (n % 4), 2 + 24 * (n // 4), anchor=NW, image=self.canvas.images[-1], tags='tile')
 
 	def draw(self):
 		self.draw_minitiles()
@@ -482,7 +482,7 @@ class MiniEditor(PyMSDialog):
 				self.canvas.create_rectangle(cx, cy, cx+2, cy+2, fill=c, outline=c, tags='scale%s,%s' % (x,y))
 		self.canvas.create_rectangle(90, 2, 202, 114, fill='#000000', outline='#000000')
 		for n,i in enumerate(self.parent.tileset.wpe.palette):
-			cx,cy,c = (n % 16) * 7 + 91, (n / 16) * 7 + 3, '#%02x%02x%02x' % tuple(i)
+			cx,cy,c = (n % 16) * 7 + 91, (n // 16) * 7 + 3, '#%02x%02x%02x' % tuple(i)
 			t = 'pal%s' % n
 			self.canvas.create_rectangle(cx, cy, cx+5, cy+5, fill=c, outline=c, tags=t)
 			c = '#%02x%02x%02x' % tuple(self.parent.tileset.wpe.palette[self.colors[1]])
@@ -712,7 +712,7 @@ class GraphicsImporter(PyMSDialog):
 			ids = self.ids
 		try:
 			new_ids = self.tileset.import_graphics(self.tiletype, self.graphics_list.get(0,END), ids, options)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 		else:
 			self.parent.imported_graphics(new_ids)
@@ -947,7 +947,7 @@ class SettingsImporter(PyMSDialog):
 	def iimport(self):
 		try:
 			self.tileset.import_settings(self.tiletype, self.settings_path.get(), self.ids, {'repeater': SettingsImporter.REPEATERS[self.repeater.get()][2]})
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 		else:
 			self.parent.mark_edited()
@@ -995,7 +995,7 @@ class TilePaletteView(Frame):
 			self.update_size()
 		self.canvas.bind('<Configure>', canvas_resized)
 		binding_widget = self.delegate.tile_palette_binding_widget()
-		binding_widget.bind('<MouseWheel>', lambda e: self.canvas.yview('scroll', -(e.delta / abs(e.delta)) if e.delta else 0,'units'))
+		binding_widget.bind('<MouseWheel>', lambda e: self.canvas.yview('scroll', -(e.delta // abs(e.delta)) if e.delta else 0,'units'))
 		if not hasattr(self.delegate, 'tile_palette_bind_updown') or self.delegate.tile_palette_bind_updown():
 			binding_widget.bind('<Down>', lambda e: self.canvas.yview('scroll', 1,'units'))
 			binding_widget.bind('<Up>', lambda e: self.canvas.yview('scroll', -1,'units'))
@@ -1008,7 +1008,7 @@ class TilePaletteView(Frame):
 
 		self.initial_scroll_bind = None
 		def initial_scroll(_):
-			print 'initial_scroll'
+			print('initial_scroll')
 			self.scroll_to_selection()
 			self.canvas.unbind('<Configure>', self.initial_scroll_bind)
 		self.initial_scroll_bind = self.canvas.bind('<Configure>', initial_scroll, add=True)
@@ -1055,7 +1055,7 @@ class TilePaletteView(Frame):
 		if columns:
 			for id in self.selected:
 				x = (id % columns) * tile_size[0]
-				y = (id / columns) * tile_size[1]
+				y = (id // columns) * tile_size[1]
 				self.canvas.create_rectangle(x, y, x+tile_size[0], y+tile_size[1], outline='#AAAAAA' if self.sub_select else '#FFFFFF', tags='selection')
 				if self.sub_select:
 					mega_size = self.get_tile_size(TILETYPE_MEGA, group=True)
@@ -1117,7 +1117,7 @@ class TilePaletteView(Frame):
 								if self.tiletype == TILETYPE_GROUP:
 									if self.sub_select:
 										sub_select = id % 16
-									id /= 16
+									id //= 16
 								self.select(id, sub_select, modifier)
 							self.canvas.tag_bind(tag, '<Button-1>', lambda e,id=id: select(id,None))
 							self.canvas.tag_bind(tag, '<Shift-Button-1>', lambda e,id=id: select(id,'shift'))
@@ -1125,7 +1125,7 @@ class TilePaletteView(Frame):
 							if is_mac():
 								self.canvas.tag_bind(tag, '<Command-Button-1>', lambda e,id=id: select(id,'cntrl'))
 							if hasattr(self.delegate, 'tile_palette_double_clicked'):
-								self.canvas.tag_bind(tag, '<Double-Button-1>', lambda e,id=id / (16 if self.tiletype == TILETYPE_GROUP else 1): self.delegate.tile_palette_double_clicked(id))
+								self.canvas.tag_bind(tag, '<Double-Button-1>', lambda e,id=id // (16 if self.tiletype == TILETYPE_GROUP else 1): self.delegate.tile_palette_double_clicked(id))
 			self.visible_range = visible_range
 			self.draw_selections()
 
@@ -1136,7 +1136,7 @@ class TilePaletteView(Frame):
 					last_select,enable = self.last_selection
 					start = min(last_select,select)
 					end = max(last_select,select)
-					for index in xrange(start,end+1):
+					for index in range(start,end+1):
 						if enable and not index in self.selected:
 							self.selected.append(index)
 						elif not enable and index in self.selected:
@@ -1189,7 +1189,7 @@ class TilePaletteView(Frame):
 		total_size = self.get_total_size()
 		max_y = total_size[1] - viewport_size[1]
 		id = self.selected[0]
-		y = max(0,min(max_y,(id / columns + 0.5) * tile_size[1] - viewport_size[1]/2.0))
+		y = max(0,min(max_y,(id // columns + 0.5) * tile_size[1] - viewport_size[1]/2.0))
 		self.canvas.yview_moveto(y / total_size[1])
 
 class TilePalette(PyMSDialog):
@@ -1806,7 +1806,7 @@ class PyTILE(Tk):
 			settings = self.clipboard_get()
 			try:
 				self.tileset.import_settings(TILETYPE_MEGA, settings, [mega])
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.mega_editor.draw()
@@ -1891,7 +1891,7 @@ class PyTILE(Tk):
 			settings = self.clipboard_get()
 			try:
 				self.tileset.import_settings(TILETYPE_GROUP, settings, [group])
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.megaload()
@@ -2027,7 +2027,7 @@ class PyTILE(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.cv5'
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -2078,7 +2078,7 @@ class PyTILE(Tk):
 		for m in self.tileset.cv5.groups[self.palette.selected[0]][13]:
 			if m == copy_mega or (m == 0 and self.apply_all_exclude_nulls.get()):
 				continue
-			for n in xrange(16):
+			for n in range(16):
 				copy_flags = self.tileset.vf4.flags[copy_mega][n]
 				flags = self.tileset.vf4.flags[m][n]
 				new_flags = (flags & ~copy_mask) | (copy_flags & copy_mask)
@@ -2187,7 +2187,7 @@ class PyTILE(Tk):
 			tileset = Tilesets.Tileset()
 			try:
 				tileset.load_file(file)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.tileset = tileset
@@ -2211,7 +2211,7 @@ class PyTILE(Tk):
 			self.tileset.save_file(self.file)
 			self.status.set('Save Successful!')
 			self.mark_edited(False)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def saveas(self, key=None):
@@ -2245,7 +2245,7 @@ class PyTILE(Tk):
 	def register(self, e=None):
 		try:
 			register_registry('PyTILE','','cv5',os.path.join(BASE_DIR, 'PyTILE.pyw'),os.path.join(BASE_DIR,'Images','PyTILE.ico'))
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def help(self, e=None):

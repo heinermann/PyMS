@@ -6,12 +6,12 @@ except:
 	try:
 		import ImageTk
 	except:
-		print 'PIL is missing. Consult the installation documentation.' # http://pythonmac.org/packages/py25-fat/index.html
+		print('PIL is missing. Consult the installation documentation.') # http://pythonmac.org/packages/py25-fat/index.html
 		sys.exit()
 
-from utils import *
-from fileutils import *
-import BMP
+from .utils import *
+from .fileutils import *
+from . import BMP
 
 import struct, re
 
@@ -84,7 +84,7 @@ def letter_to_photo(palette, letter, color, remap=None, remap_palette=None):
 		if n != palette.image[color_map[0]][color_map[1] * 8] and c != [255,0,255]:
 			alpha = 255
 		pal.append((c[0],c[1],c[2],alpha))
-	i.putdata(map(lambda i: pal[palette.image[color_map[0]][color_map[1]*8+i]], data))
+	i.putdata(list(map(lambda i: pal[palette.image[color_map[0]][color_map[1]*8+i]], data)))
 	return ImageTk.PhotoImage(i)
 
 def fnttobmp(fnt,pal,file=None):
@@ -100,7 +100,7 @@ def fnttobmp(fnt,pal,file=None):
 
 def bmptofnt(bmp,lowi,letters,file=None):
 	f = FNT()
-	f.start,f.width,f.height = lowi,bmp.width / letters,bmp.height
+	f.start, f.width, f.height = lowi, bmp.width // letters, bmp.height
 	for l in range(letters):
 		f.letters.append([])
 		for y in bmp.image:
@@ -119,28 +119,28 @@ class FNT:
 
 	def load_file(self, file):
 		data = load_file(file, 'FNT')
-		if data[:4] != 'FONT':
+		if data[:4] != b'FONT':
 			raise PyMSError('Load',"Invalid FNT file '%s' (invalid header)" % file)
 		try:
-			lowi,highi,maxw,maxh = struct.unpack('<4B',data[4:8])
+			lowi, highi, maxw, maxh = struct.unpack('<4B', data[4:8])
 			letters = []
 			sizes = []
 			for l in range(highi-lowi+1):
-				o = 8+4*l
-				o = struct.unpack('<L',data[o:o+4])[0]
+				o = 8 + 4 * l
+				o = struct.unpack('<L', data[o:o+4])[0]
 				if o:
-					width,height,xoffset,yoffset = struct.unpack('4B', data[o:o+4])
+					width, height, xoffset, yoffset = struct.unpack('4B', data[o:o+4])
 					pxls = [[]]
 					o += 4
 					while len(pxls) < height or (len(pxls) == height and len(pxls[-1]) < width):
-						c = ord(data[o])
-						co,col = (c & 248) >> 3,c & 7
-						if len(pxls[-1])+co > width:
-							e = width-len(pxls[-1])
+						c = data[o]
+						co, col = (c & 248) >> 3, c & 7
+						if len(pxls[-1]) + co > width:
+							e = width - len(pxls[-1])
 							pxls[-1].extend([0] * e)
-							pxls.extend([[0] * width for _ in range(min((co-e)/width,height-len(pxls)))])
-							if (co-e)%width and len(pxls) < height:
-								pxls.append([0] * ((co-e)%width))
+							pxls.extend([[0] * width for _ in range(min((co - e) // width, height - len(pxls)))])
+							if (co - e) % width and len(pxls) < height:
+								pxls.append([0] * ((co - e) % width))
 						elif co:
 							pxls[-1].extend([0] * co)
 						if len(pxls) < height and len(pxls[-1]) == width:
@@ -149,14 +149,14 @@ class FNT:
 							pxls[-1].append(col)
 						o += 1
 					for y,d in enumerate(pxls):
-						pxls[y] = [0]*xoffset + d + [0]*(maxw-width-xoffset)
-					pxls = [[0]*maxw for _ in range(yoffset)] + pxls + [[0]*maxw for _ in range(maxh-height-yoffset)]
-					sizes.append([width,height,xoffset,yoffset])
+						pxls[y] = [0]*xoffset + d + [0]*(maxw - width - xoffset)
+					pxls = [[0]*maxw for _ in range(yoffset)] + pxls + [[0]*maxw for _ in range(maxh - height - yoffset)]
+					sizes.append([width, height, xoffset, yoffset])
 				else:
 					pxls = [[0]*maxw for _ in range(maxh)]
-					sizes.append([0,0,0,0])
+					sizes.append([0, 0, 0, 0])
 				letters.append(pxls)
-			self.width,self.height = maxw,maxh
+			self.width, self.height = maxw, maxh
 			self.start = lowi
 			self.letters = letters
 			self.sizes = sizes

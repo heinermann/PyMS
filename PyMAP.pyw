@@ -6,15 +6,15 @@ from Libs import TBL, AIBIN, DAT, Tilesets, GRP, PAL, PCX
 from Libs.CHK import *
 from Libs.analytics import *
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog,tkColorChooser
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog,tkinter.colorchooser
 from Libs.SpecialLists import TreeList
 from PIL import Image as PILImage
 from PIL import ImageDraw as PILDraw
 from PIL import ImageTk
 
-from thread import start_new_thread
+from _thread import start_new_thread
 from math import ceil
 import optparse, os, webbrowser, sys, time, random
 
@@ -950,14 +950,16 @@ class BWImage:
 		keys = [grpFile, player_color_id, flipHor, draw_function_id, draw_remapping, index]
 		while keys[-1] == None:
 			del keys[-1]
+		
 		def do_purge(cache, keys):
-			if key[0] == None:
+			if keys[0] == None:
 				for k in cache.keys():
 					do_purge(cache[k], keys[1:])
 			elif len(keys) == 1:
-				del cache[key[0]]
+				del cache[keys[0]]
 			else:
 				do_purge(cache[k], keys[1:])
+
 		if not keys:
 			BWImage.FRAME_CACHE = {}
 		else:
@@ -1071,15 +1073,15 @@ class BWImage:
 		elif self.draw_function_id == 13:
 			self.draw_function = GRP.rle_outline
 			self.draw_info = GRP.OUTLINE_ALLY
-			print (1, self.parent)
-			print (2, self.parent.unit_ref)
+			print((1, self.parent))
+			print((2, self.parent.unit_ref))
 			if self.parent != None and self.parent.unit_ref != None:
 				units = self.ui.chk.get_section(CHKSectionUNIT.NAME)
 				unit = units.get_unit(self.parent.unit_ref)
 				if unit:
-					print (3,unit.owner)
+					print((3,unit.owner))
 					ownr = self.ui.chk.get_section(CHKSectionOWNR.NAME)
-					print (4,ownr.owners[unit.owner])
+					print((4,ownr.owners[unit.owner]))
 					owner = ownr.owners[unit.owner]
 					if owner == CHKSectionOWNR.HUMAN:
 						self.draw_info = GRP.OUTLINE_SELF
@@ -1115,7 +1117,7 @@ class BWImage:
 				try:
 					grp = GRP.CacheGRP()
 					grp.load_file(grp_file)
-				except PyMSError, e:
+				except PyMSError as e:
 					return None
 				self.grp = grp
 				BWImage.GRP_CACHE[self.grpFile] = grp
@@ -1222,7 +1224,7 @@ class BWImage:
 		return True
 
 	def op_end(self):
-		self.iscript_wait = sys.maxint
+		self.iscript_wait = sys.maxsize
 		self.ui.maplayer_images.remove_image(self)
 		for child in self.children:
 			child.parent = None
@@ -1586,13 +1588,13 @@ class EditLayerLocations(EditLayer):
 			y = y1+mouseY
 			locations = self.ui.chk.get_section(CHKSectionMRGN.NAME)
 			if button_event & EditLayer.MOUSE_DOWN or button_event & EditLayer.MOUSE_DOUBLE:
-	 			self.current_event = []
-	 			unused = None
-	 			for l in self.zOrder:
-	 				if l == 63 and not self.show_anywhere:
+				self.current_event = []
+				unused = None
+				for l in self.zOrder:
+					if l == 63 and not self.show_anywhere:
 						continue
 					location = locations.locations[l]
-	 				if location.in_use():
+					if location.in_use():
 						x1,y1,x2,y2 = location.normalized_coords()
 						if button_event & EditLayer.MOUSE_DOWN:
 							event = resize_event(location,x,y)
@@ -1606,7 +1608,7 @@ class EditLayerLocations(EditLayer):
 								self.ui.action_manager.add_action(self.action)
 								break
 						elif x1 <= x <= x2 and y1 <= y <= y2:
-							print 'Edit Location'
+							print('Edit Location')
 							return
 					elif unused == None:
 						unused = l
@@ -1712,14 +1714,14 @@ class EditLayerUnits(EditLayer):
 			self.ui.mapCanvas.tag_raise('selection_box')
 
 	def mouse_event(self, button, button_event, x1,y1, x2,y2, mouseX,mouseY):
-		print flags(button_event,8)
+		print(flags(button_event,8))
 		if button == EditLayer.MOUSE_LEFT:
 			x = x1 + mouseX
 			y = y1 + mouseY
 			if button_event & EditLayer.MOUSE_DOWN:
 				self.selecting_start = (x,y)
 				self.selecting_images = set()
-				print ('Reset', flags(button_event,8))
+				print(('Reset', flags(button_event,8)))
 			elif self.selecting_start != None:
 				if not button_event & (EditLayer.MODIFIER_SHIFT | EditLayer.MODIFIER_CTRL):
 					self.deselect_all()
@@ -1789,8 +1791,8 @@ class MinimapLayer:
 		if not self.ui.chk:
 			return
 		dims = self.ui.chk.get_section(CHKSectionDIM.NAME)
-		points = min(256 / dims.width, 256 / dims.height)
-		size = (dims.width*points,dims.height*points)
+		points = min(256 // dims.width, 256 // dims.height)
+		size = (dims.width * points, dims.height * points)
 		self.image = PILImage.new('RGBA', size)
 		drawer = PILDraw.ImageDraw(self.image)
 		self.draw(drawer, size, points)
@@ -1961,7 +1963,7 @@ class ListLayer:
 
 	def update_option(self, option):
 		index = None
-		for i,o in self.groups.iteritems():
+		for i,o in self.groups.items():
 			if o == option:
 				index = i
 				break
@@ -2364,7 +2366,7 @@ class PyMAP(Tk):
 				palettes[p] = pal.palette
 			tunitpcx = PCX.PCX()
 			tunitpcx.load_file(self.mpqhandler.get_file(self.profile['tunitpcx']))
-		except PyMSError, e:
+		except PyMSError as e:
 			err = e
 		else:
 			self.stat_txt = stat_txt
@@ -2471,7 +2473,7 @@ class PyMAP(Tk):
 		if not self.chk:
 			return
 		dims = self.chk.get_section(CHKSectionDIM.NAME)
-		points = min(256 / dims.width, 256 / dims.height)
+		points = min(256 // dims.width, 256 // dims.height)
 		size = (dims.width*points,dims.height*points)
 		minimap_size = (self.minimap.winfo_width(), self.minimap.winfo_height())
 		scale = min(minimap_size[0] / float(size[0]),minimap_size[1] / float(size[1]))
@@ -2501,7 +2503,7 @@ class PyMAP(Tk):
 	def update_viewport(self):
 		if self.chk:
 			dims = self.chk.get_section(CHKSectionDIM.NAME)
-			points = min(256 / dims.width, 256 / dims.height)
+			points = min(256 // dims.width, 256 // dims.height)
 			size = (dims.width*points,dims.height*points)
 			minimap_size = (self.minimap.winfo_width(), self.minimap.winfo_height())
 			scale = min(minimap_size[0] / float(size[0]),minimap_size[1] / float(size[1]))
@@ -2547,7 +2549,7 @@ class PyMAP(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.scx'
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -2561,7 +2563,7 @@ class PyMAP(Tk):
 			parent = self
 		path = self.settings.get('lastpath', BASE_DIR)
 		parent._pyms__window_blocking = True
-		file = [tkFileDialog.asksaveasfilename,tkFileDialog.askopenfilename][open](title=title, defaultextension=ext, filetypes=filetypes, initialdir=path, parent=parent)
+		file = [tkinter.filedialog.asksaveasfilename,tkinter.filedialog.askopenfilename][open](title=title, defaultextension=ext, filetypes=filetypes, initialdir=path, parent=parent)
 		parent._pyms__window_blocking = False
 		if file:
 			self.settings['lastpath'] = os.path.dirname(file)
@@ -2648,7 +2650,7 @@ class PyMAP(Tk):
 						tileset = Tilesets.Tileset()
 						tileset.load_file(*tilesetFiles)
 					self.mpqhandler.close_mpqs()
-			except PyMSError, e:
+			except PyMSError as e:
 				self.mpqhandler.close_mpqs()
 				if not SFInvalidHandle(chkfile):
 					SFileCloseFile(chkfile)
@@ -2689,7 +2691,7 @@ class PyMAP(Tk):
 			self.status.set('Save Successful!')
 			self.edited = False
 			self.editstatus['state'] = DISABLED
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def saveas(self, key=None):

@@ -1,5 +1,5 @@
-from utils import *
-from fileutils import *
+from .utils import *
+from .fileutils import *
 
 import struct, math
 
@@ -13,14 +13,14 @@ class PCX:
 
 	def load_file(self, file, pal=False):
 		data = load_file(file, 'PCX')
-		if data[:4] != '\x0A\x05\x01\x08':
+		if data[:4] != b'\x0A\x05\x01\x08':
 			raise PyMSError('Load',"'%s' is not a PCX file (no PCX header)" % file)
 		try:
 			xmin,ymin,xmax,ymax,hdpi,vdpi = struct.unpack('<6H',data[4:16])
 			planes,bytesperline,palinfo,hscreensize,vscreensize = struct.unpack('<B4H', data[65:74])
 			xmax = (xmax-xmin)+1
 			ymax = (ymax-ymin)+1
-			if data[-769] != '\x0C':
+			if data[-769] != 12:
 				raise PyMSError('Load', "Unsupported PCX file '%s', the palette information is missing" % file)
 			if pal and (xmax > 256 or ymax > 256 or planes != 1):
 				raise PyMSError('Load', "Unsupported special palette (PCX) file '%s'" % file)
@@ -34,10 +34,10 @@ class PCX:
 			image = [[]]
 			x = 128
 			while x < len(data) - 769:
-				c = ord(data[x])
+				c = data[x]
 				x += 1
 				if c & 192 == 192:
-					image[-1].extend([ord(data[x])] * (63 & c))
+					image[-1].extend([data[x]] * (63 & c))
 					x += 1
 				else:
 					image[-1].append(c)

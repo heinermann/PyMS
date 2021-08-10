@@ -1,7 +1,6 @@
+from .AutohideScrollbar import AutohideScrollbar
 
-from AutohideScrollbar import AutohideScrollbar
-
-from Tkinter import *
+from tkinter import *
 
 
 SHOW_SCROLL_NEVER = 0
@@ -37,7 +36,7 @@ class ScrolledListbox(Frame):
 		# Forward listbox methods and certain other methods to the listbox
 		self.frame_bind = self.bind
 		self.bind = self.listbox.bind
-		methods = vars(Listbox).keys() + vars(XView).keys() + vars(YView).keys()
+		methods = list(vars(Listbox).keys()) + list(vars(XView).keys()) + list(vars(YView).keys())
 		for m in methods:
 			if m.startswith('_'):
 				continue

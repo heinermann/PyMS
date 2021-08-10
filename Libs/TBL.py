@@ -1,5 +1,5 @@
-from utils import *
-from fileutils import *
+from .utils import *
+from .fileutils import *
 
 import struct, re
 
@@ -80,7 +80,7 @@ TBL_REF = """#----------------------------------------------------
 #----------------------------------------------------
 """
 
-DEF_DECOMPILE = ''.join([chr(x) for x in range(32)]) + '#<>'
+DEF_DECOMPILE = ''.join([chr(x) for x in range(32)])
 
 def compile_string(string):
 	def special_chr(o):
@@ -88,15 +88,15 @@ def compile_string(string):
 		if -1 > c or 255 < c:
 			return o.group(0)
 		return chr(c)
-	return re.sub('<(\d+)>', special_chr, string)
+	return re.sub(r'<(\d+)>', special_chr, string)
 
 def decompile_string(string, exclude='', include=''):
 	def special_chr(o):
 		return '<%s>' % ord(o.group(0))
 	decompile = DEF_DECOMPILE + include
 	if exclude:
-		decompile = re.sub('[%s]' % re.escape(exclude),'',decompile)
-	return re.sub('([%s])' % decompile, special_chr, string)
+		decompile = re.sub('[%s]' % re.escape(exclude), '', decompile)
+	return re.sub(f'([{decompile}])', special_chr, string)
 
 class TBL:
 	def __init__(self):
@@ -110,13 +110,13 @@ class TBL:
 			findlen = list(offsets) + [len(data)]
 			findlen.sort(reverse=True)
 			lengths = {}
-			for i in xrange(1,len(findlen)):
+			for i in range(1,len(findlen)):
 				start = findlen[i]
 				if not start in lengths:
 					end = findlen[i-1]
 					lengths[start] = end-start
 			strings = []
-			for i in xrange(len(offsets)):
+			for i in range(len(offsets)):
 				o = offsets[i]
 				l = lengths[o]
 				strings.append(data[o:o+l].decode('latin-1'))
@@ -126,7 +126,7 @@ class TBL:
 
 	def interpret(self, file):
 		try:
-			f = open(file,'r')
+			f = open(file)
 			data = f.readlines()
 			f.close()
 		except:

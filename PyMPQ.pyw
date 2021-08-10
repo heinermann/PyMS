@@ -7,11 +7,11 @@ from Libs.analytics import *
 
 # from Libs import TRG, GOT
 
-from Tkinter import *
-# from tkMessageBox import *
-# import tkFileDialog,tkColorChooser
+from tkinter import *
+# from tkinter.messagebox import *
+# import tkinter.filedialog,tkinter.colorchooser
 
-from thread import start_new_thread
+from _thread import start_new_thread
 from operator import itemgetter
 import optparse, os, webbrowser, sys, time
 #import ntpath
@@ -94,7 +94,7 @@ class CheckThread:
 				break
 			elif u:
 				u.append('test')
-				self.parent.after(1, self.parent.update_files, map(lambda f: f.replace(self.path,''),u))
+				self.parent.after(1, self.parent.update_files, map(lambda f: f.replace(self.path,''), u))
 			time.sleep(self.delay)
 		self.thread = None
 
@@ -257,7 +257,7 @@ class ListfileSettings(Frame):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -596,7 +596,7 @@ class PyMPQ(Tk):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -721,7 +721,7 @@ class PyMPQ(Tk):
 			t = 0
 			for i in s:
 				t += self.files[i].fullSize
-			self.selected.set('Selected %s files, %s' % (len(s),size(t)))
+			self.selected.set(f'Selected {len(s)} files, {size(t)}')
 		else:
 			self.selected.set('')
 		self.action_states()
@@ -786,7 +786,7 @@ class PyMPQ(Tk):
 			def keysort(l):
 				t = list(l)
 				t[6] = t[6].lower()
-				return map(lambda i: t[i], o)
+				return list(map(lambda i: t[i], o))
 			self.files.sort(key=keysort, reverse=sort[1])
 			check = True
 			s = self.filter.get()
@@ -826,7 +826,7 @@ class PyMPQ(Tk):
 				ErrorDialog(self, PyMSError('Read MPQ (Update Info)', "The MPQ could not be opened. Other non-PyMS programs may lock MPQ's while open. Please try closing any programs that might be locking your MPQ."))
 				return
 			f = SFileGetFileInfo(h,SFILE_INFO_NUM_FILES)
-			self.info.set('Total %s/%s files, %s' % (len(self.files),f,size(self.totalsize)))
+			self.info.set(f'Total {len(self.files)}/{f} files, {size(self.totalsize)}')
 			self.buttons['debug']['state'] = [DISABLED,NORMAL][f > len(self.files)]
 			if close:
 				MpqCloseUpdatedArchive(h)
@@ -892,7 +892,7 @@ class PyMPQ(Tk):
 			n = self.listbox.get(i)[0]
 			try:
 				os.makedirs(os.path.join(path,os.path.dirname(n)))
-			except (OSError, IOError), e:
+			except OSError as e:
 				if e.errno != 17:
 					raise
 			fh = SFileOpenFileEx(h, n)
@@ -945,7 +945,7 @@ class PyMPQ(Tk):
 			self.files = []
 			self.totalsize = 0
 			self.status.set('Editing new MPQ.')
-			self.title('PyMPQ %s (%s)' % (LONG_VERSION,file))
+			self.title(f'PyMPQ {LONG_VERSION} ({file})')
 			self.update_list()
 			self.select()
 
@@ -959,7 +959,7 @@ class PyMPQ(Tk):
 			askquestion(parent=self, title='Open', message='There is no MPQ in "%s".' % file, type=OK)
 			return
 		self.file = file
-		self.title('PyMPQ %s (%s)' % (LONG_VERSION,file))
+		self.title(f'PyMPQ {LONG_VERSION} ({file})')
 		self.status.set('Load Successful!')
 		self.list_files(h)
 		self.update_info(h)
@@ -1079,7 +1079,7 @@ class PyMPQ(Tk):
 			p = n.split('\\')
 			try:
 				os.makedirs(os.path.join(path,*p[:-1]))
-			except (OSError, IOError), e:
+			except OSError as e:
 				if e.errno != 17:
 					raise
 			fh = SFileOpenFileEx(h, n)
@@ -1113,7 +1113,7 @@ class PyMPQ(Tk):
 	def register(self, e=None):
 		try:
 			register_registry('PyMPQ','','mpq',os.path.join(BASE_DIR, 'PyMPQ.pyw'),os.path.join(BASE_DIR,'Images','PyMPQ.ico'))
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def help(self, e=None):

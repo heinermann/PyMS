@@ -1,10 +1,10 @@
-from utils import *
-from fileutils import *
-from SFmpq import *
+from .utils import *
+from .fileutils import *
+from .SFmpq import *
 from Libs import PCX,FNT,GRP,PAL,TBL,AIBIN,DAT,IScriptBIN
 
-from Tkinter import *
-from tkMessageBox import *
+from tkinter import *
+from tkinter.messagebox import *
 
 import re, os, json, copy
 
@@ -14,7 +14,7 @@ def loadsettings(program, default={}):
 	if os.path.exists(path):
 		try:
 			contents = None
-			with file(path, 'r') as f:
+			with open(path) as f:
 				contents = f.read()
 			settings.update(json.loads(contents))
 		except:
@@ -23,13 +23,13 @@ def loadsettings(program, default={}):
 
 def savesettings(program, settings):
 	try:
-		f = file(os.path.join(BASE_DIR,'Settings','%s.txt' % program),'w')
+		f = open(os.path.join(BASE_DIR,'Settings','%s.txt' % program),'w')
 		f.write(json.dumps(settings, sort_keys=True, indent=4))
 		f.close()
 	except:
 		pass
 
-class SettingDict(object):
+class SettingDict:
 	def __init__(self, settings=None):
 		if not isinstance(settings, dict):
 			settings = {}
@@ -66,22 +66,22 @@ class SettingDict(object):
 			return memo[id(self)]
 		result = SettingDict()
 		memo[id(self)] = result
-		for key,value in self.iteritems():
+		for key,value in self.items():
 			result[key] = copy.deepcopy(value, memo)
 		return result
 	def deepcopy(self):
 		return copy.deepcopy(self)
 	def iteritems(self):
-		return self.__dict__['_settings'].iteritems()
+		return iter(self.__dict__['_settings'].items())
 	def keys(self):
-		return self.__dict__['_settings'].keys()
+		return list(self.__dict__['_settings'].keys())
 	def values(self):
-		return self.__dict__['_settings'].values()
+		return list(self.__dict__['_settings'].values())
 	def update(self, settings, set=False):
 		if set:
 			self.__dict__['_settings'] = copy.deepcopy(settings.__dict__['_settings'])
 		else:
-			for key,value in settings.iteritems():
+			for key,value in settings.items():
 				if isinstance(value, SettingDict):
 					if key in self:
 						self[key].update(value, set=set)
@@ -90,7 +90,7 @@ class SettingDict(object):
 				else:
 					self[key] = value
 	def set_defaults(self, settings):
-		for key,value in settings.iteritems():
+		for key,value in settings.items():
 			if not key in self:
 				self[key] = value
 	def get(self, key, default=None, autosave=True):
@@ -110,7 +110,7 @@ class SettingDict(object):
 			return default
 		self.get(key, get_default)
 	def set_defaults(self, defaults):
-		for key,value in defaults.iteritems():
+		for key,value in defaults.items():
 			if not key in self:
 				self[key] = value
 	def save_pane_size(self, key, panedwindow, index=0):
@@ -139,7 +139,7 @@ class SettingDict(object):
 			size[axis] = o
 			panedwindow.sash_place(n, *size)
 	def save_window_size(self, key, window, closing=True):
-		resizable_w,resizable_h = (bool(int(v)) for v in window.resizable().split(' '))
+		resizable_w, resizable_h = window.resizable()
 		w,h,x,y,f = parse_geometry(window.winfo_geometry())
 		if resizable_w or resizable_h:
 			z = ''
@@ -159,7 +159,7 @@ class SettingDict(object):
 			w,h,x,y,fullscreen = parse_geometry(geometry)
 			if position:
 				x,y = position
-			resizable_w,resizable_h = (bool(v) for v in window.resizable().split(' '))
+			resizable_w, resizable_h = window.resizable()
 			can_fullscreen = (resizable_w and resizable_h)
 			if (resizable_w or resizable_h) and w != None and h != None:
 				cur_w,cur_h,_,_,_ = parse_geometry(window.winfo_geometry())
@@ -206,11 +206,11 @@ class SettingDict(object):
 				window.update_idletasks()
 				screen_w = window.winfo_screenwidth()
 				screen_h = window.winfo_screenheight()
-				geometry += '+%d+%d' % ((screen_w-w)/2,(screen_h-h)/2)
+				geometry += '+%d+%d' % ((screen_w-w)//2, (screen_h-h)//2)
 			if geometry:
 				window.geometry(geometry)
 	def select_file(self, key, parent, title, ext, filetypes, save=False, store=True):
-		dialog = tkFileDialog.asksaveasfilename if save else tkFileDialog.askopenfilename
+		dialog = tkinter.filedialog.asksaveasfilename if save else tkinter.filedialog.askopenfilename
 		parent._pyms__window_blocking = True
 		path = dialog(parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=self.get(key, BASE_DIR, autosave=store))
 		parent._pyms__window_blocking = False
@@ -222,9 +222,9 @@ class SettingDict(object):
 			filetypes = None
 		parent._pyms__window_blocking = True
 		if filetypes == None:
-			paths = tkFileDialog.askopenfilename(parent=parent, title=title, defaultextension=ext, initialdir=self.get(key, BASE_DIR, autosave=store), multiple=True)
+			paths = tkinter.filedialog.askopenfilename(parent=parent, title=title, defaultextension=ext, initialdir=self.get(key, BASE_DIR, autosave=store), multiple=True)
 		else:
-			paths = tkFileDialog.askopenfilename(parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=self.get(key, BASE_DIR, autosave=store), multiple=True)
+			paths = tkinter.filedialog.askopenfilename(parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=self.get(key, BASE_DIR, autosave=store), multiple=True)
 		parent._pyms__window_blocking = False
 		if isstr(paths):
 			if paths:
@@ -238,7 +238,7 @@ class SettingDict(object):
 		return paths
 	def select_directory(self, key, parent, title, store=True):
 		parent._pyms__window_blocking = True
-		path = tkFileDialog.askdirectory(parent=parent, title=title, initialdir=self.get(key, BASE_DIR, autosave=store))
+		path = tkinter.filedialog.askdirectory(parent=parent, title=title, initialdir=self.get(key, BASE_DIR, autosave=store))
 		parent._pyms__window_blocking = False
 		if path and store:
 			self[key] = path
@@ -259,7 +259,7 @@ class Settings(SettingDict):
 		self.__dict__['path'] = os.path.join(BASE_DIR,'Settings','%s.txt' % program)
 		self.__dict__['version'] = settings_version
 		try:
-			with file(self.__dict__['path'], 'r') as f:
+			with open(self.__dict__['path']) as f:
 				settings = json.load(f, object_hook=lambda o: SettingDict(o)).__dict__['_settings']
 			if settings:
 				version = settings.get('version', '?')
@@ -272,7 +272,7 @@ class Settings(SettingDict):
 	def save(self):
 		try:
 			self.version = self.__dict__['version']
-			with file(self.__dict__['path'], 'w') as f:
+			with open(self.__dict__['path'], 'w') as f:
 				json.dump(self, f, sort_keys=True, indent=4, cls=SettingEncoder)
 		except:
 			pass
@@ -341,7 +341,7 @@ def check_update(window, program):
 	remindme = PYMS_SETTINGS.get('remindme', True)
 	if remindme == True or remindme != VERSIONS['PyMS']:
 		try:
-			versions = json.loads(urllib.urlopen(VERSIONS_URL).read())
+			versions = json.loads(urllib.request.urlopen(VERSIONS_URL).read())
 			PyMS_version = versions['PyMS']
 			program_version = versions[program]
 		except:
@@ -361,9 +361,9 @@ class UpdateDialog(PyMSDialog):
 
 	def widgetize(self):
 		if VERSIONS[self.program] < self.versions[self.program]:
-			text = "Your version of %s (%s) is older then the current version (%s).\nIt is recommended that you update as soon as possible." % (self.program,VERSIONS[self.program],self.versions[self.program])	
+			text = f"Your version of {self.program} ({VERSIONS[self.program]}) is older then the current version ({self.versions[self.program]}).\nIt is recommended that you update as soon as possible."	
 		else:
-			text = "Your version of PyMS (%s) is older then the current version (%s).\nIt is recommended that you update as soon as possible." % (VERSIONS['PyMS'],self.versions['PyMS'])
+			text = "Your version of PyMS ({}) is older then the current version ({}).\nIt is recommended that you update as soon as possible.".format(VERSIONS['PyMS'],self.versions['PyMS'])
 		Label(self, justify=LEFT, anchor=W, text=text).pack(pady=5,padx=5)
 		f = Frame(self)
 		self.remind = IntVar()
@@ -405,7 +405,7 @@ class MPQHandler:
 		scdir = PYMS_SETTINGS.get('scdir', autosave=False)
 		if scdir and os.path.isdir(scdir):
 			for f in ['Patch_rt','BrooDat','StarDat']:
-				p = os.path.join(scdir, '%s%smpq' % (f,os.extsep))
+				p = os.path.join(scdir, f'{f}{os.extsep}mpq')
 				if os.path.exists(p) and not p in self.mpqs:
 					h = SFileOpenArchive(p)
 					if not SFInvalidHandle(h):
@@ -447,7 +447,7 @@ class MPQHandler:
 
 	def close_mpqs(self):
 		self.open = False
-		for h in self.handles.values():
+		for h in list(self.handles.values()):
 			if not SFInvalidHandle(h):
 				MpqCloseUpdatedArchive(h)
 		self.handles = {}
@@ -516,7 +516,7 @@ class MPQHandler:
 			files = []
 		if self.mpqs:
 			if handles == None:
-				handles = self.handles.values()
+				handles = list(self.handles.values())
 			elif isinstance(handles, int):
 				handles = [handles]
 			if self.open == False:
@@ -624,16 +624,18 @@ class MpqSelect(PyMSDialog):
 		filelists = os.path.join(BASE_DIR,'Libs','Data','Listfile.txt')
 		self.files = []
 		self.mpqhandler.open_mpqs()
-		for h in self.mpqhandler.handles.values():
+		for h in list(self.mpqhandler.handles.values()):
 			for e in SFileListFiles(h, filelists):
-				if e.fileName and not e.fileName in self.files:
-					self.files.append(e.fileName)
+				if e.fileName:
+					filename_str = str(e.fileName, 'utf-8')
+					if not filename_str in self.files:
+						self.files.append(filename_str)
 		self.mpqhandler.close_mpqs()
-		m = os.path.join(BASE_DIR,'Libs','MPQ','')
+		m = os.path.join(BASE_DIR, 'Libs', 'MPQ', '')
 		for p in os.walk(m):
-			folder = p[0].replace(m,'')
+			folder = p[0].replace(m, '')
 			for f in p[2]:
-				a = '%s\\%s' % (folder,f)
+				a = f'{folder}\\{f}'
 				if not a in self.files:
 					self.files.append(a)
 		self.files.sort()
@@ -652,7 +654,7 @@ class MpqSelect(PyMSDialog):
 			self.resettimer = self.after(1000, self.updatecolor)
 			self.textdrop.entry['bg'] = '#FFB4B4'
 		else:
-			for f in filter(lambda p: r.match(p), self.files):
+			for f in [p for p in self.files if r.match(p)]:
 				self.listbox.insert(END,f)
 		if self.listbox.size():
 			self.listbox.select_set(0)
@@ -753,7 +755,7 @@ class MPQSettings(Frame):
 				a = btn[4]
 				if a:
 					if not a.startswith('F'):
-						self.bind('<%s%s>' % (a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
+						self.bind('<{}{}>'.format(a[:-1].replace('Ctrl','Control').replace('+','-'), a[-1].lower()), btn[1])
 					else:
 						self.bind('<%s>' % a, btn[1])
 			else:
@@ -807,7 +809,7 @@ class MPQSettings(Frame):
 			return self.settings.lastpath.settings.select_files('mpqs', self, "Add MPQ's", '.mpq', [('MPQ Files','*.mpq'),('All Files','*')])
 		else:
 			path = self.settings.get('lastpath', BASE_DIR)
-			file = tkFileDialog.askopenfilename(parent=self, title="Add MPQ's", defaultextension='.mpq', filetypes=[('MPQ Files','*.mpq'),('All Files','*')], initialdir=path, multiple=True)
+			file = tkinter.filedialog.askopenfilename(parent=self, title="Add MPQ's", defaultextension='.mpq', filetypes=[('MPQ Files','*.mpq'),('All Files','*')], initialdir=path, multiple=True)
 			if file:
 				self.settings['lastpath'] = os.path.dirname(file[0])
 			return file
@@ -856,7 +858,7 @@ class MPQSettings(Frame):
 		if scdir and os.path.isdir(scdir):
 			a = []
 			for f in ['Patch_rt','BrooDat','StarDat']:
-				p = os.path.join(scdir, '%s%smpq' % (f,os.extsep))
+				p = os.path.join(scdir, f'{f}{os.extsep}mpq')
 				if os.path.exists(p) and not p in self.mpqs:
 					a.append(p)
 			if len(a) == 3 and not 'scdir' in PYMS_SETTINGS:
@@ -958,7 +960,7 @@ class SettingsPanel(Frame):
 			return self.settings.lastpath.settings.select_file(t, self, "Open a " + t, '.' + e, f)
 		else:
 			path = self.settings.get('lastpath', BASE_DIR)
-			file = tkFileDialog.askopenfilename(parent=self, title="Open a " + t, defaultextension='.' + e, filetypes=f, initialdir=path)
+			file = tkinter.filedialog.askopenfilename(parent=self, title="Open a " + t, defaultextension='.' + e, filetypes=f, initialdir=path)
 			if file:
 				self.settings['lastpath'] = os.path.dirname(file)
 			return file
@@ -969,7 +971,7 @@ class SettingsPanel(Frame):
 			m = MpqSelect(self.setdlg, self.mpqhandler, t[1], '*.' + t[2], self.settings)
 			if m.file:
 				self.mpqhandler.open_mpqs()
-				if t[1] == 'FNT':
+				if t[1] == b'FNT':
 					file = (self.mpqhandler.get_file(m.file, False),self.mpqhandler.get_file(m.file, True))
 				else:
 					file = self.mpqhandler.get_file(m.file)
@@ -978,7 +980,7 @@ class SettingsPanel(Frame):
 			file = self.select_file(t[1],t[2],t[3])
 		if file:
 			c = t[0]()
-			if t[1] == 'FNT':
+			if t[1] == b'FNT':
 				try:
 					c.load_file(file[0])
 					self.variables[f][1].set(file[0].file)
@@ -986,13 +988,13 @@ class SettingsPanel(Frame):
 					try:
 						c.load_file(file[1])
 						self.variables[f][1].set(file[0].file)
-					except PyMSError, err:
+					except PyMSError as err:
 						ErrorDialog(self.setdlg, err)
 						return
 			else:
 				try:
 					c.load_file(file)
-				except PyMSError, e:
+				except PyMSError as e:
 					ErrorDialog(self.setdlg, e)
 					return
 				self.variables[f][1].set(file)

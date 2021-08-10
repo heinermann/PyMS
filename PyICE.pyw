@@ -5,14 +5,16 @@ from Libs.SpecialLists import TreeList
 from Libs import IScriptBIN, AIBIN, TBL, DAT, PAL, GRP
 from Libs.analytics import *
 
+from collections import OrderedDict
+
 #import sys
 #sys.stdout = open('stdieo.txt','w')
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog,tkColorChooser
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog,tkinter.colorchooser
 
-from thread import start_new_thread
+from _thread import start_new_thread
 import optparse, os, re, webbrowser, sys, json
 try:
 	from winsound import *
@@ -425,7 +427,7 @@ class PreviewerDialog(PyMSDialog):
 					try:
 						grp = GRP.CacheGRP()
 						grp.load_file(p)
-					except PyMSError, e:
+					except PyMSError as e:
 						return None
 					self.curgrp = [i,None,0]
 					self.curgrp[1] = grp
@@ -717,7 +719,7 @@ class CodeColors(PyMSDialog):
 	def __init__(self, parent):
 		self.cont = False
 		self.tags = dict(parent.text.tags)
-		self.info = odict()
+		self.info = OrderedDict()
 		self.info['Block'] = 'The color of a "block:" in the code.'
 		self.info['Keywords'] = ['Keywords:\n    .headerstart  .headerend  [NONE]','HeaderStart']
 		#self.info['Types'] = 'Variable types:\n    ' + '  '.join(AIBIN.types)
@@ -777,7 +779,7 @@ class CodeColors(PyMSDialog):
 		return ok
 
 	def select(self, e=None, n=None):
-		i = self.info.getkey(int(self.listbox.curselection()[0]))
+		i = self.listbox.get(self.listbox.curselection()[0])
 		s = self.tags[i.replace(' ', '')]
 		if n == None:
 			if isinstance(self.info[i], list):
@@ -818,10 +820,10 @@ class CodeColors(PyMSDialog):
 		if [self.fg,self.bg][i].get():
 			v = [self.fgcanvas,self.bgcanvas][i]
 			g = ['foreground','background'][i]
-			c = tkColorChooser.askcolor(parent=self, initialcolor=v['background'], title='Select %s color' % g)
+			c = tkinter.colorchooser.askcolor(parent=self, initialcolor=v['background'], title='Select %s color' % g)
 			if c[1]:
 				v['background'] = c[1]
-				k = self.info.getkey(int(self.listbox.curselection()[0])).replace(' ','')
+				k = self.listbox.get(self.listbox.curselection()[0]).replace(' ','')
 				self.tags[k][g] = c[1]
 				if isinstance(self.info[k], list):
 					self.tags[self.info[k][1]][g] = c[1]
@@ -1081,10 +1083,10 @@ class GeneratorTypeRange(GeneratorType):
 		self.stop = save.get('stop',0)
 		self.step = save.get('step',1)
 	def count(self):
-		return len(xrange(self.start,self.stop+1,self.step))
+		return len(range(self.start, self.stop+1, self.step))
 	def value(self, lookup_value):
 		n = lookup_value('n')
-		r = xrange(self.start,self.stop+1,self.step)
+		r = range(self.start, self.stop+1, self.step)
 		if n >= len(r):
 			return ''
 		return r[n]
@@ -1129,7 +1131,7 @@ class GeneratorTypeMath(GeneratorType):
 			raise PyMSError('Generate', "Invalid math expression '%s' (only numbers, +, -, /, *, and whitespace allowed)" % math)
 		try:
 			return eval(math)
-		except Exception, e:
+		except Exception as e:
 			raise PyMSError('Generate', "Error evaluating math expression '%s'" % math, exception=e)
 	def description(self):
 		return self.math
@@ -1449,7 +1451,7 @@ class ManagePresets(PyMSDialog):
 			return
 		path = self.settings.get('lastpath', BASE_DIR)
 		self._pyms__window_blocking = True
-		path = tkFileDialog.asksaveasfilename(parent=self, title='Export Preset', defaultextension='.txt', filetypes=[('Text Files','*.txt'),('All Files','*')], initialdir=path)
+		path = tkinter.filedialog.asksaveasfilename(parent=self, title='Export Preset', defaultextension='.txt', filetypes=[('Text Files','*.txt'),('All Files','*')], initialdir=path)
 		self._pyms__window_blocking = False
 		if not path:
 			return
@@ -1465,7 +1467,7 @@ class ManagePresets(PyMSDialog):
 	def iimport(self):
 		path = self.settings.get('lastpath', BASE_DIR)
 		self._pyms__window_blocking = True
-		path = tkFileDialog.askopenfilename(parent=self, title='Import Preset', defaultextension='.txt', filetypes=[('Text Files','*.txt'),('All Files','*')], initialdir=path)
+		path = tkinter.filedialog.askopenfilename(parent=self, title='Import Preset', defaultextension='.txt', filetypes=[('Text Files','*.txt'),('All Files','*')], initialdir=path)
 		self._pyms__window_blocking = False
 		if not path:
 			return
@@ -1499,7 +1501,7 @@ class ManagePresets(PyMSDialog):
 				preset['name'] += str(copy)
 			self.settings['generator']['presets'].insert(0, preset)
 			self.update_list()
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 	
 	def rename(self):
@@ -1549,7 +1551,7 @@ class ManagePresets(PyMSDialog):
 		if offset == END:
 			index = listbox.size()-2
 		elif offset not in [0,END] and listbox.curselection():
-			print listbox.curselection()
+			print(listbox.curselection())
 			index = max(min(listbox.size()-1, int(listbox.curselection()[0]) + offset),0)
 		listbox.select_clear(0,END)
 		listbox.select_set(index)
@@ -1848,7 +1850,7 @@ class CodeGeneratorDialog(PyMSDialog):
 			replace = None
 			for n,preset in enumerate(self.settings.get('generator',{}).get('presets',[])):
 				if preset['name'] == name:
-					cont = askquestion(parent=window, title='Overwrite Preset?', message="A preset with the name '%s' already exists. Do you want to overwrite it?" % name, default=YES, type=YESNOCANCEL)
+					cont = askyesnocancel(parent=window, title='Overwrite Preset?', message="A preset with the name '%s' already exists. Do you want to overwrite it?" % name, default=YES)
 					if cont == 'no':
 						return
 					elif cont == 'cancel':
@@ -1928,7 +1930,7 @@ class CodeGeneratorDialog(PyMSDialog):
 		if offset == END:
 			index = listbox.size()-2
 		elif offset not in [0,END] and listbox.curselection():
-			print listbox.curselection()
+			print(listbox.curselection())
 			index = max(min(listbox.size()-1, int(listbox.curselection()[0]) + offset),0)
 		listbox.select_clear(0,END)
 		listbox.select_set(index)
@@ -1974,13 +1976,13 @@ class CodeGeneratorDialog(PyMSDialog):
 				except:
 					pass
 			return str(replacement)
-		for n in xrange(count):
+		for n in range(count):
 			values = {'n': n}
 			for v in self.variables:
 				if not v.name in values:
 					try:
 						calculate_variable(v, values, [])
-					except PyMSError, e:
+					except PyMSError as e:
 						ErrorDialog(self, e)
 						return
 			generated += variable_re.sub(lambda m: replace_variable(m, values), code)
@@ -2000,7 +2002,7 @@ class CodeEditDialog(PyMSDialog):
 		self.ids = ids
 		self.decompile = ''
 		self.file = None
-		self.autocomptext = IScriptBIN.TYPE_HELP.keys() + ['.headerstart','.headerend']
+		self.autocomptext = list(IScriptBIN.TYPE_HELP.keys()) + ['.headerstart','.headerend']
 		for o in IScriptBIN.OPCODES:
 			self.autocomptext.extend(o[0])
 		for a in IScriptBIN.HEADER:
@@ -2177,7 +2179,7 @@ class CodeEditDialog(PyMSDialog):
 
 	def cancel(self):
 		if self.text.edited:
-			save = askquestion(parent=self, title='Save Code?', message="Would you like to save the code?", default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Code?', message="Would you like to save the code?", default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return
@@ -2201,7 +2203,7 @@ class CodeEditDialog(PyMSDialog):
 		try:
 			grp = GRP.CacheGRP()
 			grp.load_file(p)
-		except PyMSError, e:
+		except PyMSError as e:
 			return None
 		return grp.frames
 
@@ -2209,7 +2211,7 @@ class CodeEditDialog(PyMSDialog):
 		i = IScriptBIN.IScriptBIN(self.parent.weaponsdat, self.parent.flingydat, self.parent.imagesdat, self.parent.spritesdat, self.parent.soundsdat, self.parent.tbl, self.parent.imagestbl, self.parent.sfxdatatbl)
 		try:
 			warnings = i.interpret(self, checkframes=self.checkframes)
-		except PyMSError, e:
+		except PyMSError as e:
 			if e.line != None:
 				self.text.see('%s.0' % e.line)
 				self.text.tag_add('Error', '%s.0' % e.line, '%s.end' % e.line)
@@ -2337,7 +2339,7 @@ class CodeEditDialog(PyMSDialog):
 	def load(self):
 		try:
 			warnings = self.parent.ibin.decompile(self, ids=self.ids)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 			return
 		if warnings:
@@ -2424,7 +2426,7 @@ class ImportListDialog(PyMSDialog):
 	def select_files(self):
 		path = self.parent.settings.get('lastpath', BASE_DIR)
 		self._pyms__window_blocking = True
-		file = tkFileDialog.askopenfilename(parent=self, title='Add Imports', defaultextension='.txt', filetypes=[('Text Files','*.txt'),('All Files','*')], initialdir=path, multiple=True)
+		file = tkinter.filedialog.askopenfilename(parent=self, title='Add Imports', defaultextension='.txt', filetypes=[('Text Files','*.txt'),('All Files','*')], initialdir=path, multiple=True)
 		self._pyms__window_blocking = False
 		if file:
 			self.parent.settings['lastpath'] = os.path.dirname(file[0])
@@ -2820,7 +2822,7 @@ class PyICE(Tk):
 			spritesdat.load_file(self.mpqhandler.get_file(self.settings['spritesdat']))
 			imagesdat.load_file(self.mpqhandler.get_file(self.settings['imagesdat']))
 			soundsdat.load_file(self.mpqhandler.get_file(self.settings['sfxdatadat']))
-		except PyMSError, e:
+		except PyMSError as e:
 			err = e
 		else:
 			self.tbl = tbl
@@ -2853,7 +2855,7 @@ class PyICE(Tk):
 			parent = self
 		path = self.settings.get('lastpath', BASE_DIR)
 		parent._pyms__window_blocking = True
-		file = [tkFileDialog.asksaveasfilename,tkFileDialog.askopenfilename][open](parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
+		file = [tkinter.filedialog.asksaveasfilename,tkinter.filedialog.askopenfilename][open](parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
 		parent._pyms__window_blocking = False
 		if file:
 			self.settings['lastpath'] = os.path.dirname(file)
@@ -2934,7 +2936,7 @@ class PyICE(Tk):
 			iscript = self.file
 			if not iscript:
 				iscript = 'iscript.bin'
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % iscript, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % iscript, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -2974,7 +2976,7 @@ class PyICE(Tk):
 			ibin = IScriptBIN.IScriptBIN()
 			try:
 				ibin.load_file(file)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.ibin = ibin
@@ -2997,7 +2999,7 @@ class PyICE(Tk):
 			return
 		try:
 			self.ibin.compile(self.file)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 			return
 		self.status.set('Save Successful!')
@@ -3027,7 +3029,7 @@ class PyICE(Tk):
 			else:
 				s = 0
 			w = ibin.interpret(file, s)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 			return
 		if w:
@@ -3040,17 +3042,16 @@ class PyICE(Tk):
 					if o != None and o in self.ibin.offsets:
 						self.ibin.remove_code(o,id)
 			self.ibin.headers[id] = ibin.headers[id]
-		for o,i in ibin.offsets.iteritems():
+		for o,i in ibin.offsets.items():
 			if o in self.ibin.offsets:
 				self.ibin.offsets[o].extend(i)
 			else:
 				self.ibin.offsets[o] = i
 		c = dict(self.ibin.code.dict)
-		for o,cmd in ibin.code.iteritems():
+		for o,cmd in ibin.code.items():
 			c[o] = cmd
-		k = c.keys()
-		k.sort()
-		self.ibin.code = odict(c,k)
+
+		self.ibin.code = OrderedDict(sorted(c.items()))
 		self.ibin.extrainfo.update(ibin.extrainfo)
 		self.setuplist()
 		self.status.set('Import Successful!')
@@ -3067,7 +3068,7 @@ class PyICE(Tk):
 		try:
 			self.ibin.decompile(file, ids=self.selected())
 			self.status.set('Export Successful!')
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def listimport(self, key=None):
@@ -3119,7 +3120,7 @@ class PyICE(Tk):
 	def register(self, e=None):
 		try:
 			register_registry('PyICE','','bin',os.path.join(BASE_DIR, 'PyICE.pyw'),os.path.join(BASE_DIR,'Images','PyICE.ico'))
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def help(self, e=None):
@@ -3183,34 +3184,34 @@ def main():
 							ids.append(i)
 					else:
 						ids = None
-					print "Loading weapons.dat '%s', flingy.dat '%s', images.dat '%s', sprites.dat '%s', sdxdata.dat '%s', stat_txt.tbl '%s', images.tbl '%s', and sfxdata.tbl '%s'" % (opt.weapons,opt.flingy,opt.sprites,opt.images,opt.sfxdata,opt.stattxt,opt.imagestbl,opt.sfxdatatbl)
+					print("Loading weapons.dat '%s', flingy.dat '%s', images.dat '%s', sprites.dat '%s', sdxdata.dat '%s', stat_txt.tbl '%s', images.tbl '%s', and sfxdata.tbl '%s'" % (opt.weapons,opt.flingy,opt.sprites,opt.images,opt.sfxdata,opt.stattxt,opt.imagestbl,opt.sfxdatatbl))
 					ibin = IScriptBIN.IScriptBIN(opt.weapons,opt.flingy,opt.images,opt.sprites,opt.sfxdata,opt.stattxt,opt.imagestbl,opt.sfxdatatbl)
-					print " - Loading finished successfully\nReading BIN '%s'..." % args[0]
+					print(" - Loading finished successfully\nReading BIN '%s'..." % args[0])
 					ibin.load_file(args[0])
-					print " - BIN read successfully\nWriting iscript entries to '%s'..." % args[1]
+					print(" - BIN read successfully\nWriting iscript entries to '%s'..." % args[1])
 					ibin.decompile(args[1],opt.reference,ids)
-					print " - '%s' written succesfully" % args[1]
+					print(" - '%s' written succesfully" % args[1])
 				else:
-					print "Loading weapons.dat '%s', flingy.dat '%s', images.dat '%s', sprites.dat '%s', sdxdata.dat '%s', stat_txt.tbl '%s', images.tbl '%s', and sfxdata.tbl '%s'" % (opt.weapons,opt.flingy,opt.sprites,opt.images,opt.sfxdata,opt.stattxt,opt.imagestbl,opt.sfxdatatbl)
+					print("Loading weapons.dat '%s', flingy.dat '%s', images.dat '%s', sprites.dat '%s', sdxdata.dat '%s', stat_txt.tbl '%s', images.tbl '%s', and sfxdata.tbl '%s'" % (opt.weapons,opt.flingy,opt.sprites,opt.images,opt.sfxdata,opt.stattxt,opt.imagestbl,opt.sfxdatatbl))
 					ibin = IScriptBIN.IScriptBIN(opt.weapons,opt.flingy,opt.images,opt.sprites,opt.sfxdata,opt.stattxt,opt.imagestbl,opt.sfxdatatbl)
-					print " - Loading finished successfully"
+					print(" - Loading finished successfully")
 					if opt.iscript:
-						print "Loading base iscript.bin '%s'..." % os.path.abspath(opt.iscript)
+						print("Loading base iscript.bin '%s'..." % os.path.abspath(opt.iscript))
 						ibin.load_file(os.path.abspath(opt.iscript))
-						print " - iscript.bin read successfully"
-					print "Interpreting file '%s'..." % args[0]
+						print(" - iscript.bin read successfully")
+					print("Interpreting file '%s'..." % args[0])
 					warnings.extend(ibin.interpret(args[0]))
-					print " - '%s' read successfully\nCompiling file '%s' to iscript.bin '%s'..." % (args[0], args[0], args[1])
+					print(" - '%s' read successfully\nCompiling file '%s' to iscript.bin '%s'..." % (args[0], args[0], args[1]))
 					ibin.compile(args[1])
-					print " - iscript.bin '%s' written succesfully" % args[1]
+					print(" - iscript.bin '%s' written succesfully" % args[1])
 				if not opt.hidewarns:
 					for warning in warnings:
-						print repr(warning)
-			except PyMSError, e:
+						print(repr(warning))
+			except PyMSError as e:
 				if warnings and not opt.hidewarns:
 					for warning in warnings:
-						print repr(warning)
-				print repr(e)
+						print(repr(warning))
+				print(repr(e))
 
 if __name__ == '__main__':
 	main()

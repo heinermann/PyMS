@@ -1,5 +1,7 @@
 PyMS = (1,2,1) * 2
 import PyMSUtils, re
+from collections import OrderedDict
+
 infoheaderstart = """<html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -27,7 +29,7 @@ infoheadermid = """			</ol>
 			%s
 			<ol>
 """
-files = PyMSUtils.odict()
+files = OrderedDict()
 files['Introduction'] = ['','intro.html']
 files['PyGRP'] = ['v3.8','PyGRP.html']
 files['PyPAL'] = ['v1.5','PyPAL.html']
@@ -50,7 +52,7 @@ def tags(s):
 	return re.sub('(?<!http:)//(.+?)//', '<i>\\1</i>', \
 			re.sub('~\\Z', '<br>', \
 			re.sub('__(.+?)__', '<b>\\1</b>', \
-			re.sub('\[(\\S+)	(.+?)\]', '<a href="\\1">\\2</a>', escape(s))))).replace('\\n','<br>')
+			re.sub('\\[(\\S+)	(.+?)\\]', '<a href="\\1">\\2</a>', escape(s))))).replace('\\n','<br>')
 
 compile = ['intro','pygrp','pypal','pylo','pytbl','pytrg','pydat','pygot','pyai','pyice','pyfnt','pytile','pypcx','pympq']
 for c in compile:
@@ -67,8 +69,8 @@ for c in compile:
 		elif n == 1:
 			name = l
 			out.write(infoheaderstart % name)
-			for n,d in files.iteritems():
-				print '%s - %s' % (name, '%s %s' % (n,d[0]))
+			for n,d in files.items():
+				print('%s - %s' % (name, '%s %s' % (n,d[0])))
 				if name.split(' ')[0] == n:
 					out.write('				<li><b>%s</b>\n' % name)
 				else:

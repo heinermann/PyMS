@@ -1,4 +1,3 @@
-
 Version = 'v'
 HitType = 't'
 TrackingID = 'tid'

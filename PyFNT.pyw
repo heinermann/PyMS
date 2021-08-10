@@ -5,11 +5,11 @@ from Libs.FNT import *
 from Libs import BMP,PCX
 from Libs.analytics import *
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog,tkColorChooser
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog,tkinter.colorchooser
 
-from thread import start_new_thread
+from _thread import start_new_thread
 import optparse, os, webbrowser, sys
 
 LONG_VERSION = 'v%s' % VERSIONS['PyFNT']
@@ -232,7 +232,7 @@ class PyFNT(Tk):
 		try:
 			palette = PCX.PCX()
 			palette.load_file(self.mpqhandler.get_file(self.settings['tfontgam']))
-		except PyMSError, e:
+		except PyMSError as e:
 			err = e
 		else:
 			self.palette = palette
@@ -245,7 +245,7 @@ class PyFNT(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.fnt'
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -259,7 +259,7 @@ class PyFNT(Tk):
 			parent = self
 		path = self.settings.get('lastpath', BASE_DIR)
 		parent._pyms__window_blocking = True
-		file = [tkFileDialog.asksaveasfilename,tkFileDialog.askopenfilename][open](parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
+		file = [tkinter.filedialog.asksaveasfilename,tkinter.filedialog.askopenfilename][open](parent=parent, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
 		parent._pyms__window_blocking = False
 		if file:
 			self.settings['lastpath'] = os.path.dirname(file)
@@ -339,7 +339,7 @@ class PyFNT(Tk):
 				fnt = FNT()
 				try:
 					fnt.load_file(file)
-				except PyMSError, e:
+				except PyMSError as e:
 					ErrorDialog(self, e)
 					return
 				self.title('PyFNT %s (%s)' % (LONG_VERSION,file))
@@ -363,7 +363,7 @@ class PyFNT(Tk):
 			self.status.set('Save Successful!')
 			self.edited = False
 			self.editstatus['state'] = DISABLED
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def saveas(self, key=None, type=0):
@@ -403,7 +403,7 @@ class PyFNT(Tk):
 			self.update_idletasks()
 			try:
 				fnttobmp(self.fnt,[self.palette.palette[i] for i in self.palette.image[0]] + [[50,100,50] for _ in range(256 - len(self.palette.image[0]))],file)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 			self.status.set('Font exported successfully!')
 
@@ -419,7 +419,7 @@ class PyFNT(Tk):
 				try:
 					b.load_file(file)
 					fnt = bmptofnt(b,s.lowi.get(),s.letters.get())
-				except PyMSError, e:
+				except PyMSError as e:
 					ErrorDialog(self, e)
 				else:
 					self.open(file=fnt)
@@ -433,7 +433,7 @@ class PyFNT(Tk):
 	def register(self, e=None):
 		try:
 			register_registry('PyFNT','StarCraft Font','fnt',os.path.join(BASE_DIR, 'PyFNT.pyw'),os.path.join(BASE_DIR,'Images','PyFNT.ico'))
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def help(self, e=None):
@@ -477,14 +477,14 @@ def main():
 				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
 			if opt.convert:
 				fnt = FNT()
-				print "Reading FNT '%s'..." % args[0]
+				print("Reading FNT '%s'..." % args[0])
 				try:
 					fnt.load_file(args[0])
-					print " - '%s' read successfully\nDecompiling FNT to file '%s'..." % (args[0], args[1])
+					print(" - '%s' read successfully\nDecompiling FNT to file '%s'..." % (args[0], args[1]))
 					fnttobmp(fnt,args[1])
-					print " - '%s' written succesfully" % args[1]
-				except PyMSError, e:
-					print repr(e)
+					print(" - '%s' written succesfully" % args[1])
+				except PyMSError as e:
+					print(repr(e))
 			else:
 				if not opt.specifics:
 					p.error('You must supply the -s option when using the -c option')
@@ -492,24 +492,24 @@ def main():
 				try:
 					lowi,letters = int(t),int(t)
 				except:
-					print 'Invalid compiling specifics (must be lowest ASCII index followed by amount of letters, seperated by a comma)'
+					print('Invalid compiling specifics (must be lowest ASCII index followed by amount of letters, seperated by a comma)')
 				else:
 					if lowi < 1 or lowi > 255:
-						print 'Invalid lowest ASCII index (must be in the range 1-255)'
+						print('Invalid lowest ASCII index (must be in the range 1-255)')
 					elif letters < 1 or letters > 255:
-						print 'Invalid amount of letters (must be in the range 1-255)'
+						print('Invalid amount of letters (must be in the range 1-255)')
 					elif lowi+letters > 256:
-						print 'Either too many letters where specified or too high an initial ASCII index'
+						print('Either too many letters where specified or too high an initial ASCII index')
 					else:
 						bmp = BMP()
-						print "Reading BMP '%s'..." % args[0]
+						print("Reading BMP '%s'..." % args[0])
 						try:
 							bmp.load_file(args[0])
-							print " - '%s' read successfully\nDecompiling BMP to file '%s'..." % (args[0], args[1])
+							print(" - '%s' read successfully\nDecompiling BMP to file '%s'..." % (args[0], args[1]))
 							bmptofnt(fnt,args[1])
-							print " - '%s' written succesfully" % args[1]
-						except PyMSError, e:
-							print repr(e)
+							print(" - '%s' written succesfully" % args[1])
+						except PyMSError as e:
+							print(repr(e))
 
 if __name__ == '__main__':
 	main()

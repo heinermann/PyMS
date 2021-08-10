@@ -1,6 +1,6 @@
-from utils import *
-from fileutils import *
-import TBL
+from .utils import *
+from .fileutils import *
+from . import TBL
 
 import struct, re
 
@@ -384,7 +384,7 @@ DIALOG_FRAME_BL = 6
 DIALOG_FRAME_B = 7
 DIALOG_FRAME_BR = 8
 
-class BINWidget(object):
+class BINWidget:
 	BYTE_SIZE = 86
 	STRUCT =            '<L6H4LH5L4HLL4HLL'
 	BYTE_SIZE_REMASTERED = 88
@@ -513,7 +513,7 @@ class BINWidget(object):
 				return self.string
 		return None
 
-class BINSMK(object):
+class BINSMK:
 	BYTE_SIZE = 30
 	ATTR_NAMES = ('overlay_smk','flags','unknown1','filename','unknown2','offset_x','offset_y','unknown3','unknown4')
 
@@ -542,7 +542,7 @@ class BINSMK(object):
 		self.widgets.append(widget)
 
 	def remove_widget(self, widget):
-		self.widget.remove(widget)
+		self.widgets.remove(widget)
 
 class DialogBIN:
 	def __init__(self, remastered=False):
@@ -557,21 +557,22 @@ class DialogBIN:
 
 	def load_file(self, file):
 		data = load_file(file, 'Dialog BIN')
-		try:
-			self.load_data(data)
-		except PyMSError, e:
-			raise e
-		except:
-			raise PyMSError('Load',"Unsupported Dialog BIN file '%s', could possibly be corrupt" % file)
+		#try:
+		self.load_data(data)
+		#except PyMSError as e:
+		#	raise e
+		#except:
+		#	raise PyMSError('Load',"Unsupported Dialog BIN file '%s', could possibly be corrupt" % file)
 
 	def load_data(self, data):
 		widgets = []
 		smk_map = {}
 		smks = []
+
 		def load_smk(offset):
 			smk_info = list(struct.unpack('<LH3LHHLL',data[offset:offset+BINSMK.BYTE_SIZE]))
 			filename_offset = smk_info[3]
-			end_offset = data.find('\0', filename_offset)
+			end_offset = data.find(b'\0', filename_offset)
 			smk_info[3] = data[filename_offset:end_offset]
 			smk = BINSMK()
 			smk_map[offset] = smk
@@ -586,6 +587,7 @@ class DialogBIN:
 			attrs = BINSMK.ATTR_NAMES
 			for attr,value in zip(attrs,smk_info):
 				setattr(smk, attr, value)
+
 		def load_widget(offset, remastered):
 			widget_struct = BINWidget.STRUCT_REMASTERED if remastered else BINWidget.STRUCT
 			widget_size = BINWidget.BYTE_SIZE_REMASTERED if remastered else BINWidget.BYTE_SIZE
@@ -602,8 +604,8 @@ class DialogBIN:
 				raise PyMSError('Load', "Invalid widget type '%s'" % widget_info[11])
 
 			if widget.string:
-				end_offset = data.find('\0', widget.string)
-				widget.string = data[widget.string:end_offset]
+				end_offset = data.find(b'\0', widget.string)
+				widget.string = str(data[widget.string:end_offset], 'utf-8')
 			else:
 				widget.string = ''
 
@@ -756,7 +758,7 @@ class DialogBIN:
 				working = BINWidget()
 				widgets.append(working)
 				continue
-			m = re.match('^SMK (\d+):$', line)
+			m = re.match(r'^SMK (\d+):$', line)
 			if m:
 				smk_id = int(m.group(1))
 				if smk_id in smks:
@@ -773,7 +775,7 @@ class DialogBIN:
 				continue
 			if not working:
 				raise PyMSError('Interpreting','Unexpected line, expected a Widget or SMK header',n,line)
-			m = re.match('^(\S+)(?:\s+(.+))?$', line)
+			m = re.match(r'^(\S+)(?:\s+(.+))?$', line)
 			attr = m.group(1)
 			value = m.group(2)
 			if isinstance(working, BINWidget):
@@ -821,8 +823,8 @@ class DialogBIN:
 					value = int(value)
 			setattr(working, attr, value)
 		if backfill_smks:
-			raise PyMSError('Interpreting',"SMK %s is missing" % backfill_smks.keys()[0])
-		for i in xrange(len(widgets)):
+			raise PyMSError('Interpreting',"SMK %s is missing" % list(backfill_smks.keys())[0])
+		for i in range(len(widgets)):
 			widget = widgets[i]
 			if widget.type == BINWidget.TYPE_DIALOG:
 				del widgets[i]
@@ -831,7 +833,7 @@ class DialogBIN:
 		else:
 			raise PyMSError('Interpreting','No dialog found.')
 		self.widgets = widgets
-		self.smks = list(smk for i,smk in sorted(smks.iteritems(),key=lambda s: s[1]))
+		self.smks = list(smk for i,smk in sorted(iter(smks.items()),key=lambda s: s[1]))
 		self.remastered = remastered
 
 	def decompile_file(self, file, remastered=None):
@@ -859,7 +861,7 @@ class DialogBIN:
 					value = TBL.decompile_string(value)
 				elif attr == 'flags':
 					value = flags(value, 5)
-				result += '\t%s%s%s%s%s\n' % (attr,' ' * (longest - len(attr) + 1),value,' # ' if hint else '',hint)
+				result += '\t{}{}{}{}{}\n'.format(attr,' ' * (longest - len(attr) + 1),value,' # ' if hint else '',hint)
 			result += '\n'
 		attrs = BINWidget.ATTR_NAMES_REMASTERED if remastered else BINWidget.ATTR_NAMES
 		longest = sorted(len(n) for n in attrs)[-1]
@@ -879,7 +881,7 @@ class DialogBIN:
 						hint = BINWidget.TYPE_NAMES[value]
 					else:
 						hint = 'Unknown'
-				result += '\t%s%s%s%s%s\n' % (attr,' ' * (longest - len(attr) + 1),value,' # ' if hint else '',hint)
+				result += '\t{}{}{}{}{}\n'.format(attr,' ' * (longest - len(attr) + 1),value,' # ' if hint else '',hint)
 			result += '\n'
 		return result
 

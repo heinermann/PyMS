@@ -9,11 +9,11 @@ from Libs.GRP import CacheGRP, frame_to_photo, rle_outline, OUTLINE_SELF
 from Libs.IScriptBIN import IScriptBIN
 from Libs.analytics import *
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog
 
-from thread import start_new_thread
+from _thread import start_new_thread
 from shutil import copy
 from math import floor,ceil,sqrt
 import optparse, os, re, sys
@@ -335,7 +335,7 @@ class DATTab(NotebookTab):
 			return
 		if id != None:
 			self.id = id
-		for n,v in self.values.iteritems():
+		for n,v in self.values.items():
 			c = self.dat.get_value(self.id,n)
 			if isinstance(v, list):
 				for x,f in enumerate(v):
@@ -347,7 +347,7 @@ class DATTab(NotebookTab):
 	def save_data(self):
 		if not self.dat:
 			return
-		for n,v in self.values.iteritems():
+		for n,v in self.values.items():
 			if isinstance(v, list):
 				flags = 0
 				for x,f in enumerate(v):
@@ -378,7 +378,7 @@ class DATTab(NotebookTab):
 			file = self.file
 			if not file:
 				file = self.dat.datname
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -449,7 +449,7 @@ class DATTab(NotebookTab):
 				entries = ccopy(self.dat.entries)
 				try:
 					self.dat.load_file(file)
-				except PyMSError, e:
+				except PyMSError as e:
 					self.dat.entries = entries
 					if save:
 						ErrorDialog(self, e)
@@ -477,7 +477,7 @@ class DATTab(NotebookTab):
 		entries = ccopy(self.dat.entries)
 		try:
 			ids = self.dat.interpret(file)
-		except PyMSError, e:
+		except PyMSError as e:
 			self.dat.entries = entries
 			ErrorDialog(self, e)
 			return
@@ -499,7 +499,7 @@ class DATTab(NotebookTab):
 			return
 		try:
 			self.dat.compile(self.file)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 		else:
 			self.edited = False
@@ -519,7 +519,7 @@ class DATTab(NotebookTab):
 			return True
 		try:
 			self.dat.decompile(file)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 class DATUnitsTab(NotebookTab):
@@ -551,7 +551,7 @@ class DATUnitsTab(NotebookTab):
 		if not self.parent_tab.dat:
 			return
 		id = self.parent_tab.id
-		for n,v in self.values.iteritems():
+		for n,v in self.values.items():
 			c = self.parent_tab.dat.get_value(id,n)
 			if isinstance(v, list):
 				for x,f in enumerate(v):
@@ -563,7 +563,7 @@ class DATUnitsTab(NotebookTab):
 		if not self.parent_tab.dat:
 			return
 		id = self.parent_tab.id
-		for n,v in self.values.iteritems():
+		for n,v in self.values.items():
 			if isinstance(v, list):
 				oldflags = self.parent_tab.dat.get_value(id,n)
 				flags = 0
@@ -769,7 +769,7 @@ class OrdersTab(DATTab):
 					ICON_CACHE[i] = image
 				else:
 					image = ICON_CACHE[i]
-				self.preview.create_image(19-image[1]/2+(image[0].width()-image[2])/2, 19-image[3]/2+(image[0].height()-image[4])/2, image=image[0])
+				self.preview.create_image(19 - image[1]//2 + (image[0].width() - image[2])//2, 19 - image[3]//2 + (image[0].height() - image[4])//2, image=image[0])
 
 	def load_data(self, id=None):
 		DATTab.load_data(self, id)
@@ -894,7 +894,7 @@ class PortraitsTab(DATTab):
 			('PortraitFile','SMKChange','Unknown'),
 			(
 				(self.id, (self.idle_entry, self.idle_change, self.idle_unknown)),
-				(self.id + self.dat.count/2, (self.talking_entry, self.talking_change, self.talking_unknown))
+				(self.id + self.dat.count//2, (self.talking_entry, self.talking_change, self.talking_unknown))
 			)
 		)
 	def load_data(self, id=None):
@@ -1193,7 +1193,7 @@ class TechnologyTab(DATTab):
 				ICON_CACHE[i] = image
 			else:
 				image = ICON_CACHE[i]
-			self.preview.create_image(19-image[1]/2+(image[0].width()-image[2])/2, 19-image[3]/2+(image[0].height()-image[4])/2, image=image[0])
+			self.preview.create_image(19 - image[1]//2 + (image[0].width()-image[2])//2, 19 - image[3]//2 + (image[0].height() - image[4])//2, image=image[0])
 
 	def updatetime(self, num, type):
 		if type:
@@ -1399,7 +1399,7 @@ class UpgradesTab(DATTab):
 				ICON_CACHE[i] = image
 			else:
 				image = ICON_CACHE[i]
-			self.preview.create_image(19-image[1]/2+(image[0].width()-image[2])/2, 19-image[3]/2+(image[0].height()-image[4])/2, image=image[0])
+			self.preview.create_image(19 - image[1]//2 + (image[0].width() - image[2])//2, 19 - image[3]//2 + (image[0].height() - image[4])//2, image=image[0])
 
 	def updatetime(self, num, factor, type):
 		if type:
@@ -1589,7 +1589,7 @@ class ImagesTab(DATTab):
 		entries = []
 		last = -1
 		for id in self.toplevel.iscriptbin.headers.keys():
-			if id-last > 1:
+			if id - last > 1:
 				entries.extend(['*Unused*'] * (id-last-1))
 			if id in self.toplevel.iscriptbin.extrainfo:
 				n = self.toplevel.iscriptbin.extrainfo[id]
@@ -1739,7 +1739,7 @@ class SpritesTab(DATTab):
 			self.healthbar.set((num + 1) * 3)
 		else:
 			self.boxes.check = False
-			self.boxes.set(max(1,(num - 1) / 3))
+			self.boxes.set(max(1,(num - 1) // 3))
 		self.drawpreview()
 
 	def drawpreview(self, e=None):
@@ -1754,10 +1754,10 @@ class SpritesTab(DATTab):
 						f = self.toplevel.imagestbl.strings[g-1][:-1]
 						image = self.toplevel.grp('Units','unit\\' + f, rle_outline, OUTLINE_SELF)
 						if image:
-							y = 130+int(self.vertpos.get())
+							y = 130 + int(self.vertpos.get())
 							self.preview.create_image(130, y, image=image[0])
 							w = 3*int(self.boxes.get())
-							hp = [130-(w/2),y+6+(image[4]-image[3])/2]
+							hp = [130 - (w//2), y + 6 + (image[4] - image[3])//2]
 							self.preview.create_rectangle(hp[0], hp[1], hp[0]+w, hp[1]+4, fill='#000000')
 							hp[0] += 1
 							hp[1] += 1
@@ -1894,7 +1894,7 @@ class FlingyTab(DATTab):
 	def updatespeed(self, num, type):
 		if type:
 			self.topspeed.check = False
-			self.topspeed.set(int((float(num) * 320 / 3.0)))
+			self.topspeed.set(int(float(num) * 320 / 3.0))
 		else:
 			self.speed.check = False
 			s = str(int(num) * 3 / 320.0)
@@ -1907,7 +1907,7 @@ class FlingyTab(DATTab):
 	def updatehalt(self, num, type):
 		if type:
 			self.haltdistance.check = False
-			self.haltdistance.set(int((float(num) * 256)))
+			self.haltdistance.set(int(float(num) * 256))
 		else:
 			self.halt.check = False
 			s = str(int(num) / 256.0)
@@ -2246,7 +2246,7 @@ class WeaponsTab(DATTab):
 				ICON_CACHE[i] = image
 			else:
 				image = ICON_CACHE[i]
-			self.preview.create_image(19-image[1]/2+(image[0].width()-image[2])/2, 19-image[3]/2+(image[0].height()-image[4])/2, image=image[0])
+			self.preview.create_image(19 - image[1]//2 + (image[0].width() - image[2])//2, 19 - image[3]//2 + (image[0].height() - image[4])//2, image=image[0])
 
 	def load_data(self, id=None):
 		DATTab.load_data(self, id)
@@ -2395,7 +2395,7 @@ class AIActionsUnitsTab(DATUnitsTab):
 	def force_weapon_id(self, type):
 		id = self.parent_tab.id
 		override_unit_id = None
-		weapon_type = ['GroundWeapon','AirWeapon'][type]
+		weapon_type = ['GroundWeapon', 'AirWeapon'][type]
 		weapon_id = self.parent_tab.dat.get_value(id,weapon_type)
 		if id == 72 or id == 82: # Carrier/Gantrithor
 			override_unit_id = 73 # Intercepter
@@ -2648,8 +2648,7 @@ class StarEditUnitsTab(DATUnitsTab):
 
 	def drawboxes(self):
 		if self.showpreview.get():
-			id = self.parent_tab.id
-			w,h = self.width.get() / 2,self.height.get() / 2
+			w,h = self.width.get() // 2,self.height.get() // 2
 			self.preview.coords('place', 129-w, 129-h, 129+w, 129+h)
 			self.preview.lift('place')
 		else:
@@ -2865,7 +2864,7 @@ class GraphicsUnitsTab(DATUnitsTab):
 	def drawboxes(self):
 		if self.showpreview.get() and self.showplace.get():
 			id = self.parent_tab.id
-			w,h = self.parent_tab.dat.get_value(id, 'StarEditPlacementBoxWidth') / 2,self.parent_tab.dat.get_value(id, 'StarEditPlacementBoxHeight') / 2
+			w,h = self.parent_tab.dat.get_value(id, 'StarEditPlacementBoxWidth') // 2,self.parent_tab.dat.get_value(id, 'StarEditPlacementBoxHeight') // 2
 			self.preview.coords('place', 129-w, 129-h, 129+w, 129+h)
 			self.preview.lift('place')
 		else:
@@ -2903,13 +2902,13 @@ class GraphicsUnitsTab(DATUnitsTab):
 			parent_id = self.addon_parent_id.get()
 			parent_w = self.parent_tab.dat.get_value(parent_id, 'StarEditPlacementBoxWidth')
 			parent_h = self.parent_tab.dat.get_value(parent_id, 'StarEditPlacementBoxHeight')
-			x = 129 - w/2 - self.horizontal.get()
-			y = 129 - h/2 - self.vertical.get()
+			x = 129 - w//2 - self.horizontal.get()
+			y = 129 - h//2 - self.vertical.get()
 			parent_flingy_id = self.parent_tab.dat.get_value(parent_id, 'Graphics')
 			parent_sprite_id = self.toplevel.flingy.get_value(parent_flingy_id, 'Sprite')
 			parent_image_id = self.toplevel.sprites.get_value(parent_sprite_id,'ImageFile')
-			self.draw_image(parent_image_id, 'addon_parent', x=x+parent_w/2, y=y+parent_h/2)
-			self.preview.coords('addon_parent_size', x, y, x+parent_w, y+parent_h)
+			self.draw_image(parent_image_id, 'addon_parent', x = x + parent_w // 2, y = y + parent_h // 2)
+			self.preview.coords('addon_parent_size', x, y, x + parent_w, y + parent_h)
 			self.preview.lift('addon_parent_size')
 		else:
 			self.preview.coords('addon_parent_size', 0, 0, 0 ,0)
@@ -3895,12 +3894,12 @@ class PyDAT(Tk):
 		PYDAT_SETTINGS.load_pane_size('list_size', self.hor_pane, 300)
 
 		if guifile:
-			for title,tab in self.dattabs.pages.iteritems():
+			for title,tab in self.dattabs.pages.items():
 				try:
 					tab[0].open(guifile, save=False)
 					self.dattabs.display(title)
 					break
-				except PyMSError, e:
+				except PyMSError as e:
 					pass
 			else:
 				ErrorDialog(self, PyMSError('Load',"'%s' is not a valid StarCraft *.dat file, could possibly be corrupt" % guifile))
@@ -3926,7 +3925,7 @@ class PyDAT(Tk):
 			portdatatbl.load_file(self.mpqhandler.get_file(PYDAT_SETTINGS.settings.files.get('portdatatbl', 'MPQ:arr\\portdata.tbl')))
 			mapdatatbl.load_file(self.mpqhandler.get_file(PYDAT_SETTINGS.settings.files.get('mapdatatbl', 'MPQ:arr\\mapdata.tbl')))
 			cmdicon.load_file(self.mpqhandler.get_file(PYDAT_SETTINGS.settings.files.get('cmdicons', 'MPQ:unit\\cmdbtns\\cmdicons.grp')))
-		except PyMSError, e:
+		except PyMSError as e:
 			err = e
 		else:
 			units = UnitsDAT(stat_txt)
@@ -3964,7 +3963,7 @@ class PyDAT(Tk):
 				except:
 					try:
 						v.load_file(defaultmpqs.get_file('MPQ:arr\\' + n, False))
-					except PyMSError, e:
+					except PyMSError as e:
 						err = e
 						break
 			if not err:
@@ -4009,7 +4008,7 @@ class PyDAT(Tk):
 				try:
 					grp = CacheGRP()
 					grp.load_file(p,restrict=1)
-				except PyMSError, e:
+				except PyMSError as e:
 					return None
 				if not path in GRP_CACHE:
 					GRP_CACHE[path] = {}
@@ -4119,7 +4118,7 @@ class PyDAT(Tk):
 		l = []
 		found = []
 		p = SFile()
-		for n,d in self.dats.iteritems():
+		for n,d in self.dats.items():
 			entries = list(d.entries)
 			p.text = ''
 			f = SFileOpenFileEx(h, 'arr\\' + d.datname)
@@ -4157,7 +4156,7 @@ class PyDAT(Tk):
 				ff = os.path.join(dir,f)
 				try:
 					d.load_file(ff)
-				except PyMSError, e:
+				except PyMSError as e:
 					continue
 				found[n] = (d,ff)
 				name = f
@@ -4216,7 +4215,7 @@ class PyDAT(Tk):
 	def register(self, e=None):
 		try:
 			register_registry('PyDAT','','dat',os.path.join(BASE_DIR, 'PyDAT.pyw'),os.path.join(BASE_DIR,'Images','PyDAT.ico'))
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def help(self, e=None):
@@ -4287,25 +4286,25 @@ def main():
 							raise PyMSError('Options','Invalid ID list')
 					else:
 						ids = None
-					print "Reading DAT '%s'..." % args[0]
+					print("Reading DAT '%s'..." % args[0])
 					dat.load_file(args[0])
-					print " - '%s' read successfully\nDecompiling DAT file '%s'..." % (args[0],args[0])
+					print(" - '%s' read successfully\nDecompiling DAT file '%s'..." % (args[0],args[0]))
 					dat.decompile(args[1], opt.reference, ids)
-					print " - '%s' written succesfully" % args[1]
+					print(" - '%s' written succesfully" % args[1])
 				else:
 					if opt.basedat:
 						basedat = os.path.abspath(opt.basedat)
 					else:
 						basedat = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr','%s%sdat' % (['units','weapons','flingy','sprites','images','upgrades','techdata','sfxdata','portdata','mapdata','orders'][opt.type],os.extsep))
-					print "Loading base DAT file '%s'..." % basedat
+					print("Loading base DAT file '%s'..." % basedat)
 					dat.load_file(basedat)
-					print " - '%s' read successfully\nInterpreting file '%s'..." % (basedat,args[0])
+					print(" - '%s' read successfully\nInterpreting file '%s'..." % (basedat,args[0]))
 					dat.interpret(args[0])
-					print " - '%s' read successfully\nCompiling file '%s' to DAT format..." % (args[0],args[0])
+					print(" - '%s' read successfully\nCompiling file '%s' to DAT format..." % (args[0],args[0]))
 					dat.compile(args[1])
-					print " - '%s' written succesfully" % args[1]
-			except PyMSError, e:
-				print repr(e)
+					print(" - '%s' written succesfully" % args[1])
+			except PyMSError as e:
+				print(repr(e))
 
 if __name__ == '__main__':
 	main()

@@ -4,11 +4,11 @@ from Libs.trace import setup_trace
 from Libs import PCX,BMP,GRP,PAL
 from Libs.analytics import *
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog
 
-from thread import start_new_thread
+from _thread import start_new_thread
 import optparse, os, webbrowser, sys
 
 LONG_VERSION = 'v%s' % VERSIONS['PyPCX']
@@ -102,7 +102,7 @@ class PyPCX(Tk):
 	def select_file(self, title, open=True, ext='.pcx', filetypes=[('StarCraft PCX','*.pcx'),('All Files','*')]):
 		path = self.settings.get('lastpath', BASE_DIR)
 		self._pyms__window_blocking = True
-		file = [tkFileDialog.asksaveasfilename,tkFileDialog.askopenfilename][open](parent=self, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
+		file = [tkinter.filedialog.asksaveasfilename,tkinter.filedialog.askopenfilename][open](parent=self, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
 		self._pyms__window_blocking = False
 		if file:
 			self.settings['lastpath'] = os.path.dirname(file)
@@ -128,7 +128,7 @@ class PyPCX(Tk):
 		pcx = PCX.PCX()
 		try:
 			pcx.load_file(file)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 			return
 		self.pcx = pcx
@@ -146,7 +146,7 @@ class PyPCX(Tk):
 		try:
 			self.pcx.save_file(self.file)
 			self.status.set('Save Successful!')
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def saveas(self, key=None, type=0):
@@ -168,11 +168,11 @@ class PyPCX(Tk):
 		pal = PAL.Palette()
 		try:
 			pal.load_file(file)
-		except PyMSError, e:
+		except PyMSError as e:
 			bmp = BMP.BMP()
 			try:
 				bmp.load_file(file)
-			except PyMSError, b:
+			except PyMSError as b:
 				ErrorDialog(self, e)
 				return
 			pal.palette = bmp.palette
@@ -192,7 +192,7 @@ class PyPCX(Tk):
 		try:
 			[p.save_riff_pal,p.save_jasc_pal,p.save_sc_pal,p.save_sc_wpe][type](file)
 			self.status.set('Palette saved successfully!')
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def export(self, key=None):
@@ -205,7 +205,7 @@ class PyPCX(Tk):
 		b.load_data(self.pcx.image,self.pcx.palette)
 		try:
 			b.save_file(file)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 			return
 		self.status.set('Image exported successfully!')
@@ -219,7 +219,7 @@ class PyPCX(Tk):
 		b = BMP.BMP()
 		try:
 			b.load_file(file)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 			return
 		if not self.pcx:
@@ -245,7 +245,7 @@ class PyPCX(Tk):
 	def register(self, e=None):
 		try:
 			register_registry('PyPCX','StarCraft PCX','pcx',os.path.join(BASE_DIR, 'PyPCX.pyw'),os.path.join(BASE_DIR,'Images','PyPCX.ico'))
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def help(self, e=None):
@@ -285,27 +285,27 @@ def main():
 			if len(args) == 1:
 				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
 			if opt.convert:
-				print "Reading PCX '%s'..." % args[0]
+				print("Reading PCX '%s'..." % args[0])
 				try:
 					pcx.load_file(args[0])
-					print " - '%s' read successfully\nConverting '%s' to %s file '%s'..." % (args[0], ext.upper(), args[1])
+					print(" - '%s' read successfully\nConverting '%s' to %s file '%s'..." % (args[0], ext.upper(), args[1]))
 					bmp.load_data(pcx.image,pcx.palette)
 					bmp.save_file(args[1])
-				except PyMSError, e:
-					print repr(e)
+				except PyMSError as e:
+					print(repr(e))
 				else:
-					print " - '%s' written succesfully" % args[1]
+					print(" - '%s' written succesfully" % args[1])
 			else:
-				print "Reading BMP '%s'..." % args[0]
+				print("Reading BMP '%s'..." % args[0])
 				try:
 					bmp.load_file(args[0])
-					print " - '%s' read successfully\nConverting '%s' to %s file '%s'..." % (args[0], ext.upper(), args[1])
+					print(" - '%s' read successfully\nConverting '%s' to %s file '%s'..." % (args[0], ext.upper(), args[1]))
 					pcx.load_data(bmp.image,bmp.palette)
 					pcx.save_file(args[1])
-				except PyMSError, e:
-					print repr(e)
+				except PyMSError as e:
+					print(repr(e))
 				else:
-					print " - '%s' written succesfully" % args[1]
+					print(" - '%s' written succesfully" % args[1])
 
 if __name__ == '__main__':
 	main()

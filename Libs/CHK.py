@@ -1,6 +1,6 @@
-from utils import *
-from fileutils import *
-import TRG, TBL, AIBIN
+from .utils import *
+from .fileutils import *
+from . import TRG, TBL, AIBIN
 
 import struct, math
 
@@ -1049,7 +1049,7 @@ class CHKSectionSTR(CHKSection):
 		offset = 2+count*2
 		for string_id in enumerate(count):
 			result += struct.pack('<H', offset+len(strings))
-			strings += self.get_string(string_id, '') + '\0'
+			strings += self.get_string(string_id) + '\0'
 		return result + strings
 
 	def string_exists(self, string_id):
@@ -1110,7 +1110,7 @@ class CHKSectionSTR(CHKSection):
 	
 	def decompile(self):
 		result = '%s:\n' % (self.NAME)
-		for n,string in self.strings.iteritems():
+		for n,string in self.strings.items():
 			result += '\t%s"%s"\n' % (pad('String %d' % (n+1)), string.text.replace('\\','\\\\').replace('"','\\"'))
 		return result
 
@@ -1950,7 +1950,7 @@ class CHK:
 		data = load_file(file, 'CHK')
 		try:
 			self.load_data(data)
-		except PyMSError, e:
+		except PyMSError as e:
 			raise e
 		except:
 			raise PyMSError('Load',"Unsupported CHK file '%s', could possibly be corrupt" % file)
@@ -1989,7 +1989,7 @@ class CHK:
 		f.close()
 
 	def save_data(self):
-		print '========= Save'
+		print('========= Save')
 		result = ''
 		order = []
 		order.extend(self.section_order)
@@ -1999,7 +1999,7 @@ class CHK:
 		for name in order:
 			section = self.sections.get(name)
 			if section:
-				print name
+				print(name)
 				data = section.save_data()
 				result += struct.pack('<4sL', section.name, len(data))
 				result += data

@@ -1,8 +1,12 @@
-from utils import *
-from fileutils import *
-import TBL, AIBIN
+from .utils import *
+from .fileutils import *
+from . import TBL, AIBIN
+
+from collections import OrderedDict
 
 import struct, re, os
+
+from tkinter import messagebox
 
 NORMAL_TRIGGERS = 'TRIG'
 MISSION_BRIEFING = 'MBRF'
@@ -272,7 +276,7 @@ def condition_tunit(trg, decompile, condition, data=None):
 		pass
 	for i,name in enumerate(trg.stat_txt.strings[:228]):
 		n = name.split('\x00')
-		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == '\x00'.join(n[:2])):
+		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == b'\x00'.join(n[:2])):
 			condition[3] = i
 			return
 	raise PyMSError('Parameter',"'%s' is an invalid TUnit (value must be in the range 0 to 227, a full unit name, or a type from the list: None, Any Unit, Men, Buildings, Factories)" % data)
@@ -363,7 +367,7 @@ def condition_raw(trg, decompile, condition, data=None, place=0):
 			return
 	except:
 		pass
-	raise PyMSError('Parameter',"'%s' is an invalid Raw (value at that position must be in the range 0 to %s)" % (data,s))
+	raise PyMSError('Parameter',f"'{data}' is an invalid Raw (value at that position must be in the range 0 to {s})")
 #
 def action_time(trg, decompile, action, strings, properties, data=None):
 	"""Time           - Like number, can be any number in the range 0 to 4294967295"""
@@ -436,7 +440,7 @@ def action_unit(trg, decompile, action, strings, properties, data=None):
 		pass
 	for i,name in enumerate(trg.stat_txt.strings[:228]):
 		n = name.split('\x00')
-		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == '\x00'.join(n[:2])):
+		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == b'\x00'.join(n[:2])):
 			action[6] = i
 			return
 	raise PyMSError('Parameter',"'%s' is an invalid Unit (value must be in the range 0 to 227, or a full unit name)" % data)
@@ -726,7 +730,7 @@ def action_tunit(trg, decompile, action, strings, properties, data=None):
 		pass
 	for i,name in enumerate(trg.stat_txt.strings[:228]):
 		n = name.split('\x00')
-		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == '\x00'.join(n[:2])):
+		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == b'\x00'.join(n[:2])):
 			action[6] = i
 			return
 	raise PyMSError('Parameter',"'%s' is an invalid TUnit value must be in the range 0 to 227, a full unit name, or a type from the list: None, Any Unit, Men, Buildings, Factories)" % data)
@@ -830,7 +834,7 @@ def action_raw(trg, decompile, action, strings, properties, data=None, place=0):
 			return
 	except:
 		pass
-	raise PyMSError('Parameter',"'%s' is an invalid Raw (value at that position must be in the range 0 to %s)" % (data,s))
+	raise PyMSError('Parameter',f"'{data}' is an invalid Raw (value at that position must be in the range 0 to {s})")
 
 #
 def new_memory(trg, decompile, action, strings, properties, data=None):
@@ -1042,7 +1046,7 @@ def new_unit(trg, decompile, action, strings, properties, data=None): # Same?
 		pass
 	for i,name in enumerate(trg.stat_txt.strings[:228]):
 		n = name.split('\x00')
-		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == '\x00'.join(n[:2])):
+		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == b'\x00'.join(n[:2])):
 			action[6] = i
 			return
 	raise PyMSError('Parameter',"'%s' is an invalid Unit (value must be in the range 0 to 65535, or a full unit name)" % data)
@@ -1066,7 +1070,7 @@ def new_unitend(trg, decompile, action, strings, properties, data=None):
 		pass
 	for i,name in enumerate(trg.stat_txt.strings[:228]):
 		n = name.split('\x00')
-		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == '\x00'.join(n[:2])):
+		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == b'\x00'.join(n[:2])):
 			action[0] = i
 			return
 	raise PyMSError('Parameter',"'%s' is an invalid Unit (value must be in the range 0 to 277 and extended units 233 to 65535, or a full unit name)" % data)
@@ -1124,7 +1128,7 @@ def new_stringid(trg, decompile, action, strings, properties, data=None):
 			return
 	except:
 		pass
-	raise PyMSError('Parameter',"'%s' is an invalid StringID (value must be in the range 0 to %s)" % (data,len(trg.stat_txt.strings)-1))
+	raise PyMSError('Parameter',f"'{data}' is an invalid StringID (value must be in the range 0 to {len(trg.stat_txt.strings)-1})")
 
 def new_centered(trg, decompile, action, strings, properties, data=None):
 	"""Centered       - One of the keywords: Centered, Uncentered"""
@@ -1199,7 +1203,7 @@ def new_unittype(trg, decompile, action, strings, properties, data=None):# Same?
 		pass
 	for i,name in enumerate(trg.stat_txt.strings[:228]):
 		n = name.split('\x00')
-		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == '\x00'.join(n[:2])):
+		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == b'\x00'.join(n[:2])):
 			action[6] = i
 			return
 	raise PyMSError('Parameter',"'%s' is an invalid TUnit value must be in the range 0 to 227 (and extended units 233 to 65535), a full unit name, or a type from the list: None, Any Unit, Men, Buildings, Factories)" % data)
@@ -1229,7 +1233,7 @@ def new_unittypeend(trg, decompile, action, strings, properties, data=None):
 		pass
 	for i,name in enumerate(trg.stat_txt.strings[:228]):
 		n = name.split('\x00')
-		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == '\x00'.join(n[:2])):
+		if TBL.compile_string(data) == n[0] or (n[1] != '*' and TBL.compile_string(data) == b'\x00'.join(n[:2])):
 			action[6] = i
 			return
 	raise PyMSError('Parameter',"'%s' is an invalid TUnit value must be in the range 0 to 227 (and extended units 233 to 65535), a full unit name, or a type from the list: None, Any Unit, Men, Buildings, Factories)" % data)
@@ -1697,11 +1701,11 @@ class TRG:
 		self.properties = {}
 		# aiscript - ai, ailoc
 		# bwscript - ai, ailoc
-		self.ais = [[odict(),odict()],[odict(),odict()]]
-		self.ais_rev = [[odict(),odict()],[odict(),odict()]]
+		self.ais = [[OrderedDict(), OrderedDict()], [OrderedDict(), OrderedDict()]]
+		self.ais_rev = [[OrderedDict(), OrderedDict()], [OrderedDict(), OrderedDict()]]
 		# self.ais = [[{},{}],[{},{}]]
 		# self.ais_rev = [[{},{}],[{},{}]]
-		for name,data in ais.ais.iteritems():
+		for name,data in ais.ais.items():
 			string = TBL.decompile_string(self.stat_txt.strings[data[1]].split('\x00',1)[0])
 			self.ais[not not data[2] & 4][data[2] & 1][name] = string
 			self.ais_rev[not not data[2] & 4][data[2] & 1][string] = name
@@ -1713,14 +1717,17 @@ class TRG:
 
 	def load_file(self, file, TRIG=False):
 		data = load_file(file, 'TRG')
-		self.load_data(data, TRIG)
+		try:
+			self.load_data(data, TRIG)
+		except:
+			raise PyMSError('Load', "'%s' is not a TRG file (no TRG header). It could possibly be a .got TRG file, try using the -t option when decompiling" % file)
 
 	def load_data(self, data, TRIG=False, MBRF=False):
 		try:
 			offset = 0
 			if not TRIG:
-				if data[:8] != 'qw\x986\x18\x00\x00\x00':
-					raise PyMSError('Load',"'%s' is not a TRG file (no TRG header). It could possibly be a .got TRG file, try using the -t option when decompiling" % file)
+				if data[:8] != b'qw\x986\x18\x00\x00\x00':
+					raise PyMSError('Load', "Invalid TRG header.")
 				offset = 8
 			triggers_type = MISSION_BRIEFING if MBRF else NORMAL_TRIGGERS
 			triggers = []
@@ -1812,7 +1819,7 @@ class TRG:
 	def interpret(self, file): 
 		if isstr(file):
 			try:
-				f = open(file,'r')
+				f = open(file)
 				data = f.readlines()
 				f.close()
 			except:
@@ -1824,10 +1831,10 @@ class TRG:
 			except:
 				pass
 		rev_dynamic_conditions = {}
-		for i,c in self.dynamic_conditions.iteritems():
+		for i,c in self.dynamic_conditions.items():
 			rev_dynamic_conditions[c[0]] = i
 		rev_dynamic_actions = {}
-		for i,a in self.dynamic_actions.iteritems():
+		for i,a in self.dynamic_actions.items():
 			rev_dynamic_actions[a[0]] = i
 		loaded = []
 		if isstr(file):
@@ -1886,7 +1893,7 @@ class TRG:
 										params = re.split('\\s*,\\s*', dat)
 										for param in params:
 											if not param in unit_properties:
-												raise PyMSError('Interpreter',"Property '%s' has an invalid ValidProperties value: '%s'" % (id,param),n,line)
+												raise PyMSError('Interpreter',f"Property '{id}' has an invalid ValidProperties value: '{param}'",n,line)
 											properties[id][0] ^= 2 ** unit_properties.index(param)
 								elif cmd == 'ValidUnitData':
 									if properties[id][1] != None:
@@ -1896,7 +1903,7 @@ class TRG:
 										params = re.split('\\s*,\\s*', dat)
 										for param in params:
 											if not param in unit_data:
-												raise PyMSError('Interpreter',"Property '%s' has an invalid ValidUnitData value: '%s'" % (id,param),n,line)
+												raise PyMSError('Interpreter',f"Property '{id}' has an invalid ValidUnitData value: '{param}'",n,line)
 											properties[id][1] ^= 2 ** unit_data.index(param)
 									for n in range(6):
 										if not properties[id][1] & (2 ** n):
@@ -1911,22 +1918,22 @@ class TRG:
 										params = re.split('\\s*,\\s*', dat)
 										for param in params:
 											if not param in unit_properties:
-												raise PyMSError('Interpreter',"Property '%s' has an invalid Properties value: '%s'" % (id,param),n,line)
+												raise PyMSError('Interpreter',f"Property '{id}' has an invalid Properties value: '{param}'",n,line)
 											properties[id][8] ^= 2 ** unit_properties.index(param)
 								elif cmd in unit_data:
 									if properties[id][1] == None:
 										raise PyMSError('Interpreter',"Property '%s' is trying to set some unit data before declaring the ValidUnitData" % id,n,line)
 									if properties[id][unit_data.index(cmd) + 2] != None:
-										raise PyMSError('Interpreter',"Property '%s' has more then on %s setting" % (id,cmd),n,line)
+										raise PyMSError('Interpreter',f"Property '{id}' has more then on {cmd} setting",n,line)
 									if cmd in ['Owner', 'Resources', 'AmountInHanger', 'Unknown']:
 										try:
 											d = int(dat)
 										except:
-											raise PyMSError('Interpreter',"Property '%s' has an invalid %s value: '%s'" % (id,cmd,dat),n,line)
+											raise PyMSError('Interpreter',f"Property '{id}' has an invalid {cmd} value: '{dat}'",n,line)
 										if cmd == 'Resources' and (-1 > p or 4294967295 < p):
-											raise PyMSError('Interpreter',"Property '%s' has an invalid Resources value: '%s' (Must be a value between 0 and 4294967295)" % (id,p),n,line)
+											raise PyMSError('Interpreter',f"Property '{id}' has an invalid Resources value: '{p}' (Must be a value between 0 and 4294967295)",n,line)
 										elif cmd == 'AmountInHanger' and (-1 > p or 10 < p):
-											raise PyMSError('Interpreter',"Property '%s' has an invalid AmountInHanger value: '%s' (Must be a value between 0 and 10)" % (id,p),n,line)
+											raise PyMSError('Interpreter',f"Property '{id}' has an invalid AmountInHanger value: '{p}' (Must be a value between 0 and 10)",n,line)
 									elif cmd in ['Health','Shields','Energy']:
 										try:
 											if dat.endswith('%'):
@@ -1934,9 +1941,9 @@ class TRG:
 											else:
 												d = int(dat)
 										except:
-											raise PyMSError('Interpreter',"Property '%s' has an invalid %s value: '%s'" % (id,cmd,dat),n,line)
+											raise PyMSError('Interpreter',f"Property '{id}' has an invalid {cmd} value: '{dat}'",n,line)
 										if -1 > d or 100 < d:
-											raise PyMSError('Interpreter',"Property '%s' has an invalid %s value: '%s' (Must be a value between 0 and 100)" % (id,cmd,p),n,line)
+											raise PyMSError('Interpreter',f"Property '{id}' has an invalid {cmd} value: '{p}' (Must be a value between 0 and 100)",n,line)
 									properties[id][unit_data.index(cmd) + 2] = d
 								else:
 									raise PyMSError('Interpreter',"Property '%s' has an unknown line format" % id,n,line)
@@ -1955,7 +1962,7 @@ class TRG:
 								state = 6
 								continue
 							cont = True
-							for r in ['\\AString (\\d+):\\s*\\Z','\\AProperty (\\d+):\\s*\\Z','\\ATrigger(.+):\\s*\\Z','\\AConstant ([^\s]+):\\s*\\Z','\\AConditions ([^\s]+):\\s*\\Z','\\AActions ([^\s]+):\\s*\\Z']:
+							for r in ['\\AString (\\d+):\\s*\\Z','\\AProperty (\\d+):\\s*\\Z','\\ATrigger(.+):\\s*\\Z','\\AConstant ([^\\s]+):\\s*\\Z','\\AConditions ([^\\s]+):\\s*\\Z','\\AActions ([^\\s]+):\\s*\\Z']:
 								match = re.match(r, line)
 								if match:
 									if state != 8:
@@ -1978,7 +1985,7 @@ class TRG:
 									else:
 										dat = []
 										if match.group(3):
-											dat = re.split('\\s*,\\s*', re.sub('\\{([^}\s]+)\\}', param_constant, match.group(3)))
+											dat = re.split('\\s*,\\s*', re.sub('\\{([^}\\s]+)\\}', param_constant, match.group(3)))
 										if not cmd in self.conditions[triggers_type] and not cmd in self.new_conditions and not cmd in rev_dynamic_conditions:
 											raise PyMSError('Interpreter',"'%s' is an invalid condition" % cmd,n,line)
 										if cmd in self.conditions[triggers_type]:
@@ -1991,14 +1998,14 @@ class TRG:
 											condition[5] = 22
 											params = self.dynamic_conditions[rev_dynamic_conditions[cmd]][1]
 										if params and len(dat) != len(params):
-											raise PyMSError('Interpreter',"Incorrect parameter amount for condition '%s' (expected %s, got %s)" % (cmd,len(params),len(dat)),n,line)
+											raise PyMSError('Interpreter',f"Incorrect parameter amount for condition '{cmd}' (expected {len(params)}, got {len(dat)})",n,line)
 										elif not params and dat:
-											raise PyMSError('Interpreter',"The condition '%s' takes no paramaters, but got %s" % (cmd,len(dat)),n,line)
+											raise PyMSError('Interpreter',f"The condition '{cmd}' takes no paramaters, but got {len(dat)}",n,line)
 										elif params and dat:
 											for d,param in zip(dat,params):
 												try:
 													param(self, False, condition, d)
-												except PyMSError, e:
+												except PyMSError as e:
 													e.line = n + 1
 													e.code = line
 													raise
@@ -2024,7 +2031,7 @@ class TRG:
 							continue
 						elif state == 12:
 							cont = True
-							for r in ['\\AString (\\d+):\\s*\\Z','\\AProperty (\\d+):\\s*\\Z','\\ATrigger(.+):\\s*\\Z','\\AConstant ([^\s]+):\\s*\\Z','\\AConditions ([^\s]+):\\s*\\Z','\\AActions ([^\s]+):\\s*\\Z']:
+							for r in ['\\AString (\\d+):\\s*\\Z','\\AProperty (\\d+):\\s*\\Z','\\ATrigger(.+):\\s*\\Z','\\AConstant ([^\\s]+):\\s*\\Z','\\AConditions ([^\\s]+):\\s*\\Z','\\AActions ([^\\s]+):\\s*\\Z']:
 								match = re.match(r, line)
 								if match:
 									cont = False
@@ -2033,7 +2040,7 @@ class TRG:
 								raise PyMSError('Interpreter',"Too many conditions in Conditions Function (max is 16)",n,line)
 						elif state in [6,9,10,11]:
 							cont = True
-							for r in ['\\AString (\\d+):\\s*\\Z','\\AProperty (\\d+):\\s*\\Z','\\ATrigger(.+):\\s*\\Z','\\AConstant ([^\s]+):\\s*\\Z','\\AConditions ([^\s]+):\\s*\\Z','\\AActions ([^\s]+):\\s*\\Z']:
+							for r in ['\\AString (\\d+):\\s*\\Z','\\AProperty (\\d+):\\s*\\Z','\\ATrigger(.+):\\s*\\Z','\\AConstant ([^\\s]+):\\s*\\Z','\\AConditions ([^\\s]+):\\s*\\Z','\\AActions ([^\\s]+):\\s*\\Z']:
 								match = re.match(r, line)
 								if match:
 									cont = False
@@ -2058,7 +2065,7 @@ class TRG:
 									else:
 										dat = []
 										if match.group(3):
-											dat = re.split('\\s*,\\s*', re.sub('\\{([^}\s]+)\\}', param_constant, match.group(3)))
+											dat = re.split('\\s*,\\s*', re.sub('\\{([^}\\s]+)\\}', param_constant, match.group(3)))
 										if not cmd in self.actions[triggers_type] and not cmd in self.new_actions and not cmd in rev_dynamic_actions:
 											raise PyMSError('Interpreter',"'%s' is an invalid action" % cmd,n,line)
 										if cmd in self.actions[triggers_type]:
@@ -2071,14 +2078,14 @@ class TRG:
 											action[7] = 59
 											params = self.dynamic_actions[rev_dynamic_actions[cmd]][1]
 										if params and len(dat) != len(params):
-											raise PyMSError('Interpreter',"Incorrect parameter amount for action '%s' (expected %s, got %s)" % (cmd,len(params),len(dat)),n,line)
+											raise PyMSError('Interpreter',f"Incorrect parameter amount for action '{cmd}' (expected {len(params)}, got {len(dat)})",n,line)
 										if not params and dat:
-											raise PyMSError('Interpreter',"The action '%s' takes no paramaters, but got %s" % (cmd,len(dat)),n,line)
+											raise PyMSError('Interpreter',f"The action '{cmd}' takes no paramaters, but got {len(dat)}",n,line)
 										elif params and dat:
 											for d,param in zip(dat,params):
 												try:
 													param(self, False, action, strings, properties, d)
-												except PyMSError, e:
+												except PyMSError as e:
 													e.line = n + 1
 													e.code = line
 													raise
@@ -2112,7 +2119,7 @@ class TRG:
 							if inc in loaded:
 								continue
 							try:
-								d = open(inc,'r')
+								d = open(inc)
 								dd = d.readlines()
 								d.close()
 							except:
@@ -2152,12 +2159,12 @@ class TRG:
 								triggers[-1][0][player_ids.index(param)] = 1
 							state = 3
 							continue
-						match = re.match('\\AConstant ([^\s]+):\\s*\\Z', line)
+						match = re.match('\\AConstant ([^\\s]+):\\s*\\Z', line)
 						if match:
 							id = match.group(1)
 							state = 7
 							continue
-						match = re.match('\\AConditions ([^\s]+):\\s*\\Z', line)
+						match = re.match('\\AConditions ([^\\s]+):\\s*\\Z', line)
 						if match:
 							id = match.group(1)
 							if id in self.conditions[triggers_type]:
@@ -2167,7 +2174,7 @@ class TRG:
 							conditions[id] = []
 							state = 8
 							continue
-						match = re.match('\\AActions ([^\s]+):\\s*\\Z', line)
+						match = re.match('\\AActions ([^\\s]+):\\s*\\Z', line)
 						if match:
 							id = match.group(1)
 							if id in self.actions[triggers_type]:
@@ -2222,20 +2229,20 @@ class TRG:
 			result += ')\n'
 		if self.ais[0][0] or self.ais[1][0]:
 			result += '#\n# AIScripts (Without Location):\n'
-			for name,string in self.ais[0][0].iteritems():
-				result += '#    %s    |    %s\n' % (name, string)
+			for name,string in self.ais[0][0].items():
+				result += f'#    {name}    |    {string}\n'
 			if self.ais[1][0]:
 				result += '#        -- BroodWar Only --\n'
-				for name,string in self.ais[1][0].iteritems():
-					result += '#    %s    |    %s\n' % (name, string)
+				for name,string in self.ais[1][0].items():
+					result += f'#    {name}    |    {string}\n'
 		if self.ais[0][1] or self.ais[1][1]:
 			result += '#\n# AIScripts (Requires a Location):\n'
-			for name,string in self.ais[0][1].iteritems():
-				result += '#    %s    |    %s\n' % (name, string)
+			for name,string in self.ais[0][1].items():
+				result += f'#    {name}    |    {string}\n'
 			if self.ais[1][1]:
 				result += '#        -- BroodWar Only --\n'
-				for name,string in self.ais[1][1].iteritems():
-					result += '#    %s    |    %s\n' % (name, string)
+				for name,string in self.ais[1][1].items():
+					result += f'#    {name}    |    {string}\n'
 		result += '#----------------------------------------------------\n\n'
 		return result
 
@@ -2257,9 +2264,9 @@ class TRG:
 			result = 'MISSION_BRIEFING()\n\n'
 		if ref:
 			result += self.reference()
-		for n,string in self.strings.iteritems():
-			result += 'String %s:\n%s\n\n' % (n, TBL.decompile_string(string, '\x0A'))
-		for n,property in self.properties.iteritems():
+		for n,string in self.strings.items():
+			result += 'String {}:\n{}\n\n'.format(n, TBL.decompile_string(string, '\x0A'))
+		for n,property in self.properties.items():
 			result += 'Property %s:\n\tValidProperties(' % n
 			comma = False
 			for n in range(16):
@@ -2284,7 +2291,7 @@ class TRG:
 						value = str(property[n + 2])
 					if n in [1,2,3]:
 						value += '%'
-					unitdata += '\t%s(%s)\n' % (unit_data[n], value)
+					unitdata += f'\t{unit_data[n]}({value})\n'
 			result += unitdata + '\tProperties('
 			comma = False
 			for n in range(16):
@@ -2316,7 +2323,7 @@ class TRG:
 					cmd,params = self.dynamic_conditions[condition[2]]
 				else:
 					cmd,params = self.conditions[self.triggers_type][condition[5]],self.condition_parameters[self.triggers_type][condition[5]]
-				result += '\t\t%s%s(' % (enabled, cmd)
+				result += f'\t\t{enabled}{cmd}('
 				if params:
 					comma = False
 					for parameter in params:
@@ -2337,7 +2344,7 @@ class TRG:
 					cmd,params = self.dynamic_actions[action[2]]
 				else:
 					cmd,params = self.actions[self.triggers_type][action[7]],self.action_parameters[self.triggers_type][action[7]]
-				result += '\t\t%s%s(' % (enabled, cmd)
+				result += f'\t\t{enabled}{cmd}('
 				if params:
 					comma = False
 					for parameter in params:

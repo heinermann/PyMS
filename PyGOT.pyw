@@ -4,11 +4,11 @@ from Libs.trace import setup_trace
 from Libs import TRG, GOT
 from Libs.analytics import *
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog,tkColorChooser
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog,tkinter.colorchooser
 
-from thread import start_new_thread
+from _thread import start_new_thread
 import optparse, os, webbrowser, sys
 
 LONG_VERSION = 'v%s' % VERSIONS['PyGOT']
@@ -215,7 +215,7 @@ class PyGOT(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.got'
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -227,7 +227,7 @@ class PyGOT(Tk):
 	def select_file(self, title, open=True, ext='.got', filetypes=[('StarCraft Game Templates','*.got'),('All Files','*')]):
 		path = self.settings.get('lastpath', BASE_DIR)
 		self._pyms__window_blocking = True
-		file = [tkFileDialog.asksaveasfilename,tkFileDialog.askopenfilename][open](parent=self, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
+		file = [tkinter.filedialog.asksaveasfilename,tkinter.filedialog.askopenfilename][open](parent=self, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
 		self._pyms__window_blocking = False
 		if file:
 			self.settings['lastpath'] = os.path.dirname(file)
@@ -297,7 +297,7 @@ class PyGOT(Tk):
 			got = GOT.GOT()
 			try:
 				got.load_file(file)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.got = got
@@ -320,7 +320,7 @@ class PyGOT(Tk):
 			got = GOT.GOT()
 			try:
 				got.interpret(file)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.got = got
@@ -351,7 +351,7 @@ class PyGOT(Tk):
 			self.status.set('Save Successful!')
 			self.edited = False
 			self.editstatus['state'] = DISABLED
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def saveas(self, key=None):
@@ -372,7 +372,7 @@ class PyGOT(Tk):
 		try:
 			self.got.decompile(file)
 			self.status.set('Export Successful!')
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def close(self, key=None):
@@ -395,7 +395,7 @@ class PyGOT(Tk):
 		trg = TRG.TRG()
 		try:
 			trg.load_file(trig)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 			return
 		file = self.select_file('Save TRG', False, '*.trg', [('StarCraft Triggers','*.trg'),('All Files','*')])
@@ -403,13 +403,13 @@ class PyGOT(Tk):
 			return True
 		try:
 			trg.compile(file, t)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def register(self, e=None):
 		try:
 			register_registry('PyGOT','','got',os.path.join(BASE_DIR, 'PyGOT.pyw'),os.path.join(BASE_DIR,'Images','PyGOT.ico'))
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def help(self, e=None):
@@ -454,31 +454,31 @@ def main():
 				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
 			try:
 				if opt.convert:
-					print "Reading GOT '%s'..." % args[0]
+					print("Reading GOT '%s'..." % args[0])
 					got.load_file(args[0])
-					print " - '%s' read successfully\nDecompiling GOT file '%s'..." % (args[0],args[0])
+					print(" - '%s' read successfully\nDecompiling GOT file '%s'..." % (args[0],args[0]))
 					got.decompile(args[1], opt.reference)
-					print " - '%s' written succesfully" % args[1]
+					print(" - '%s' written succesfully" % args[1])
 				else:
-					print "Interpreting file '%s'..." % args[0]
+					print("Interpreting file '%s'..." % args[0])
 					got.interpret(args[0])
-					print " - '%s' read successfully\nCompiling file '%s' to GOT format..." % (args[0],args[0])
+					print(" - '%s' read successfully\nCompiling file '%s' to GOT format..." % (args[0],args[0]))
 					lo.compile(args[1])
-					print " - '%s' written succesfully" % args[1]
+					print(" - '%s' written succesfully" % args[1])
 					if opt.trig:
-						print "Reading TRG '%s'..." % args[0]
+						print("Reading TRG '%s'..." % args[0])
 						trg = TRG.TRG()
 						trg.load_file(opt.trig)
-						print " - '%s' read successfully" % args[0]
+						print(" - '%s' read successfully" % args[0])
 						path = os.path.dirname(opt.trig)
 						if not path:
 							path = os.path.abspath('')
 						file = '%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[1]).split(os.extsep)[:-1])), os.extsep, 'trg')
-						print "Compiling file '%s' to GOT compatable TRG..." % file
+						print("Compiling file '%s' to GOT compatable TRG..." % file)
 						trg.compile(file, True)
-						print " - '%s' written succesfully" % file
-			except PyMSError, e:
-				print repr(e)
+						print(" - '%s' written succesfully" % file)
+			except PyMSError as e:
+				print(repr(e))
 
 if __name__ == '__main__':
 	main()

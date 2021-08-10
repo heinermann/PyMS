@@ -1,4 +1,3 @@
-
 from ...GRP import image_bounds
 
 
@@ -109,7 +108,7 @@ def run(path_to):
 	for name,image,bounds in tests:
 		result = tuple(image_bounds(image))
 		if result != bounds:
-			results += '%s: %s != %s\n' % (name,result,bounds)
+			results += f'{name}: {result} != {bounds}\n'
 	if results:
 		return results[:-1]
 	return True

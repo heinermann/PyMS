@@ -4,12 +4,14 @@ from Libs.trace import setup_trace
 from Libs import LO,GRP,PAL
 from Libs.analytics import *
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog,tkColorChooser
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog,tkinter.colorchooser
 
-from thread import start_new_thread
+from _thread import start_new_thread
 import optparse, os, webbrowser, sys
+
+from collections import OrderedDict
 
 LONG_VERSION = 'v%s' % VERSIONS['PyLO']
 
@@ -299,7 +301,7 @@ class CodeColors(PyMSDialog):
 	def __init__(self, parent):
 		self.cont = False
 		self.tags = dict(parent.text.tags)
-		self.info = odict()
+		self.info = OrderedDict()
 		self.info['Number'] = 'The color of all numbers.'
 		self.info['Comment'] = 'The color of a regular comment.'
 		self.info['Header'] = 'The color of the Frame header.'
@@ -355,7 +357,7 @@ class CodeColors(PyMSDialog):
 		return ok
 
 	def select(self, e=None, n=None):
-		i = self.info.getkey(int(self.listbox.curselection()[0]))
+		i = self.listbox.get(self.listbox.curselection()[0])
 		s = self.tags[i.replace(' ', '')]
 		if n == None:
 			t = self.info[i].split('\n')
@@ -393,10 +395,10 @@ class CodeColors(PyMSDialog):
 		if [self.fg,self.bg][i].get():
 			v = [self.fgcanvas,self.bgcanvas][i]
 			g = ['foreground','background'][i]
-			c = tkColorChooser.askcolor(parent=self, initialcolor=v['background'], title='Select %s color' % g)
+			c = tkinter.colorchooser.askcolor(parent=self, initialcolor=v['background'], title='Select %s color' % g)
 			if c[1]:
 				v['background'] = c[1]
-				self.tags[self.info.getkey(int(self.listbox.curselection()[0])).replace(' ','')][g] = c[1]
+				self.tags[self.listbox.get(self.listbox.curselection()[0]).replace(' ','')][g] = c[1]
 			self.focus_set()
 
 	def ok(self):
@@ -618,7 +620,7 @@ class PyLO(Tk):
 			g = GRP.CacheGRP()
 			g.load_file(self.mpqhandler.get_file(self.settings['basegrp']))
 			self.updatebasegrp(g)
-		except PyMSError, e:
+		except PyMSError as e:
 			if self.usebasegrp.get():
 				self.usebasegrp.set(0)
 				ErrorDialog(self, e)
@@ -626,7 +628,7 @@ class PyLO(Tk):
 			g = GRP.CacheGRP()
 			g.load_file(self.mpqhandler.get_file(self.settings['overlaygrp']))
 			self.updateoverlaygrp(g)
-		except PyMSError, e:
+		except PyMSError as e:
 			if self.useoverlaygrp.get():
 				self.useoverlaygrp.set(0)
 				ErrorDialog(self, e)
@@ -703,7 +705,7 @@ class PyLO(Tk):
 			g = GRP.CacheGRP()
 			g.load_file(self.mpqhandler.get_file(self.settings['basegrp']))
 			self.updatebasegrp(g)
-		except PyMSError, e:
+		except PyMSError as e:
 			if self.usebasegrp.get():
 				self.usebasegrp.set(0)
 			ErrorDialog(self, e)
@@ -714,7 +716,7 @@ class PyLO(Tk):
 			g = GRP.CacheGRP()
 			g.load_file(self.mpqhandler.get_file(self.settings['overlaygrp']))
 			self.updateoverlaygrp(g)
-		except PyMSError, e:
+		except PyMSError as e:
 			if self.useoverlaygrp.get():
 				self.useoverlaygrp.set(0)
 			ErrorDialog(self, e)
@@ -738,7 +740,7 @@ class PyLO(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.loa'
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -750,7 +752,7 @@ class PyLO(Tk):
 	def select_file(self, title, open=True, ext='.loa', filetypes=[('All StarCraft Overlays','*.loa;*.lob;*.lod;*.lof;*.loo;*.los;*.lou;*.log;*.lol;*.lox'),('StarCraft Attack Overlays','*.loa'),('StarCraft Birth Overloays','*.lob'),('StarCraft Landing Dust Overlays','*.lod'),('StarCraft Fire Overlays','*.lof'),('StarCraft Powerup Overlays','*.loo'),('StarCraft Shield/Smoke Overlays','*.los'),('StarCraft Lift-Off Dust Overlays','*.lou'),('Misc. StarCraft Overlay','*.log'),('Misc. StarCraft Overlay','*.lol'),('Misc. StarCraft Overlay','*.lox'),('All Files','*')]):
 		path = self.settings.get('lastpath', BASE_DIR)
 		self._pyms__window_blocking = True
-		file = [tkFileDialog.asksaveasfilename,tkFileDialog.askopenfilename][open](parent=self, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
+		file = [tkinter.filedialog.asksaveasfilename,tkinter.filedialog.askopenfilename][open](parent=self, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
 		self._pyms__window_blocking = False
 		if file:
 			self.settings['lastpath'] = os.path.dirname(file)
@@ -861,7 +863,7 @@ class PyLO(Tk):
 			try:
 				lo.load_file(file)
 				lo.decompile(d)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.lo = lo
@@ -914,7 +916,7 @@ class PyLO(Tk):
 		try:
 			self.lo.interpret(self.text)
 			self.lo.compile(self.file)
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 			return
 		self.status.set('Save Successful!')
@@ -939,14 +941,14 @@ class PyLO(Tk):
 		try:
 			self.lo.decompile(file)
 			self.status.set('Export Successful!')
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def test(self, key=None):
 		i = LO.LO()
 		try:
 			warnings = i.interpret(self)
-		except PyMSError, e:
+		except PyMSError as e:
 			if e.line != None:
 				self.text.see('%s.0' % e.line)
 				self.text.tag_add('Error', '%s.0' % e.line, '%s.end' % e.line)
@@ -1009,7 +1011,7 @@ class PyLO(Tk):
 		for type,ext in [('Attack','a'),('Birth','b'),('Landing Dust','d'),('Fire','f'),('Powerup','o'),('Shield/Smoke','s'),('Liftoff Dust','u'),('Misc.','g'),('Misc.','l'),('Misc.','x')]:
 			try:
 				register_registry('PyLO',type + ' Overlay','lo' + ext,os.path.join(BASE_DIR, 'PyLO.pyw'),os.path.join(BASE_DIR,'Images','PyLO.ico'))
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				break
 
@@ -1068,19 +1070,19 @@ def main():
 				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
 			try:
 				if opt.convert:
-					print "Reading LO? '%s'..." % args[0]
+					print("Reading LO? '%s'..." % args[0])
 					lo.load_file(args[0])
-					print " - '%s' read successfully\nDecompiling LO? file '%s'..." % (args[0],args[0])
+					print(" - '%s' read successfully\nDecompiling LO? file '%s'..." % (args[0],args[0]))
 					lo.decompile(args[1])
-					print " - '%s' written succesfully" % args[1]
+					print(" - '%s' written succesfully" % args[1])
 				else:
-					print "Interpreting file '%s'..." % args[0]
+					print("Interpreting file '%s'..." % args[0])
 					lo.interpret(args[0])
-					print " - '%s' read successfully\nCompiling file '%s' to LO? format..." % (args[0],args[0])
+					print(" - '%s' read successfully\nCompiling file '%s' to LO? format..." % (args[0],args[0]))
 					lo.compile(args[1])
-					print " - '%s' written succesfully" % args[1]
-			except PyMSError, e:
-				print repr(e)
+					print(" - '%s' written succesfully" % args[1])
+			except PyMSError as e:
+				print(repr(e))
 
 if __name__ == '__main__':
 	main()

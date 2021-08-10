@@ -1,5 +1,4 @@
-
-from Tkinter import *
+from tkinter import *
 
 
 class AutohideScrollbar(Scrollbar):

@@ -1,7 +1,6 @@
+from .AutohideScrollbar import AutohideScrollbar
 
-from AutohideScrollbar import AutohideScrollbar
-
-from Tkinter import *
+from tkinter import *
 
 
 # WARNING: You must use the `flowView.content_view` as the master of the widgets placed into a FlowView
@@ -278,12 +277,12 @@ if __name__ == '__main__':
 	flow.pack(fill=BOTH, expand=1, padx=30,pady=30)
 	count = random.randint(10,20)
 	for n in range(count):
-		f = LabelFrame(flow.content_view, text=''.join([random.choice(string.lowercase + ' ') for i in xrange(random.randint(10,20))]))
+		f = LabelFrame(flow.content_view, text=''.join([random.choice(string.lowercase + ' ') for i in range(random.randint(10,20))]))
 		for t in range(random.randint(1,5)):
 			if t == 3:
 				e = Entry(f, width=5)
 				e.pack()
-			l = Label(f, text=''.join([random.choice(string.lowercase + ' ') for i in xrange(random.randint(10,20))]))
+			l = Label(f, text=''.join([random.choice(string.lowercase + ' ') for i in range(random.randint(10,20))]))
 			l.pack()
 		flow.add_subview(f, padx=2,pady=2, weight=0 if n % 5 else 1)
 	flow.scroll_to_view(flow)

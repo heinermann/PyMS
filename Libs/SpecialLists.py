@@ -1,11 +1,11 @@
-from Tkinter import *
-from utils import isstr
+from tkinter import *
+from .utils import isstr
 import re
 import os.path
 
 class RichList(Frame):
 	selregex = re.compile('\\bsel\\b')
-	idregex = re.compile('(\\d+)\.(\\d+).(\\d+)(.+)?')
+	idregex = re.compile('(\\d+)\\.(\\d+).(\\d+)(.+)?')
 
 	def __init__(self, parent, **kwargs):
 		self.entry = 0
@@ -42,7 +42,7 @@ class RichList(Frame):
 	def index(self, index):
 		m = self.idregex.match(index)
 		if m:
-			index = 'entry%s.first +%sl +%sc' % (self.entries[int(m.group(1))-1],int(m.group(2))-1,int(m.group(3)))
+			index = f'entry{self.entries[int(m.group(1))-1]}.first +{int(m.group(2))-1}l +{int(m.group(3))}c'
 			if m.group(4):
 				index += m.group(4)
 		return self.execute('index',(index,))
@@ -73,7 +73,7 @@ class RichList(Frame):
 		elif isinstance(e, str):
 			n = e
 		else:
-			for n in self.text.tag_names(self.text.index('@%s,%s' % (e.x,e.y))):
+			for n in self.text.tag_names(self.text.index(f'@{e.x},{e.y}')):
 				if n.startswith('entry'):
 					break
 			else:
@@ -89,9 +89,9 @@ class RichList(Frame):
 		if tags == None:
 			tags = e
 		elif isstr(tags):
-			tags = '%s %s' % (e,tags)
+			tags = f'{e} {tags}'
 		else:
-			tags = '%s %s' % (e,' '.join(tags))
+			tags = '{} {}'.format(e,' '.join(tags))
 		if self.entries:
 			i = 'entry%s.last +1l' % self.entries[index]
 		else:
@@ -184,9 +184,9 @@ class EditableReportSubList(RichList):
 		if tags == None:
 			tags = e
 		elif isstr(tags):
-			tags = '%s %s' % (e,tags)
+			tags = f'{e} {tags}'
 		else:
-			tags = '%s %s' % (e,' '.join(tags))
+			tags = '{} {}'.format(e,' '.join(tags))
 		if self.entries:
 			i = 'entry%s.last +1l' % self.entries[index]
 		else:
@@ -253,7 +253,7 @@ class EditableReportSubList(RichList):
 				d = '-1l'
 			else:
 				d = '+1l'
-			c,f = self.text.index('%s.last %s lineend -1c' % (self.lastsel,d)),self.text.index('%s.last %s lineend -1c' % (i,d))
+			c,f = self.text.index(f'{self.lastsel}.last {d} lineend -1c'),self.text.index(f'{i}.last {d} lineend -1c')
 			while d == '-1l' or c != f:
 				r = self.text.tag_names(c)
 				if not 'Selection' in r:
@@ -263,7 +263,7 @@ class EditableReportSubList(RichList):
 							break
 				if d == '-1l' and c == f:
 					break
-				c = self.text.index('%s %s lineend -1c' % (c,d))
+				c = self.text.index(f'{c} {d} lineend -1c')
 			self.lastsel = i
 		self.dctimer = self.after(300, self.nodc)
 		if self.report.scmd:
@@ -283,7 +283,7 @@ class EditableReportSubList(RichList):
 		elif e == None:
 			n = [n for n in self.text.tag_names('Selection.first') if n.startswith('entry')][0]
 		else:
-			c = '@%s,%s' % (e.x,e.y)
+			c = f'@{e.x},{e.y}'
 			n = [n for n in self.text.tag_names(c) if n.startswith('entry')][0]
 		i = self.text.index(n + '.first')
 		self.checkedit = self.text.get(n + '.first', n + '.last')
@@ -353,9 +353,9 @@ class ReportSubList(RichList):
 		if tags == None:
 			tags = e
 		elif isstr(tags):
-			tags = '%s %s' % (e,tags)
+			tags = f'{e} {tags}'
 		else:
-			tags = '%s %s' % (e,' '.join(tags))
+			tags = '{} {}'.format(e,' '.join(tags))
 		if self.entries:
 			i = 'entry%s.last +1l' % self.entries[index]
 		else:
@@ -686,7 +686,7 @@ class TreeList(Frame):
 	def lookup_coords(self, x,y):
 		index = self.index('@%d,%d' % (x,y))
 		if index:
-			for o in xrange(1,100):
+			for o in range(1,100):
 				for below in (True,False):
 					check = self.index('@%d,%d' % (x,y + o * (1 if below else -1)))
 					if check != index:
@@ -762,13 +762,13 @@ class TreeList(Frame):
 				d = '-1l'
 			else:
 				d = '+1l'
-			c,f = self.text.index('entry%s.last %s lineend -1c' % (self.lastsel,d)),self.text.index('entry%s.last %s lineend -1c' % (node.entry,d))
+			c,f = self.text.index(f'entry{self.lastsel}.last {d} lineend -1c'),self.text.index(f'entry{node.entry}.last {d} lineend -1c')
 			while c != f:
 				r = self.text.tag_names(c)
 				for e in r:
 					if e.startswith('entry') and (self.groupsel or not isinstance(self.entries[int(e[5:])],TreeGroup)) and not 'Selection' in r:
 						self.text.tag_add('Selection', '%s.first' % e, '%s.last' % e)
-				c = self.text.index('%s %s lineend -1c' % (c,d))
+				c = self.text.index(f'{c} {d} lineend -1c')
 			self.lastsel = node.entry
 		else:
 			if self.selectmode != MULTIPLE or modifier != 2:
@@ -824,7 +824,7 @@ class TreeList(Frame):
 			base = 'icon%s.first' % group.entry
 			def insert_children(group, line_offset=1):
 				for child in group.children:
-					self.write_node('%s +%sl linestart' % (base,line_offset), child)
+					self.write_node(f'{base} +{line_offset}l linestart', child)
 					line_offset += 1
 					if isinstance(child, TreeGroup) and child.expanded:
 						line_offset += insert_children(child, line_offset)

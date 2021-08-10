@@ -1,5 +1,5 @@
-from utils import *
-from fileutils import *
+from .utils import *
+from .fileutils import *
 
 import struct
 
@@ -22,7 +22,7 @@ class Palette:
 		return [[int(c) for c in line.split(' ')] for line in data[3:]]
 
 	def load_zsoft_pcx(self, data):
-		if data[0:2] != '\x0A\x05' or data[3] != '\x08' or data[-769] != '\x0C':
+		if (data[0] != 10 and data[1] != 5) or data[3] != 8 or data[-769] != 12:
 			raise
 		return self.load_sc_pal(data[-768:])
 

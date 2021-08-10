@@ -1,6 +1,6 @@
-from utils import *
-from fileutils import *
-import TBL
+from .utils import *
+from .fileutils import *
+from . import TBL
 
 import struct, os, re
 
@@ -34,12 +34,12 @@ DATA_REFERENCE = {
 }
 
 DATA_CACHE = {}
-for d in DATA_REFERENCE.keys():
-	f = open(os.path.join(BASE_DIR, 'Libs', 'Data', d),'r')
+for d in list(DATA_REFERENCE.keys()):
+	f = open(os.path.join(BASE_DIR, 'Libs', 'Data', d))
 	DATA_CACHE[d] = [l.rstrip() for l in f.readlines()]
 	f.close()
 
-class UnitsDAT(object):
+class UnitsDAT:
 	format = [
 		[[],1],
 		[[],2],
@@ -266,15 +266,15 @@ class UnitsDAT(object):
 	def hitpoints(self, value, save=False):
 		if save:
 			hp = struct.pack('<Q', value<<8)[:4]
-			if hp == '\x00\x00\x00\x00':
-				return '\x01\x00\x00\x00'
+			if hp == b'\x00\x00\x00\x00':
+				return b'\x01\x00\x00\x00'
 			return hp
 		return value>>8
 
 	def load_file(self, file):
 		data = load_file(file, self.datname)
 		if len(data) != self.filesize:
-			raise PyMSError('Load',"'%s' is an invalid %s file (the file size must be %s, but got a file with size %s)" % (file,self.datname,self.filesize,len(data)))
+			raise PyMSError('Load',f"'{file}' is an invalid {self.datname} file (the file size must be {self.filesize}, but got a file with size {len(data)})")
 		try:
 			entries = []
 			offset = 0
@@ -326,7 +326,7 @@ class UnitsDAT(object):
 	def dat_value(self, file, value):
 		if value == 65535:
 			return '%s.dat entry: None'
-		return '%s.dat entry: %s' % (file, DATA_CACHE[file + '.txt'][value])
+		return '{}.dat entry: {}'.format(file, DATA_CACHE[file + '.txt'][value])
 
 	def info_value(self, file, value):
 		if file == 'ElevationLevels':
@@ -338,18 +338,18 @@ class UnitsDAT(object):
 		return s + DATA_CACHE[file + '.txt'][value]
 
 	def time_value(self, _, value):
-		return 'Length in seconds: %s' % (value / 24)
+		return 'Length in seconds: %s' % (value // 24)
 
 	def stattxt_value(self, type, value):
 		if type == 'Sublabel':
 			value += 1301
-		return '%s in stat_txt.tbl, item %s: %s' % (type, value, TBL.decompile_string(self.tbl.strings[value]))
+		return f'{type} in stat_txt.tbl, item {value}: {TBL.decompile_string(self.tbl.strings[value])}'
 
 	def interpret(self, file):
 		if len(self.entries) != self.count:
 			raise PyMSError('Interpreting',"No default %s file was loaded as a base" % self.datname)
 		try:
-			f = open(file,'r')
+			f = open(file)
 			data = f.readlines()
 			f.close()
 		except:
@@ -360,7 +360,7 @@ class UnitsDAT(object):
 		for n,l in enumerate(data):
 			if len(l) > 1:
 				ln = l.strip().split('#',1)[0]
-				line = re.split('\s+', ln)
+				line = re.split(r'\s+', ln)
 				if entrydata:
 					if line[0] == self.header + 'ID':
 						raise PyMSError('Interpreting',"Unexpected line, expected a value",n,ln)
@@ -370,7 +370,7 @@ class UnitsDAT(object):
 					value = None
 					if line[0] in self.flaglens:
 						if len(line[1]) != self.flaglens[line[0]]:
-							raise PyMSError('Interpreting',"Incorrect amount of flags (expected %s, got %s)" % (self.flaglens[line[0]],len(line[1])),n,ln)
+							raise PyMSError('Interpreting',f"Incorrect amount of flags (expected {self.flaglens[line[0]]}, got {len(line[1])})",n,ln)
 						if re.match('[^01]',line[1]):
 							raise PyMSError('Interpreting',"'%s' is an invalid set of flags" % line[1],n,ln)
 						value = sum(int(x)*(2**n) for n,x in enumerate(reversed(line[1])))
@@ -380,7 +380,7 @@ class UnitsDAT(object):
 							if value < 0 or value > 256 ** self.format[label][1]:
 								raise
 						except:
-							raise PyMSError('Interpreting',"'%s' is an invalid value (must be in range 0 to %s)" % (line[1],256**self.format[label][1]),n,ln)
+							raise PyMSError('Interpreting',f"'{line[1]}' is an invalid value (must be in range 0 to {256**self.format[label][1]})",n,ln)
 					if self.datname == 'units.dat' and line[0] == 'SightRange' and value > 11:
 						raise PyMSError('Interpreting',"SightRange can not be more then 11",n,ln)
 					entries[curentry][label] = value
@@ -394,7 +394,7 @@ class UnitsDAT(object):
 						if id < 0 or id >= self.count:
 							raise
 					except:
-						raise PyMSError('Interpreting',"Invalid %sID value (must be in the range 0 to %s)" % (self.header,self.count),n,ln)
+						raise PyMSError('Interpreting',f"Invalid {self.header}ID value (must be in the range 0 to {self.count})",n,ln)
 					entries[id] = [None]*len(self.format)
 					for n,format in enumerate(self.format):
 						if format[0] and not id in range(*format[0]):
@@ -402,10 +402,10 @@ class UnitsDAT(object):
 					curentry = id
 					entrydata = True
 		if None in entries[curentry]:
-			raise PyMSError('Interpreting',"Entry '%s' is missing a value for %s" % (curentry,self.labels[entries.curentry.index(None)]),n,ln)
-		for id,entry in entries.iteritems():
+			raise PyMSError('Interpreting',f"Entry '{curentry}' is missing a value for {self.labels[entries.curentry.index(None)]}",n,ln)
+		for id,entry in entries.items():
 			self.entries[id] = entry
-		return entries.keys()
+		return list(entries.keys())
 
 	def decompile(self, file, ref=False, ids=None):
 		try:
@@ -414,26 +414,26 @@ class UnitsDAT(object):
 			raise PyMSError('Interpreting',"Could not load file '%s'" % file)
 		if ref:
 			f.write('#----------------------------------------------------')
-			for file,name in DATA_REFERENCE.iteritems():
+			for file,name in DATA_REFERENCE.items():
 				f.write('\n# %s:' % name)
 				for n,value in enumerate(DATA_CACHE[file]):
 					pad = ' ' * (3 - len(str(n)))
-					f.write('\n#     %s%s = %s' % (pad,n,value))
+					f.write(f'\n#     {pad}{n} = {value}')
 				f.write('\n#')
 			f.write('----------------------------------------------------\n\n')
 		if ids == None:
-			ids = range(self.count)
+			ids = list(range(self.count))
 		for id in ids:
-			f.write('%sID %s:%s# %s name: %s\n' % (self.header, id, ' ' * (12 + self.longlabel - len(self.header) - len(str(id))), self.header, DATA_CACHE[self.idfile][id]))
+			f.write('{}ID {}:{}# {} name: {}\n'.format(self.header, id, ' ' * (12 + self.longlabel - len(self.header) - len(str(id))), self.header, DATA_CACHE[self.idfile][id]))
 			for format,data,label,value in zip(self.format,self.data,self.labels,self.entries[id]):
 				if not format[0] or id in range(*format[0]):
 					if label in self.flaglens:
 						v = ''.join(reversed([str(value/(2**n)%2) for n in range(self.flaglens[label])]))
 					else:
 						v = value
-					f.write('    %s%s%s' % (label, ' ' * (self.longlabel + 1 - len(label)), v))
+					f.write('    {}{}{}'.format(label, ' ' * (self.longlabel + 1 - len(label)), v))
 					if data[0][0]:
-						f.write('%s# %s' % (' ' * (11 - len(str(v))), data[0][0](data[0][1], v)))
+						f.write('{}# {}'.format(' ' * (11 - len(str(v))), data[0][0](data[0][1], v)))
 					f.write('\n')
 			f.write('\n')
 		f.close()
@@ -482,7 +482,7 @@ class UnitsDAT(object):
 				for value in values:
 					f.write(self.special[label](value,True))
 			else:
-				f.write(struct.pack('<%s%s' % (len(values), ['', 'B','H','','L'][format[1]]), *values))
+				f.write(struct.pack('<{}{}'.format(len(values), ['', 'B','H','','L'][format[1]]), *values))
 		f.close()
 
 class WeaponsDAT(UnitsDAT):
@@ -668,7 +668,7 @@ class SpritesDAT(UnitsDAT):
 		self.special = {}
 
 	def hpbar_value(self, _, value):
-		return 'Health Bar Boxes: %s' % (int((value -1) / 3))
+		return 'Health Bar Boxes: %s' % (int((value -1) // 3))
 
 	def info_value(self, file, value):
 		return 'Selection Circle Size: ' + DATA_CACHE[file + '.txt'][value]
@@ -738,7 +738,7 @@ class ImagesDAT(UnitsDAT):
 	def stattxt_value(self, type, value):
 		if value == 0:
 			return '%s: None' % type
-		return '%s in images.tbl, item %s: %s' % (type, value - 1, TBL.decompile_string(self.tbl.strings[value - 1]))
+		return f'{type} in images.tbl, item {value - 1}: {TBL.decompile_string(self.tbl.strings[value - 1])}'
 
 	def info_value(self, file, value):
 		if file == 'DrawList':
@@ -806,7 +806,7 @@ class UpgradesDAT(UnitsDAT):
 	def stattxt_value(self, type, value):
 		if value == 0:
 			return '%s: None' % type
-		return '%s in stat_txt.tbl, item %s: %s' % (type, value - 1, TBL.decompile_string(self.tbl.strings[value - 1]))
+		return f'{type} in stat_txt.tbl, item {value - 1}: {TBL.decompile_string(self.tbl.strings[value - 1])}'
 
 	def info_value(self, file, value):
 		if file == 'Icons':
@@ -869,7 +869,7 @@ class TechDAT(UnitsDAT):
 	def stattxt_value(self, type, value):
 		if value == 0:
 			return '%s: None' % type
-		return '%s in stat_txt.tbl, item %s: %s' % (type, value - 1, TBL.decompile_string(self.tbl.strings[value - 1]))
+		return f'{type} in stat_txt.tbl, item {value - 1}: {TBL.decompile_string(self.tbl.strings[value - 1])}'
 
 	def info_value(self, file, value):
 		if file == 'Icons':
@@ -916,7 +916,7 @@ class SoundsDAT(UnitsDAT):
 	def stattxt_value(self, type, value):
 		if value == 0:
 			return '%s: None' % type
-		return '%s in sfxdata.tbl, item %s: %s' % (type, value - 1, TBL.decompile_string(self.tbl.strings[value - 1]))
+		return f'{type} in sfxdata.tbl, item {value - 1}: {TBL.decompile_string(self.tbl.strings[value - 1])}'
 
 class PortraitDAT(UnitsDAT):
 	format = [
@@ -950,7 +950,7 @@ class PortraitDAT(UnitsDAT):
 	def stattxt_value(self, type, value):
 		if value == 0:
 			return '%s: None' % type
-		return '%s in portdata.tbl, item %s: %s' % (type, value - 1, TBL.decompile_string(self.tbl.strings[value - 1]))
+		return f'{type} in portdata.tbl, item {value - 1}: {TBL.decompile_string(self.tbl.strings[value - 1])}'
 
 class CampaignDAT(UnitsDAT):
 	format = [
@@ -977,8 +977,8 @@ class CampaignDAT(UnitsDAT):
 
 	def stattxt_value(self, type, value):
 		if value == 65:
-			return '%s in mapdata.tbl, item %s: None' % (type, value)
-		return '%s in mapdata.tbl, item %s: %s' % (type, value, TBL.decompile_string(self.tbl.strings[value]))
+			return f'{type} in mapdata.tbl, item {value}: None'
+		return f'{type} in mapdata.tbl, item {value}: {TBL.decompile_string(self.tbl.strings[value])}'
 
 class OrdersDAT(UnitsDAT):
 	format = [

@@ -1,5 +1,5 @@
-from utils import *
-from fileutils import *
+from .utils import *
+from .fileutils import *
 
 import struct, re
 
@@ -25,7 +25,7 @@ class LO:
 	def interpret(self, file):
 		if isstr(file):
 			try:
-				f = open(file,'r')
+				f = open(file)
 				data = f.readlines()
 				f.close()
 			except:
@@ -43,11 +43,11 @@ class LO:
 						if line == 'Frame:':
 							if overlays != -1:
 								if len(frames[-1]) != overlays:
-									raise PyMSError('Interpreting',"Frameset %s has an invalid amount of overlays (expected %s, got %s)" % (len(frames), overlays, len(frames[-1])))
+									raise PyMSError('Interpreting',f"Frameset {len(frames)} has an invalid amount of overlays (expected {overlays}, got {len(frames[-1])})")
 								overlays = len(frames[-1])
 							frames.append([])
 						else:
-							valid = re.match('\\((-?\\d+),\s*(-?\\d+)\\)', line)
+							valid = re.match('\\((-?\\d+),\\s*(-?\\d+)\\)', line)
 							if valid:
 								try:
 									x,y = int(valid.group(1)),int(valid.group(2))
@@ -57,7 +57,7 @@ class LO:
 									if len(frames[-1]) == overlays:
 										framedata = False
 								except:
-									raise PyMSError('Interpreting',"Invalid offset coordinates (%s,%s)" % (x,y),n,line)
+									raise PyMSError('Interpreting',f"Invalid offset coordinates ({x},{y})",n,line)
 							else:
 								raise PyMSError('Interpreting',"Unknown line format, expected coordinates",n,line)
 					elif line == 'Frame:':

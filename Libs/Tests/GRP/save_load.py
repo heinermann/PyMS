@@ -1,4 +1,3 @@
-
 from ...utils import FFile
 from ... import GRP
 
@@ -6,7 +5,7 @@ def run(path_to):
 	"""Save then Load"""
 	w = 16
 	h = 16
-	image = list(range(n*w,(n+1)*w) for n in range(h))
+	image = list(list(range(n*w,(n+1)*w)) for n in range(h))
 
 	saved_file = FFile()
 

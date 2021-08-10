@@ -3,20 +3,20 @@ import os,sys
 
 cwd = os.getcwd()
 if hasattr(sys, 'frozen'):
-	SFmpq_DIR = os.path.join(os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding())),'Libs')
+	SFmpq_DIR = os.path.join(os.path.dirname(sys.executable),'Libs')
 else:
-	SFmpq_DIR = os.path.dirname(unicode(__file__, sys.getfilesystemencoding()))
+	SFmpq_DIR = os.path.dirname(__file__)
 if SFmpq_DIR:
 	os.chdir(SFmpq_DIR)
 FOLDER = False
 try:
-	_SFmpq = windll.SFmpq
+	_SFmpq = CDLL(os.path.join(SFmpq_DIR, "SFmpq.dll"), RTLD_GLOBAL)
 except:
 	try:
-		_SFmpq = windll.SFmpq64
+		_SFmpq = CDLL(os.path.join(SFmpq_DIR, "SFmpq64.dll"), RTLD_GLOBAL)
 	except:
 		try:
-			_SFmpq = CDLL("SFmpq.dylib", RTLD_GLOBAL)
+			_SFmpq = CDLL(os.path.join(SFmpq_DIR, "SFmpq.dylib"), RTLD_GLOBAL)
 		except:
 			FOLDER = True
 os.chdir(cwd)
@@ -301,10 +301,10 @@ def debug_log(func):
 	if DEBUG:
 		def do_log(*args, **kwargs):
 			result = func(*args, **kwargs)
-			print "Func  : %s" % func.__name__
-			print "Args  : %s" % (args,)
-			print "kwargs: %s" % kwargs
-			print "Result: %s" % (result,)
+			print("Func  : %s" % func.__name__)
+			print("Args  : %s" % (args,))
+			print("kwargs: %s" % kwargs)
+			print("Result: %s" % (result,))
 			return result
 		return do_log
 	else:
@@ -340,7 +340,7 @@ def SFMpqGetVersion():
 @debug_log
 def SFileOpenArchive(path, priority=0, flags=SFILE_OPEN_HARD_DISK_FILE):
 	f = MPQHANDLE()
-	if _SFmpq.SFileOpenArchive(path, priority, flags, byref(f)):
+	if _SFmpq.SFileOpenArchive(bytes(path, 'utf-8'), priority, flags, byref(f)):
 		return f
 
 @debug_log
@@ -350,7 +350,7 @@ def SFileCloseArchive(mpq):
 @debug_log
 def SFileOpenFileEx(mpq, path, search=SFILE_SEARCH_CURRENT_ONLY):
 	f = MPQHANDLE()
-	if _SFmpq.SFileOpenFileEx(mpq if mpq else None, path, search, byref(f)):
+	if _SFmpq.SFileOpenFileEx(mpq if mpq else None, bytes(path, 'utf-8'), search, byref(f)):
 		return f
 
 @debug_log
@@ -376,7 +376,7 @@ def SFileReadFile(file, read=None):
 	r = c_uint32()
 	total_read = 0
 	while total_read < read:
-		if _SFmpq.SFileReadFile(file, byref(data, total_read), read-total_read, byref(r), None):
+		if _SFmpq.SFileReadFile(file, byref(data, total_read), read - total_read, byref(r), None):
 			total_read += r.value
 		else:
 			return
@@ -397,8 +397,8 @@ def SFileListFiles(mpq, listfiles='', flags=0):
 	if n < 1:
 		return []
 	f = (FILELISTENTRY * n)()
-	_SFmpq.SFileListFiles(mpq, listfiles, f, flags)
-	return filter(lambda e: e.fileExists,f)
+	_SFmpq.SFileListFiles(mpq, bytes(listfiles, 'utf-8'), f, flags)
+	return filter(lambda e: e.fileExists, f)
 
 @debug_log
 def SFileSetArchivePriority(mpq, priority):
@@ -406,7 +406,7 @@ def SFileSetArchivePriority(mpq, priority):
 
 @debug_log
 def MpqOpenArchiveForUpdate(path, flags=MOAU_OPEN_ALWAYS, maxfiles=1024):
-	return _SFmpq.MpqOpenArchiveForUpdate(path, flags, maxfiles)
+	return _SFmpq.MpqOpenArchiveForUpdate(bytes(path, 'utf-8'), flags, maxfiles)
 
 @debug_log
 def MpqCloseUpdatedArchive(handle, unknown=0):
@@ -414,11 +414,11 @@ def MpqCloseUpdatedArchive(handle, unknown=0):
 
 @debug_log
 def MpqAddFileToArchive(mpq, source, dest, flags=MAFA_REPLACE_EXISTING):
-	return _SFmpq.MpqAddFileToArchive(mpq, source, dest, flags)
+	return _SFmpq.MpqAddFileToArchive(mpq, bytes(source, 'utf-8'), dest, flags)
 
 @debug_log
 def MpqAddFileFromBuffer(mpq, buffer, file, flags=MAFA_REPLACE_EXISTING):
-	return _SFmpq.MpqAddFileFromBuffer(mpq, buffer, len(buffer), file, flags)
+	return _SFmpq.MpqAddFileFromBuffer(mpq, buffer, len(buffer), bytes(file, 'utf-8'), flags)
 
 @debug_log
 def MpqCompactArchive(mpq):
@@ -426,20 +426,20 @@ def MpqCompactArchive(mpq):
 
 @debug_log
 def MpqOpenArchiveForUpdateEx(mpq, flags=MOAU_OPEN_ALWAYS, maxfiles=1024, blocksize=3):
-	return _SFmpq.MpqOpenArchiveForUpdateEx(mpq, flags, maxfiles, blocksize)
+	return _SFmpq.MpqOpenArchiveForUpdateEx(bytes(mpq, 'utf-8'), flags, maxfiles, blocksize)
 
 @debug_log
 def MpqAddFileToArchiveEx(mpq, source, dest, flags=MAFA_REPLACE_EXISTING, comptype=0, complevel=0):
-	return _SFmpq.MpqAddFileToArchiveEx(mpq, source, dest, flags, comptype, complevel)
+	return _SFmpq.MpqAddFileToArchiveEx(mpq, bytes(source, 'utf-8'), dest, flags, comptype, complevel)
 
 @debug_log
 def MpqRenameAndSetFileLocale(mpq, oldname, newname, oldlocale, newlocale):
-	return _SFmpq.MpqRenameAndSetFileLocale(mpq, oldname, newname, oldlocale, newlocale)
+	return _SFmpq.MpqRenameAndSetFileLocale(mpq, bytes(oldname, 'utf-8'), bytes(newname, 'utf-8'), oldlocale, newlocale)
 
 @debug_log
 def MpqDeleteFileWithLocale(mpq, file, locale):
-	return _SFmpq.MpqDeleteFileWithLocale(mpq, file, locale)
+	return _SFmpq.MpqDeleteFileWithLocale(mpq, bytes(file, 'utf-8'), locale)
 
 @debug_log
 def MpqSetFileLocale(mpq, file, oldlocale, newlocale):
-	return _SFmpq.MpqSetFileLocale(mpq, file, oldlocale, newlocale)
+	return _SFmpq.MpqSetFileLocale(mpq, bytes(file, 'utf-8'), oldlocale, newlocale)

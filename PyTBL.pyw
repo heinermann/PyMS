@@ -4,11 +4,11 @@ from Libs.trace import setup_trace
 from Libs import TBL,FNT,PCX,GRP,PAL
 from Libs.analytics import *
 
-from Tkinter import *
-from tkMessageBox import *
-import tkFileDialog,tkColorChooser
+from tkinter import *
+from tkinter.messagebox import *
+import tkinter.filedialog,tkinter.colorchooser
 
-from thread import start_new_thread
+from _thread import start_new_thread
 import optparse, os, webbrowser, sys, re
 
 LONG_VERSION = 'v%s' % VERSIONS['PyTBL']
@@ -38,7 +38,7 @@ class PreviewDialog(PyMSDialog):
 		if text:
 			color = 2
 			display = []
-			hotkey = ord(text[1])
+			hotkey = text[1]
 			if self.hotkey.get() and hotkey < 6:
 				text = text[2:]
 				if self.endatnull.get() and '\x00' in text:
@@ -61,10 +61,10 @@ class PreviewDialog(PyMSDialog):
 				w = 0
 				display.append([])
 				for c in l:
-					a = ord(c)
+					a = c
 					if a >= fnt.start and a < fnt.start + len(fnt.letters):
 						a -= fnt.start
-						if ord(c) == 32 and not fnt.sizes[a][0]:
+						if c == 32 and not fnt.sizes[a][0]:
 							fnt.sizes[a][0] = self.space_space
 						w += fnt.sizes[a][0] + self.letter_space
 						if not c in self.canvas.characters:
@@ -511,7 +511,7 @@ class PyTBL(Tk):
 				font10.load_file(self.mpqhandler.get_file(self.settings['font10'], True))
 			unitpal.load_file(self.mpqhandler.get_file(self.settings['unitpal']))
 			icons.load_file(self.mpqhandler.get_file(self.settings['icons']))
-		except PyMSError, e:
+		except PyMSError as e:
 			err = e
 		else:
 			self.tfontgam = tfontgam
@@ -568,7 +568,7 @@ class PyTBL(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.tbl'
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -580,7 +580,7 @@ class PyTBL(Tk):
 	def select_file(self, title, open=True, ext='.tbl', filetypes=[('StarCraft TBL Files','*.tbl'),('All Files','*')]):
 		path = self.settings.get('lastpath', BASE_DIR)
 		self._pyms__window_blocking = True
-		file = [tkFileDialog.asksaveasfilename,tkFileDialog.askopenfilename][open](parent=self, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
+		file = [tkinter.filedialog.asksaveasfilename,tkinter.filedialog.askopenfilename][open](parent=self, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
 		self._pyms__window_blocking = False
 		if file:
 			self.settings['lastpath'] = os.path.dirname(file)
@@ -641,7 +641,7 @@ class PyTBL(Tk):
 			tbl = TBL.TBL()
 			try:
 				tbl.load_file(file)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.tbl = tbl
@@ -672,7 +672,7 @@ class PyTBL(Tk):
 			tbl = TBL.TBL()
 			try:
 				tbl.interpret(file)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.tbl = tbl
@@ -703,7 +703,7 @@ class PyTBL(Tk):
 			self.status.set('Save Successful!')
 			self.edited = False
 			self.editstatus['state'] = DISABLED
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def saveas(self, key=None):
@@ -724,7 +724,7 @@ class PyTBL(Tk):
 		try:
 			self.tbl.decompile(file)
 			self.status.set('Export Successful!')
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def close(self, key=None):
@@ -840,7 +840,7 @@ class PyTBL(Tk):
 	def register(self, e=None):
 		try:
 			register_registry('PyTBL','','tbl',os.path.join(BASE_DIR, 'PyTBL.pyw'),os.path.join(BASE_DIR,'Images','PyTBL.ico'))
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def help(self, e=None):
@@ -892,19 +892,19 @@ def main():
 				args.append('%s%s%s' % (os.path.join(path,os.extsep.join(os.path.basename(args[0]).split(os.extsep)[:-1])), os.extsep, ext))
 			try:
 				if opt.convert:
-					print "Reading TBL '%s'..." % args[0]
+					print("Reading TBL '%s'..." % args[0])
 					tbl.load_file(args[0])
-					print " - '%s' read successfully\nDecompiling TBL file '%s'..." % (args[0],args[0])
+					print(" - '%s' read successfully\nDecompiling TBL file '%s'..." % (args[0],args[0]))
 					tbl.decompile(args[1], opt.reference)
-					print " - '%s' written succesfully" % args[1]
+					print(" - '%s' written succesfully" % args[1])
 				else:
-					print "Interpreting file '%s'..." % args[0]
+					print("Interpreting file '%s'..." % args[0])
 					tbl.interpret(args[0])
-					print " - '%s' read successfully\nCompiling file '%s' to TBL format..." % (args[0],args[0])
+					print(" - '%s' read successfully\nCompiling file '%s' to TBL format..." % (args[0],args[0]))
 					tbl.compile(args[1])
-					print " - '%s' written succesfully" % args[1]
-			except PyMSError, e:
-				print repr(e)
+					print(" - '%s' written succesfully" % args[1])
+			except PyMSError as e:
+				print(repr(e))
 
 if __name__ == '__main__':
 	main()

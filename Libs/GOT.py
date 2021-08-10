@@ -1,5 +1,5 @@
-from utils import *
-from fileutils import *
+from .utils import *
+from .fileutils import *
 
 import struct, re
 
@@ -48,19 +48,20 @@ class GOT:
 
 	def load_file(self, file):
 		data = load_file(file, 'GOT')
+
 		try:
-			if data[0] != '\x03':
+			if data[0] != 3:
 				raise
 			template = list(struct.unpack('<32s32sBxBxHxx11BLL', data[1:-5]))
-			template[0] = template[0].rstrip('\x00')
-			template[1] = template[1].rstrip('\x00')
+			template[0] = template[0].rstrip(b'\x00')
+			template[1] = template[1].rstrip(b'\x00')
 			self.template = template
 		except:
 			raise PyMSError('Load',"Unsupported GOT file '%s', could possibly be corrupt" % file)
 
 	def interpret(self, file):
 		try:
-			f = open(file,'r')
+			f = open(file)
 			data = f.readlines()
 			f.close()
 		except:
@@ -70,7 +71,7 @@ class GOT:
 		for n,l in enumerate(data):
 			if len(l) > 1:
 				ln = l.strip().split('#',1)[0]
-				line = re.split('\s+', ln)
+				line = re.split(r'\s+', ln)
 				if line:
 					if tdata:
 						if line[0] not in self.labels:
@@ -78,7 +79,7 @@ class GOT:
 						label = self.labels.index(line[0])
 						if label == 0:
 							if len(line[1]) > 32:
-								raise PyMSError('Interpreting',"Subtype label '%s' is too long (max length is 32, got length %s)" % (line[1],len(line[1])),n,ln)
+								raise PyMSError('Interpreting',f"Subtype label '{line[1]}' is too long (max length is 32, got length {len(line[1])})",n,ln)
 							value = line[1]
 						else:
 							try:
@@ -87,7 +88,7 @@ class GOT:
 								if value < 0 or (type(info) == list and value >= len(info)) or (type(info) == int and value >= 256 ** info):
 									raise
 							except:
-								raise PyMSError('Interpreting',"Invalid value '%s' for entry '%s'" % (line[1],line[0]),n,ln)
+								raise PyMSError('Interpreting',f"Invalid value '{line[1]}' for entry '{line[0]}'",n,ln)
 						template[label+1] = value
 						if not None in template:
 							break
@@ -96,10 +97,10 @@ class GOT:
 							raise PyMSError('Interpreting',"Unknown line format, expected 'Template:' start line" % file,n,ln)
 						template[0] = ' '.join(line[:-1])
 						if len(template[0]) > 32:
-							raise PyMSError('Interpreting',"Template name '%s' is too long (max length is 32, got length %s)" % (template[0],len(template[0])),n,ln)
+							raise PyMSError('Interpreting',f"Template name '{template[0]}' is too long (max length is 32, got length {len(template[0])})",n,ln)
 						tdata = True
 		if None in template:
-			raise PyMSError('Interpreting',"The template is missing a '%s' entry" % (template[0],self.labels[template.index(None)-1]),n,ln)
+			raise PyMSError('Interpreting',f"The template is missing a '{template[0]}' entry",n,ln)
 		self.template = template
 
 	def decompile(self, file, ref=False):
@@ -113,15 +114,15 @@ class GOT:
 				if type(v) == list:
 					f.write('# %s Values:\n' % l)
 					for n,i in enumerate(v):
-						f.write('#    %s = %s\n' % (n,i))
+						f.write(f'#    {n} = {i}\n')
 					f.write('#\n')
 			f.write('#----------------------------------------------------\n')
 		f.write('%s Template:\n' % self.template[0])
 		for label,info,value in zip(self.labels,self.info,self.template[1:]):
-			f.write('    %s%s%s' % (label, ' ' * (18 - len(label)), value))
+			f.write('    {}{}{}'.format(label, ' ' * (18 - len(label)), value))
 			if type(info) == list:
 				if value < len(info):
-					f.write('%s# %s' % (' ' * (11 - len(str(value))), info[value]))
+					f.write('{}# {}'.format(' ' * (11 - len(str(value))), info[value]))
 			f.write('\n')
 		f.close()
 

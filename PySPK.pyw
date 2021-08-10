@@ -3,8 +3,8 @@ from Libs.setutils import *
 from Libs.trace import setup_trace
 from Libs import SPK, BMP, PAL, GRP
 from Libs.analytics import *
-from Tkinter import *
-from tkMessageBox import *
+from tkinter import *
+from tkinter.messagebox import *
 from PIL import Image as PILImage
 
 try:
@@ -12,7 +12,7 @@ try:
 except:
 	import ImageTk
 
-from thread import start_new_thread
+from _thread import start_new_thread
 import optparse, os, webbrowser, sys, time
 
 LONG_VERSION = 'v%s-DEV' % VERSIONS['PySPK']
@@ -192,7 +192,7 @@ class PaletteTab(NotebookTab):
 			height = min(img.height,PaletteTab.MAX_SIZE)+PaletteTab.PAD*2
 			image = self.toplevel.get_image(img)
 
-			self.starsCanvas.create_image(PaletteTab.MAX_SIZE/2+PaletteTab.PAD,y + height/2, image=image)
+			self.starsCanvas.create_image(PaletteTab.MAX_SIZE//2 + PaletteTab.PAD,y + height//2, image=image)
 			y += height
 		self.starsCanvas.config(scrollregion=(0,0,PaletteTab.MAX_SIZE,y))
 		self.update_palette_selection(scroll)
@@ -217,10 +217,10 @@ class PaletteTab(NotebookTab):
 				miny,maxy = self.starsCanvas.yview()
 				area = maxy-miny
 				maxy = 1-area
-				center = y + (y2-y)/2
+				center = y + (y2-y)//2
 				_,_,_,height = parse_scrollregion(self.starsCanvas.cget('scrollregion'))
 				vis = height * area
-				top = center - vis/2
+				top = center - vis//2
 				y = top/height
 				self.starsCanvas.yview_moveto(y)
 		elif self.item_palette_box:
@@ -258,7 +258,7 @@ class PaletteTab(NotebookTab):
 			b = BMP.BMP()
 			try:
 				b.load_file(filepath)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self.toplevel, e)
 			else:
 				image = SPK.SPKImage()
@@ -392,9 +392,9 @@ class StarsTab(NotebookTab):
 	def move_stars(self, delta):
 		for layer in self.toplevel.spk.layers:
 			if delta > 0:
-				r = xrange(len(layer.stars)-1,-1,-1)
+				r = range(len(layer.stars) - 1, -1, -1)
 			else:
-				r = xrange(0,len(layer.stars))
+				r = range(0, len(layer.stars))
 			update = False
 			for i in r:
 				if layer.stars[i] in self.toplevel.selected_stars:
@@ -725,7 +725,7 @@ class PySPK(Tk):
 		try:
 			platformwpe = PAL.Palette()
 			platformwpe.load_file(self.mpqhandler.get_file(self.settings['platformwpe']))
-		except PyMSError, e:
+		except PyMSError as e:
 			err = e
 		else:
 			self.platformwpe = platformwpe
@@ -745,7 +745,7 @@ class PySPK(Tk):
 			file = self.file
 			if not file:
 				file = 'Unnamed.spk'
-			save = askquestion(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES, type=YESNOCANCEL)
+			save = askyesnocancel(parent=self, title='Save Changes?', message="Save changes to '%s'?" % file, default=YES)
 			if save != 'no':
 				if save == 'cancel':
 					return True
@@ -757,7 +757,7 @@ class PySPK(Tk):
 	def select_file(self, title, open=True, ext='.spk', filetypes=[('StarCraft Parallax','*.spk'),('All Files','*')]):
 		path = self.settings.get('lastpath', BASE_DIR)
 		self._pyms__window_blocking = True
-		file = [tkFileDialog.asksaveasfilename,tkFileDialog.askopenfilename][open](parent=self, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
+		file = [tkinter.filedialog.asksaveasfilename,tkinter.filedialog.askopenfilename][open](parent=self, title=title, defaultextension=ext, filetypes=filetypes, initialdir=path)
 		self._pyms__window_blocking = False
 		if file:
 			self.settings['lastpath'] = os.path.dirname(file)
@@ -773,8 +773,8 @@ class PySPK(Tk):
 		self.buttons['remove']['state'] = [DISABLED,NORMAL][layersel]
 		self.buttons['up']['state'] = [DISABLED,NORMAL][self.layer.get() > 0]
 		self.buttons['down']['state'] = [DISABLED,NORMAL][(layersel and self.layer.get() < len(self.spk.layers)-1)]
- 		self.palette_tab.action_states()
- 		self.stars_tab.action_states()
+		self.palette_tab.action_states()
+		self.stars_tab.action_states()
 
 	def edit(self, n=None):
 		self.edited = True
@@ -954,8 +954,8 @@ class PySPK(Tk):
 				and not self.locked.get() & (1 << self.layer.get()):
 			star = SPK.SPKStar()
 			star.image = self.selected_image
-			star.x = max(0,event.x - star.image.width/2)
-			star.y = max(0,event.y - star.image.height/2)
+			star.x = max(0,event.x - star.image.width//2)
+			star.y = max(0,event.y - star.image.height//2)
 			self.spk.layers[self.layer.get()].stars.append(star)
 			self.update_star(star, self.layer.get())
 			self.update_zorder()
@@ -972,11 +972,11 @@ class PySPK(Tk):
 		if self.tool.get() == TOOL_DRAW and self.layer.get() > -1 and self.selected_image:
 			x,y = event.x,event.y
 			if modifier == MODIFIER_SHIFT:
-				x += self.selected_image.width/2
-				y += self.selected_image.height/2
+				x += self.selected_image.width//2
+				y += self.selected_image.height//2
 			else:
-				x = max(self.selected_image.width/2,x)
-				y = max(self.selected_image.height/2,y)
+				x = max(self.selected_image.width//2,x)
+				y = max(self.selected_image.height//2,y)
 			if not self.item_place_image:
 				image = self.get_image(self.selected_image)
 				self.item_place_image = self.skyCanvas.create_image(x,y, image=image)
@@ -1034,7 +1034,7 @@ class PySPK(Tk):
 			spk = SPK.SPK()
 			try:
 				spk.load_file(file)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.clear()
@@ -1065,7 +1065,7 @@ class PySPK(Tk):
 			spk = SPK.SPK()
 			try:
 				spk.interpret_file(filepath, layer_count)
-			except PyMSError, e:
+			except PyMSError as e:
 				ErrorDialog(self, e)
 				return
 			self.clear()
@@ -1095,7 +1095,7 @@ class PySPK(Tk):
 			self.status.set('Save Successful!')
 			self.edited = False
 			self.editstatus['state'] = DISABLED
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def saveas(self, key=None):
@@ -1116,7 +1116,7 @@ class PySPK(Tk):
 		try:
 			self.spk.decompile_file(filepath, self.platformwpe)
 			self.status.set('Export Successful!')
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def close(self, key=None):
@@ -1132,7 +1132,7 @@ class PySPK(Tk):
 	def register(self, e=None):
 		try:
 			register_registry('PySPK','','spk',os.path.join(BASE_DIR, 'PySPK.pyw'),os.path.join(BASE_DIR,'Images','PyGOT.ico'))
-		except PyMSError, e:
+		except PyMSError as e:
 			ErrorDialog(self, e)
 
 	def help(self, e=None):

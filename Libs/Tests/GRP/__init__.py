@@ -1,6 +1,5 @@
-
-import save_load
-import image_bounds
+from . import save_load
+from . import image_bounds
 
 tests = [
 	save_load,
