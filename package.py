@@ -17,6 +17,7 @@ def package(name):
         '--noconfirm',
         '--clean',
         '--log-level=WARN',
+        '--specpath=build',
         f'--icon={get_icon(name)}'
     ])
 
