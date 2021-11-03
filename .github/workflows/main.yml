@@ -26,12 +26,18 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Bundle
+      - name: Install Python dependencies
+        uses: py-actions/py-dependency-install@v2
+
+      - name: Bundle Self-Executing Applications
         run: python package.py
 
-      - uses: montudor/action-zip@v1
+      - name: Zip Release Archive
+        uses: thedoctor0/zip-release@master
         with:
-          args: zip -qq -r PyMS-${{ matrix.os }}.zip dist
+          type: zip
+          path: dist
+          filename: PyMS-${{ matrix.os }}.zip
 
       - name: Archive artifact
         uses: actions/upload-artifact@v2
