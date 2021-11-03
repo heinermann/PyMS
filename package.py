@@ -4,8 +4,8 @@ import os
 import shutil
 
 def get_icon(name):
-    desiredIcon = f'../Images/{name}.ico'
-    return desiredIcon if os.path.exists(desiredIcon) else '../Images/PyMS.ico'
+    desiredIcon = f'Images/{name}.ico'
+    return desiredIcon if os.path.exists(desiredIcon) else 'Images/PyMS.ico'
 
 def package(name):
     print(f'Packaging {name}...')
@@ -18,7 +18,7 @@ def package(name):
         '--clean',
         '--log-level=WARN',
         '--specpath=build',
-        f'--icon={get_icon(name)}'
+        f'--icon=../{get_icon(name)}'
     ])
 
 if os.path.exists('dist'):

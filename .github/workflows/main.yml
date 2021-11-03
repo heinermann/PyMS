@@ -37,15 +37,8 @@ jobs:
       - name: Bundle Self-Executing Applications
         run: python3 package.py
 
-      - name: Zip Release Archive
-        uses: thedoctor0/zip-release@master
-        with:
-          type: zip
-          path: dist
-          filename: PyMS-${{ matrix.os }}.zip
-
-      - name: Archive artifact
+      - name: Archive Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: PyMS-${{ matrix.os }}
-          path: PyMS-${{ matrix.os }}.zip
+          path: dist
