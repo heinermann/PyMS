@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Bundle
 
 # Controls when the workflow will run
 on:
@@ -26,11 +26,16 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Install Python dependencies
-        uses: py-actions/py-dependency-install@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Bundle Self-Executing Applications
-        run: python package.py
+        run: python3 package.py
 
       - name: Zip Release Archive
         uses: thedoctor0/zip-release@master
