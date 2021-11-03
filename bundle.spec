@@ -36,4 +36,4 @@ for name, app in apps.items():
     
     pyz = PYZ(a.pure, a.zipped_data)
     exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name=name, upx=True, console=False, icon=get_icon(name))
-    COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=False, upx=True, name=name)
+    COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=False, upx=True, name=f'tmp{name}')
