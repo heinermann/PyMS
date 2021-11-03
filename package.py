@@ -9,7 +9,7 @@ if os.path.exists('dist'):
     rmtree('dist')
 
 PyInstaller.__main__.run([
-    './bundle.spec',
+    'bundle.spec',
     '--noconfirm',
     '--clean',
     '--log-level=WARN'
