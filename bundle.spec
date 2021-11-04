@@ -25,9 +25,11 @@ apps = {
   'PyTRG': {}, 
 }
 
-for name, app in apps.items():
-    app['analysis'] = Analysis([f'{name}.pyw'], runtime_hooks=['uselib_hook.py'])
+exclude_libs = ['_asyncio', '_decimal', '_hashlib', '_multiprocessing', '_overlapped', '_queue', '_ssl', 'unicodedata']
 
+for name, app in apps.items():
+    app['analysis'] = Analysis([f'{name}.pyw'], runtime_hooks=['uselib_hook.py'], excludes=exclude_libs)
+    app['analysis'].exclude_system_libraries()
 
 MERGE(*[(app['analysis'], name, name) for name, app in apps.items()])
 
