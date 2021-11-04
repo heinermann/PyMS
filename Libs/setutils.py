@@ -911,7 +911,7 @@ class SettingsPanel(Frame):
 			self.variables[f] = (IntVar(),StringVar(),[])
 			if isinstance(v, tuple) or isinstance(v, list):
 				profileKey,valueKey = v
-				if issubclass(settings, SettingDict):
+				if isinstance(settings, SettingDict):
 					profile = settings.settings.get(profileKey, autosave=False)
 					v = settings.settings.profiles[profile].get(valueKey, autosave=False)
 				else:
