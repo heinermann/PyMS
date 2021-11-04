@@ -73,6 +73,8 @@ class SettingDict:
 		return copy.deepcopy(self)
 	def iteritems(self):
 		return iter(self.__dict__['_settings'].items())
+	def items(self):
+		return list(self.__dict__['_settings'].items())
 	def keys(self):
 		return list(self.__dict__['_settings'].keys())
 	def values(self):
