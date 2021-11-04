@@ -34,7 +34,7 @@ DATA_REFERENCE = {
 }
 
 DATA_CACHE = {}
-for d in list(DATA_REFERENCE.keys()):
+for d in DATA_REFERENCE.keys():
 	f = open(os.path.join(BASE_DIR, 'Libs', 'Data', d))
 	DATA_CACHE[d] = [l.rstrip() for l in f.readlines()]
 	f.close()

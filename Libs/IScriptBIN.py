@@ -848,7 +848,7 @@ class IScriptBIN:
 								if not type in ENTRY_TYPES:
 									raise
 							except:
-								raise PyMSError('Interpreting', 'Invalid Type value, must be one of the numbers: %s' % ', '.join([str(n) for n in list(ENTRY_TYPES.keys())]))
+								raise PyMSError('Interpreting', 'Invalid Type value, must be one of the numbers: %s' % ', '.join([str(n) for n in ENTRY_TYPES.keys()]))
 							header.extend([type,0,[]])
 							state = 3
 						elif state == 3:
@@ -995,6 +995,7 @@ class IScriptBIN:
 		warnings = []
 		labels = {}
 		completed = []
+
 		def setlabel(o,local,entry):
 			entry = re.sub('[\\/\\(\\)-]','_',entry.replace(' ','').replace("'",''))
 			f = []
@@ -1007,6 +1008,7 @@ class IScriptBIN:
 				return 0
 			labels[o] = entry + 'Local' + str(local).zfill(2)
 			return 1
+
 		def decompile_offset(o,code,local,id):
 			if id in self.extrainfo:
 				entry = self.extrainfo[id].replace(' ','_')
@@ -1084,6 +1086,7 @@ class IScriptBIN:
 						code,local,curcmd = decompile_offset(d,code,local,id)
 				return (code,local,curcmd)
 			return (code,local,-1)
+
 		usedby = {}
 		for i in range(DAT.ImagesDAT.count):
 			id = self.imagesdat.get_value(i, 'IscriptID')

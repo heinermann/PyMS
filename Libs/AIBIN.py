@@ -1760,7 +1760,7 @@ class AIBIN:
 		table = ''
 		offset = 4
 		totaloffsets = {}
-		for id in list(self.ais.keys()):
+		for id in self.ais.keys():
 			loc,string,flags,ai,jumps = self.ais[id]
 			if loc:
 				cmdn = 0
@@ -1782,7 +1782,7 @@ class AIBIN:
 					cmdn += 1
 					offset += 1
 		offset = 4
-		for id in list(self.ais.keys()):
+		for id in self.ais.keys():
 			loc,string,flags,ai,jumps = self.ais[id]
 			if loc:
 				table += struct.pack('<4s3L', id, offset, string+1, flags)
@@ -2123,7 +2123,7 @@ class BWBIN(AIBIN):
 		table = ''
 		offset = 4
 		totaloffsets = {}
-		for id in list(self.ais.keys()):
+		for id in self.ais.keys():
 			loc,ai,jumps = self.ais[id]
 			if loc:
 				cmdn = 0
@@ -2143,7 +2143,7 @@ class BWBIN(AIBIN):
 					cmdn += 1
 					offset += 1
 		offset = 4
-		for id in list(self.ais.keys()):
+		for id in self.ais.keys():
 			loc,ai,jumps = self.ais[id]
 			table += struct.pack('<4sL', id, offset)
 			for cmd in ai:
