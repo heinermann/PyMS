@@ -41,4 +41,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: PyMS-${{ matrix.os }}
-          path: dist
+          path: build

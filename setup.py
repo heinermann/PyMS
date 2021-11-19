@@ -1,41 +1,87 @@
 import os
+import sys
+import shutil
+import glob
+from cx_Freeze import setup, Executable
 
-progs = []
-for prog in ['PyAI','PyDAT','PyFNT','PyGOT','PyGRP','PyICE','PyTRG','PyLO','PyPAL','PyTBL','PyTILE','PyPCX','PyMPQ']:
-	progs.append({"script":prog + ".pyw","icon_resources": [(1, "Images\\%s.ico" % prog)]})
+is_64bit = sys.maxsize > 2**32
 
-def list(path, exc=[]):
-	return [os.path.join(path,file) for file in os.listdir(path) if not file in exc]
+# base="Win32GUI" should be used only for Windows GUI app
+base = None
+if sys.platform == "win32":
+    base = "Win32GUI"
 
-data = (
-	('',['unitdef.txt']),
-	('Libs',['Libs\\SFmpq.dll']),
-	('Libs\\Data',list('Libs\\Data')),
-	('Libs\\Temp',[]),
-	#('Libs\\MPQ',[]),
-	('Libs\\MPQ\\arr',list('Libs\\MPQ\\arr')),
-	('Libs\\MPQ\\game',list('Libs\\MPQ\\game')),
-	('Libs\\MPQ\\rez',list('Libs\\MPQ\\rez')),
-	('Libs\\MPQ\\scripts',list('Libs\\MPQ\\scripts')),
-	('Libs\\MPQ\\font',list('Libs\\MPQ\\font')),
-	('Libs\\MPQ\\unit\\thingy',list('Libs\\MPQ\\unit\\thingy')),
-	('Libs\\MPQ\\unit\\cmdbtns',list('Libs\\MPQ\\unit\\cmdbtns')),
-	('Images',list('Images',['Thumbs.db'])),
-	('Palettes',list('Palettes')),
-	('Docs',[file for file in list('Docs') if file[-4:] in ['.css','html']]),
-	('Settings',[]),
-)
 
-from distutils.core import setup
-import py2exe
+def get_icon(name):
+    desiredIcon = f'Images/{name}.ico'
+    return desiredIcon if os.path.exists(desiredIcon) else 'Images/PyMS.ico'
+
+
+executables = []
+for prog in ['PyAI', 'PyBIN', 'PyDAT', 'PyFNT', 'PyGOT', 'PyGRP', 'PyICE', 'PyLO', 'PyMAP', 'PyMPQ', 'PyPAL', 'PyPCX', 'PySPK', 'PyTBL', 'PyTILE', 'PyTRG']:
+	executables.append(Executable(
+		f"{prog}.pyw",
+		icon = get_icon(prog),
+		base = base
+	))
+
+
+sfmpq_lib = None
+if sys.platform.startswith('win32'):
+    sfmpq_lib = 'Libs/SFmpq64.dll' if is_64bit else 'Libs/SFmpq.dll'
+elif sys.platform.startswith('darwin'):
+	sfmpq_lib = 'Libs/SFmpq.dylib'
+else:
+	raise Exception('SFmpq not built for this OS')
+
+data = [
+	'unitdef.txt',
+	(sfmpq_lib, sfmpq_lib),
+	('Libs/SFmpq-license.txt', 'Libs/SFmpq-license.txt'),
+	('Libs/versions.json', 'Libs/versions.json'),
+	('Libs/Data/', 'Libs/Data/'),
+	('Libs/MPQ/', 'Libs/MPQ/'),
+	('Images/', 'Images/'),
+	('Palettes/', 'Palettes/'),
+	('Docs/', 'Docs/')
+]
+
+exclude_libs = ['asyncio', 'decimal', 'hashlib', 'multiprocessing', 'overlapped', 'queue', 'ssl', 'unicodedata', '_ssl', 'difflib', 'doctest', 'calendar', 'email', 'unittest', 'packaging', 'xml']
+
+exe_options = {
+	"include_msvcr": True,
+	"include_files": data,
+	"excludes": exclude_libs
+}
+
 setup(
-	windows = progs,
-	author="poiuy_qwert",
-	author_email="p.q.poiuy.qwert@gmail.com",
-	url="http://www.broodwarai.com/index.php?page=pyms",
-	zipfile=os.path.join('Libs','Libs.zip'),
-	data_files=data,
-	options={'py2exe':{
-		'excludes':['_ssl','difflib','doctest','locale','pickle','calendar','email']
-	}}
+	name = "PyMS",
+	version = "3.0",
+	description = "PyMS is a cross platform BroodWar modding suite written using Python.",
+	options = {
+		"build_exe": exe_options
+	},
+	executables = executables
 )
+
+# Remove files that ended up in incorrect places, mostly because of string references to load them
+def remove_glob(path):
+	paths = glob.glob(f"build/**/{path}", recursive=True)
+	for f in paths:
+		shutil.rmtree(f, ignore_errors=True)
+		try:
+			os.remove(f)
+		except Exception:
+			pass
+
+remove_glob("lib/Libs/SFmpq*.dll")
+remove_glob("lib/Libs/SFmpq*.dylib")
+remove_glob("lib/Libs/SFmpq*.txt")
+remove_glob("lib/Libs/versions.json")
+remove_glob("lib/Libs/Tests")
+remove_glob("lib/Libs/Temp")
+remove_glob("lib/Libs/MPQ")
+remove_glob("lib/Libs/Data")
+remove_glob("lib/tkinter/test")
+remove_glob("Docs/*.txt")
+remove_glob("Docs/*.py")
