@@ -5,11 +5,7 @@ import glob
 from cx_Freeze import setup, Executable
 
 is_64bit = sys.maxsize > 2**32
-
-# base="Win32GUI" should be used only for Windows GUI app
-base = None
-if sys.platform == "win32":
-    base = "Win32GUI"
+base = "Win32GUI" if sys.platform == "win32" else None
 
 
 def get_icon(name):
