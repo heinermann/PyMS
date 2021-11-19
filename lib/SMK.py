@@ -429,7 +429,7 @@ class SMK:
 					y += 4
 				# bmp = BMP.BMP()
 				# bmp.load_data(frame.image, frame.palette)
-				# bmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/glue/mainmenu/editoron%d-%d.bmp' % (self.current_frame, TEST))
+				# bmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/glue/mainmenu/editoron%d-%d.bmp' % (self.current_frame, TEST))
 				# TEST += 1
 
 	def get_frame(self):
@@ -487,19 +487,19 @@ class SMK:
 	# 	pass
 
 # if __name__ == '__main__':
-# 	sys.stdout = open('/Users/zachzahos/Documents/Projects/PyMS/Libs/stdeo.txt','w')
+# 	sys.stdout = open('/Users/zachzahos/Documents/Projects/PyMS/lib/stdeo.txt','w')
 # 	smk = SMK()
 
-# 	smk.load_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/glue/mainmenu/editoron.smk')
+# 	smk.load_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/glue/mainmenu/editoron.smk')
 # 	frame = smk.get_frame()
 # 	bmp = BMP.BMP()
 # 	bmp.load_data(frame.image, frame.palette)
-# 	bmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/glue/mainmenu/editoron0.bmp')
+# 	bmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/glue/mainmenu/editoron0.bmp')
 
-# 	smk.load_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/glue/mainmenu/single.smk')
+# 	smk.load_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/glue/mainmenu/single.smk')
 	# for f in range(smk.frames):
 	# 	frame = smk.get_frame()
 	# 	bmp = BMP.BMP()
 	# 	bmp.load_data(frame.image, frame.palette)
-	# 	bmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/glue/mainmenu/frame%d.bmp' % f)
+	# 	bmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/glue/mainmenu/frame%d.bmp' % f)
 	# 	smk.next_frame()

@@ -893,12 +893,12 @@ class DialogBIN:
 
 # if __name__ == '__main__':
 # 	dialogbin = DialogBIN()
-# 	dialogbin.load_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/rez/glumain.bin')
+# 	dialogbin.load_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/rez/glumain.bin')
 # 	data = dialogbin.save_data()
 # 	dialogbin.load_data(data)
-# 	dialogbin.decompile_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/rez/glumain.txt')
-# 	dialogbin.interpret_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/rez/glumain.txt')
+# 	dialogbin.decompile_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/rez/glumain.txt')
+# 	dialogbin.interpret_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/rez/glumain.txt')
 # 	data = dialogbin.save_data()
 # 	dialogbin.load_data(data)
-# 	dialogbin.decompile_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/rez/glumain2.txt')
+# 	dialogbin.decompile_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/rez/glumain2.txt')
 

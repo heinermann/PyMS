@@ -201,19 +201,19 @@ class SPK:
 # import PAL, BMP
 # if __name__ == '__main__':
 # 	spk = SPK()
-# 	# spk.load_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/SC/parallax/star.spk')
-# 	# spk.save_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/SC/parallax/test.spk')
+# 	# spk.load_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/SC/parallax/star.spk')
+# 	# spk.save_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/SC/parallax/test.spk')
 # 	# raise
-# 	spk.load_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/SC/parallax/test.spk')
+# 	spk.load_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/SC/parallax/test.spk')
 # 	pal = PAL.Palette()
-# 	pal.load_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/WORKING/SC/tileset/platform.wpe')
+# 	pal.load_file('/Users/zachzahos/Documents/Projects/PyMS/lib/WORKING/SC/tileset/platform.wpe')
 # # 	bmp = BMP.BMP()
 # # 	bmp.palette = pal.palette
 # # 	for n,image in enumerate(spk.images):
 # # 		bmp.image = image.pixels
 # # 		bmp.width = image.width
 # # 		bmp.height = image.height
-# # 		bmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/star%d.bmp' % n)
+# # 		bmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/lib/star%d.bmp' % n)
 # # 	bmp.width = 648
 # # 	bmp.height = 488
 # 	allbmp = BMP.BMP()
@@ -230,5 +230,5 @@ class SPK:
 # # 						bmp.image[star.y+y][star.x+x] = star.image.pixels[y][x]
 # 					if not allbmp.image[star.y+y][star.x+x] and star.image.pixels[y][x]:
 # 						allbmp.image[star.y+y][star.x+x] = star.image.pixels[y][x]
-# # 		bmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/layer%d.bmp' % n)
-# 	allbmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/Libs/full.bmp')
+# # 		bmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/lib/layer%d.bmp' % n)
+# 	allbmp.save_file('/Users/zachzahos/Documents/Projects/PyMS/lib/full.bmp')

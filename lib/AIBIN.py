@@ -285,15 +285,15 @@ class AIBIN:
 
 	def __init__(self, bwscript=None, units=None, upgrades=None, techs=None, stat_txt=None):
 		if bwscript == None:
-			bwscript = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'scripts', 'bwscript.bin')
+			bwscript = os.path.join(BASE_DIR, 'lib', 'MPQ', 'scripts', 'bwscript.bin')
 		if units == None:
-			units = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'units.dat')
+			units = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'units.dat')
 		if upgrades == None:
-			upgrades = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'upgrades.dat')
+			upgrades = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'upgrades.dat')
 		if techs == None:
-			techs = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'techdata.dat')
+			techs = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'techdata.dat')
 		if stat_txt == None:
-			stat_txt = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'rez', 'stat_txt.tbl')
+			stat_txt = os.path.join(BASE_DIR, 'lib', 'MPQ', 'rez', 'stat_txt.tbl')
 		self.ais = OrderedDict()
 		self.aisizes = {}
 		self.externaljumps = [[{},{}],[{},{}]]

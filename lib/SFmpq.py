@@ -3,7 +3,7 @@ import os,sys
 
 cwd = os.getcwd()
 if hasattr(sys, 'frozen'):
-	SFmpq_DIR = os.path.join(os.path.dirname(sys.executable),'Libs')
+	SFmpq_DIR = os.path.join(os.path.dirname(sys.executable),'lib')
 else:
 	SFmpq_DIR = os.path.dirname(__file__)
 if SFmpq_DIR:

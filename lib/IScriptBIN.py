@@ -539,21 +539,21 @@ for o,c in enumerate(OPCODES):
 class IScriptBIN:
 	def __init__(self, weaponsdat=None, flingydat=None, imagesdat=None, spritesdat=None, soundsdat=None, stat_txt=None, imagestbl=None, sfxdatatbl=None):
 		if weaponsdat == None:
-			weaponsdat = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'weapons.dat')
+			weaponsdat = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'weapons.dat')
 		if flingydat == None:
-			flingydat = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'flingy.dat')
+			flingydat = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'flingy.dat')
 		if imagesdat == None:
-			imagesdat = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'images.dat')
+			imagesdat = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'images.dat')
 		if spritesdat == None:
-			spritesdat = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'sprites.dat')
+			spritesdat = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'sprites.dat')
 		if soundsdat == None:
-			soundsdat = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'sfxdata.dat')
+			soundsdat = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'sfxdata.dat')
 		if stat_txt == None:
-			stat_txt = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'rez', 'stat_txt.tbl')
+			stat_txt = os.path.join(BASE_DIR, 'lib', 'MPQ', 'rez', 'stat_txt.tbl')
 		if imagestbl == None:
-			imagestbl = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'images.tbl')
+			imagestbl = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'images.tbl')
 		if sfxdatatbl == None:
-			sfxdatatbl = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'sfxdata.tbl')
+			sfxdatatbl = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'sfxdata.tbl')
 		self.headers = {}
 		self.offsets = {}
 		self.code = OrderedDict()

@@ -28,30 +28,30 @@ for prog in ['PyAI', 'PyBIN', 'PyDAT', 'PyFNT', 'PyGOT', 'PyGRP', 'PyICE', 'PyLO
 
 sfmpq_lib = None
 if sys.platform.startswith('win32'):
-    sfmpq_lib = 'Libs/SFmpq64.dll' if is_64bit else 'Libs/SFmpq.dll'
+    sfmpq_lib = 'lib/SFmpq64.dll' if is_64bit else 'lib/SFmpq.dll'
 elif sys.platform.startswith('darwin'):
-	sfmpq_lib = 'Libs/SFmpq.dylib'
+	sfmpq_lib = 'lib/SFmpq.dylib'
 else:
 	raise Exception('SFmpq not built for this OS')
 
 data = [
 	'unitdef.txt',
 	(sfmpq_lib, sfmpq_lib),
-	('Libs/SFmpq-license.txt', 'Libs/SFmpq-license.txt'),
-	('Libs/versions.json', 'Libs/versions.json'),
-	('Libs/Data/', 'Libs/Data/'),
-	('Libs/MPQ/', 'Libs/MPQ/'),
+	('lib/SFmpq-license.txt', 'lib/SFmpq-license.txt'),
+	('lib/versions.json', 'lib/versions.json'),
+	('lib/Data/', 'lib/Data/'),
+	('lib/MPQ/', 'lib/MPQ/'),
 	('Images/', 'Images/'),
 	('Palettes/', 'Palettes/'),
 	('Docs/', 'Docs/')
 ]
 
-exclude_libs = ['asyncio', 'decimal', 'hashlib', 'multiprocessing', 'overlapped', 'queue', 'ssl', 'unicodedata', '_ssl', 'difflib', 'doctest', 'calendar', 'email', 'unittest', 'packaging', 'xml']
+exclude_lib = ['asyncio', 'decimal', 'hashlib', 'multiprocessing', 'overlapped', 'queue', 'ssl', 'unicodedata', '_ssl', 'difflib', 'doctest', 'calendar', 'email', 'unittest', 'packaging', 'xml']
 
 exe_options = {
 	"include_msvcr": True,
 	"include_files": data,
-	"excludes": exclude_libs
+	"excludes": exclude_lib
 }
 
 setup(
@@ -74,14 +74,14 @@ def remove_glob(path):
 		except Exception:
 			pass
 
-remove_glob("lib/Libs/SFmpq*.dll")
-remove_glob("lib/Libs/SFmpq*.dylib")
-remove_glob("lib/Libs/SFmpq*.txt")
-remove_glob("lib/Libs/versions.json")
-remove_glob("lib/Libs/Tests")
-remove_glob("lib/Libs/Temp")
-remove_glob("lib/Libs/MPQ")
-remove_glob("lib/Libs/Data")
+remove_glob("lib/lib/SFmpq*.dll")
+remove_glob("lib/lib/SFmpq*.dylib")
+remove_glob("lib/lib/SFmpq*.txt")
+remove_glob("lib/lib/versions.json")
+remove_glob("lib/lib/Tests")
+remove_glob("lib/lib/Temp")
+remove_glob("lib/lib/MPQ")
+remove_glob("lib/lib/Data")
 remove_glob("lib/tkinter/test")
 remove_glob("Docs/*.txt")
 remove_glob("Docs/*.py")

@@ -1,11 +1,11 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs.SpecialLists import ReportList
-from Libs.SFmpq import *
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib.SpecialLists import ReportList
+from lib.SFmpq import *
+from lib.analytics import *
 
-# from Libs import TRG, GOT
+# from lib import TRG, GOT
 
 from tkinter import *
 # from tkinter.messagebox import *
@@ -28,7 +28,7 @@ PYMPQ_SETTINGS.set_defaults({
 	'compress': [0,0]
 })
 PYMPQ_SETTINGS.settings.set_defaults({
-	'listfiles': [os.path.join(BASE_DIR,'Libs','Data','Listfile.txt')],
+	'listfiles': [os.path.join(BASE_DIR,'lib','Data','Listfile.txt')],
 	'autocompression': SettingDict({
 		'Default':[1,0],
 		'.smk':[0,0],
@@ -557,7 +557,7 @@ class PyMPQ(Tk):
 		self.files = []
 		self.totalsize = 0
 		self.id = int(time.time())
-		self.thread = CheckThread(self, os.path.join(BASE_DIR,'Libs','Temp',str(self.id),''))
+		self.thread = CheckThread(self, os.path.join(BASE_DIR,'lib','Temp',str(self.id),''))
 
 		#Toolbar
 		buttons = [
@@ -883,7 +883,7 @@ class PyMPQ(Tk):
 			self.update_list()
 
 	def openfile(self, e=None):
-		path = os.path.join(BASE_DIR,'Libs','Temp',str(self.id))
+		path = os.path.join(BASE_DIR,'lib','Temp',str(self.id))
 		h = MpqOpenArchiveForUpdate(self.file, MOAU_OPEN_EXISTING | MOAU_READ_ONLY)
 		if SFInvalidHandle(h):
 			ErrorDialog(self, PyMSError('Open MPQ', "The MPQ could not be opened. Other non-PyMS programs may lock MPQ's while open. Please try closing any programs that might be locking your MPQ."))
@@ -909,7 +909,7 @@ class PyMPQ(Tk):
 		MpqCloseUpdatedArchive(h)
 
 	def update_files(self, fs):
-		p = os.path.join(BASE_DIR,'Libs','Temp',str(self.id),'')
+		p = os.path.join(BASE_DIR,'lib','Temp',str(self.id),'')
 		if len(fs) == 1:
 			if not askyesno(parent=self, title='File Edited', message='File "%s" has been modified since it was extracted.\n\nUpdate the archive with this file?' % fs[0]):
 				return
@@ -926,7 +926,7 @@ class PyMPQ(Tk):
 		for file in fs:
 			if fc == None or PYMPQ_SETTINGS.get('compress')[0] == 4:
 				fc = self.flagcomp(file)
-			MpqAddFileToArchiveEx(h, os.path.join(BASE_DIR,'Libs','Temp',str(self.id),file), file, *fc)
+			MpqAddFileToArchiveEx(h, os.path.join(BASE_DIR,'lib','Temp',str(self.id),file), file, *fc)
 		self.list_files(h)
 		self.update_info(h)
 		MpqCloseUpdatedArchive(h)
@@ -1124,7 +1124,7 @@ class PyMPQ(Tk):
 
 	def exit(self, e=None):
 		self.thread.end()
-		removedir(os.path.join(BASE_DIR,'Libs','Temp',str(self.id)))
+		removedir(os.path.join(BASE_DIR,'lib','Temp',str(self.id)))
 		PYMPQ_SETTINGS.windows.save_window_size('main', self)
 		PYMPQ_SETTINGS.save_pane_sizes('list_sizes', self.listbox.panes)
 		PYMPQ_SETTINGS.save()

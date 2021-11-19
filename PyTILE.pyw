@@ -1,13 +1,13 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs import GRP, Tilesets, TBL
-from Libs.Tilesets import TILETYPE_GROUP, TILETYPE_MEGA, TILETYPE_MINI, HEIGHT_LOW, HEIGHT_MID, HEIGHT_HIGH
-from Libs.FlowView import FlowView
-from Libs.MaskCheckbutton import MaskCheckbutton
-from Libs.MaskedRadiobutton import MaskedRadiobutton
-from Libs.ScrolledListbox import ScrolledListbox
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib import GRP, Tilesets, TBL
+from lib.Tilesets import TILETYPE_GROUP, TILETYPE_MEGA, TILETYPE_MINI, HEIGHT_LOW, HEIGHT_MID, HEIGHT_HIGH
+from lib.FlowView import FlowView
+from lib.MaskCheckbutton import MaskCheckbutton
+from lib.MaskedRadiobutton import MaskedRadiobutton
+from lib.ScrolledListbox import ScrolledListbox
+from lib.analytics import *
 
 from tkinter import *
 from tkinter.messagebox import *
@@ -1462,7 +1462,7 @@ class PyTILE(Tk):
 
 		self.stat_txt = TBL.TBL()
 		self.stat_txt_file = ''
-		filen = PYTILE_SETTINGS.files.get('stat_txt', os.path.join(BASE_DIR, 'Libs', 'MPQ', 'rez', 'stat_txt.tbl'))
+		filen = PYTILE_SETTINGS.files.get('stat_txt', os.path.join(BASE_DIR, 'lib', 'MPQ', 'rez', 'stat_txt.tbl'))
 		while True:
 			try:
 				self.stat_txt.load_file(filen)

@@ -1911,14 +1911,14 @@ class CHK:
 			self.stat_txt = stat_txt
 		else:
 			if stat_txt == None:
-				stat_txt = os.path.join(BASE_DIR,'Libs', 'MPQ', 'rez', 'stat_txt.tbl')
+				stat_txt = os.path.join(BASE_DIR,'lib', 'MPQ', 'rez', 'stat_txt.tbl')
 			self.stat_txt = TBL.TBL()
 			self.stat_txt.load_file(stat_txt)
 		if isinstance(aiscript, AIBIN.AIBIN):
 			self.aiscript = aiscript
 		else:
 			if aiscript == None:
-				aiscript = os.path.join(BASE_DIR,'Libs', 'MPQ', 'scripts', 'aiscript.bin')
+				aiscript = os.path.join(BASE_DIR,'lib', 'MPQ', 'scripts', 'aiscript.bin')
 			self.aiscript = AIBIN.AIBIN(stat_txt=self.stat_txt)
 			self.aiscript.load_file(aiscript)
 		self.sections = {}

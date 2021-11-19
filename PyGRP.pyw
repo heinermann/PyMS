@@ -1,8 +1,8 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs import BMP, GRP, PAL
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib import BMP, GRP, PAL
+from lib.analytics import *
 
 from tkinter import *
 from tkinter.messagebox import *

@@ -1,7 +1,7 @@
 *.pyc
 stdeo.txt
-Libs/WORKING/*
-Libs/Logs/*
+lib/WORKING/*
+lib/Logs/*
 test.py
 build/
 dist/

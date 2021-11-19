@@ -2,7 +2,7 @@ from .utils import *
 
 import sys,os
 
-LOGS_FOLDER = os.path.join(BASE_DIR,'Libs','Logs')
+LOGS_FOLDER = os.path.join(BASE_DIR,'lib','Logs')
 try:
 	os.makedirs(LOGS_FOLDER)
 except:

@@ -1,9 +1,9 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs.FNT import *
-from Libs import BMP,PCX
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib.FNT import *
+from lib import BMP,PCX
+from lib.analytics import *
 
 from tkinter import *
 from tkinter.messagebox import *

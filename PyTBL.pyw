@@ -1,8 +1,8 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs import TBL,FNT,PCX,GRP,PAL
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib import TBL,FNT,PCX,GRP,PAL
+from lib.analytics import *
 
 from tkinter import *
 from tkinter.messagebox import *
@@ -662,7 +662,7 @@ class PyTBL(Tk):
 			self.update()
 
 	def open_default(self, key=None):
-		self.open(key, os.path.join(BASE_DIR, 'Libs', 'MPQ', 'rez','stat_txt.tbl'))
+		self.open(key, os.path.join(BASE_DIR, 'lib', 'MPQ', 'rez','stat_txt.tbl'))
 
 	def iimport(self, key=None):
 		if not self.unsaved():

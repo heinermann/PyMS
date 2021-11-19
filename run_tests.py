@@ -1,4 +1,4 @@
-import Libs.Tests
+import lib.Tests
 
 if __name__ == '__main__':
-	Libs.Tests.run()
+	lib.Tests.run()

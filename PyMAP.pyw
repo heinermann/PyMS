@@ -1,15 +1,15 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs.SFmpq import *
-from Libs import TBL, AIBIN, DAT, Tilesets, GRP, PAL, PCX
-from Libs.CHK import *
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib.SFmpq import *
+from lib import TBL, AIBIN, DAT, Tilesets, GRP, PAL, PCX
+from lib.CHK import *
+from lib.analytics import *
 
 from tkinter import *
 from tkinter.messagebox import *
 import tkinter.filedialog,tkinter.colorchooser
-from Libs.SpecialLists import TreeList
+from lib.SpecialLists import TreeList
 from PIL import Image as PILImage
 from PIL import ImageDraw as PILDraw
 from PIL import ImageTk

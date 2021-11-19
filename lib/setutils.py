@@ -1,7 +1,7 @@
 from .utils import *
 from .fileutils import *
 from .SFmpq import *
-from Libs import PCX,FNT,GRP,PAL,TBL,AIBIN,DAT,IScriptBIN
+from lib import PCX,FNT,GRP,PAL,TBL,AIBIN,DAT,IScriptBIN
 
 from tkinter import *
 from tkinter.messagebox import *
@@ -337,7 +337,7 @@ def savesize(window, settings, setting='window', size=True, closing=True):
 		settings[setting] = '+%d+%d' % (x,y)
 
 def check_update(window, program):
-	VERSIONS_URL = 'https://raw.githubusercontent.com/poiuyqwert/PyMS/master/Libs/versions.json'
+	VERSIONS_URL = 'https://raw.githubusercontent.com/poiuyqwert/PyMS/master/lib/versions.json'
 	remindme = PYMS_SETTINGS.get('remindme', True)
 	if remindme == True or remindme != VERSIONS['PyMS']:
 		try:
@@ -388,7 +388,7 @@ class MPQHandler:
 	def __init__(self, mpqs=[], listfiles=None):
 		self.mpqs = list(mpqs)
 		if listfiles == None:
-			self.listfiles = [os.path.join(BASE_DIR,'Libs','Data','Listfile.txt')]
+			self.listfiles = [os.path.join(BASE_DIR,'lib','Data','Listfile.txt')]
 		else:
 			self.listfiles = listfiles
 		self.handles = {}
@@ -475,7 +475,7 @@ class MPQHandler:
 				self.close_mpqs()
 		if folder != False:
 			if mpq:
-				p = os.path.join(BASE_DIR, 'Libs', 'MPQ', *path)
+				p = os.path.join(BASE_DIR, 'lib', 'MPQ', *path)
 				if os.path.exists(p):
 					return open(p, 'rb')
 			elif os.path.exists(path):
@@ -503,7 +503,7 @@ class MPQHandler:
 				self.close_mpqs()
 		if folder != False:
 			if mpq:
-				return os.path.exists(os.path.join(BASE_DIR, 'Libs', 'MPQ', *path))
+				return os.path.exists(os.path.join(BASE_DIR, 'lib', 'MPQ', *path))
 			else:
 				return os.path.exists(path)
 		return False
@@ -621,7 +621,7 @@ class MpqSelect(PyMSDialog):
 		self.listbox.see(a)
 
 	def listfiles(self):
-		filelists = os.path.join(BASE_DIR,'Libs','Data','Listfile.txt')
+		filelists = os.path.join(BASE_DIR,'lib','Data','Listfile.txt')
 		self.files = []
 		self.mpqhandler.open_mpqs()
 		for h in list(self.mpqhandler.handles.values()):
@@ -631,7 +631,7 @@ class MpqSelect(PyMSDialog):
 					if not filename_str in self.files:
 						self.files.append(filename_str)
 		self.mpqhandler.close_mpqs()
-		m = os.path.join(BASE_DIR, 'Libs', 'MPQ', '')
+		m = os.path.join(BASE_DIR, 'lib', 'MPQ', '')
 		for p in os.walk(m):
 			folder = p[0].replace(m, '')
 			for f in p[2]:
@@ -1070,7 +1070,7 @@ class SettingsDialog(PyMSDialog):
 		if self.mpqs:
 			old_mpqs = self.parent.mpqhandler.mpqs
 			self.parent.mpqhandler.set_mpqs(self.mpqsettings.mpqs)
-		m = os.path.join(BASE_DIR,'Libs','MPQ','')
+		m = os.path.join(BASE_DIR,'lib','MPQ','')
 		if self.data:
 			for p,d in zip(self.pages,self.data):
 				p.save(d,m,self.settings)

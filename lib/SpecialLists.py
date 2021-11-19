@@ -956,9 +956,9 @@ class TreeList(Frame):
 		# self.tl.insert('-1', 'Other', False)
 
 		# tbl = TBL.TBL()
-		# tbl.load_file('Libs\\MPQ\\rez\\stat_txt.tbl')
+		# tbl.load_file('lib\\MPQ\\rez\\stat_txt.tbl')
 		# dat = DAT.UnitsDAT()
-		# dat.load_file('Libs\\MPQ\\arr\\units.dat')
+		# dat.load_file('lib\\MPQ\\arr\\units.dat')
 
 		# groups = [{},{},{},{}]
 		# for i,n in enumerate(TBL.decompile_string(s) for s in tbl.strings[:228]):

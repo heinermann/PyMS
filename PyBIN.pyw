@@ -1,9 +1,9 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs.SpecialLists import TreeList
-from Libs import DialogBIN, FNT, PCX, SMK, GRP
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib.SpecialLists import TreeList
+from lib import DialogBIN, FNT, PCX, SMK, GRP
+from lib.analytics import *
 
 from tkinter import *
 from PIL import Image as PILImage

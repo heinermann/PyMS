@@ -1,9 +1,9 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs.SpecialLists import TreeList
-from Libs import IScriptBIN, AIBIN, TBL, DAT, PAL, GRP
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib.SpecialLists import TreeList
+from lib import IScriptBIN, AIBIN, TBL, DAT, PAL, GRP
+from lib.analytics import *
 
 from collections import OrderedDict
 
@@ -416,7 +416,7 @@ class PreviewerDialog(PyMSDialog):
 
 	def grp(self, i, pal, frame, *path):
 		if not FOLDER and pal in PALETTES:
-			p = os.path.join(BASE_DIR, 'Libs', 'MPQ', os.path.join(*path))
+			p = os.path.join(BASE_DIR, 'lib', 'MPQ', os.path.join(*path))
 			path = '\\'.join(path)
 			draw = not path in GRP_CACHE or not frame in GRP_CACHE[path] or not pal in GRP_CACHE[path][frame]
 			if draw or (not self.curgrp or i != self.curgrp[0]):
@@ -2988,7 +2988,7 @@ class PyICE(Tk):
 			self.editstatus['state'] = DISABLED
 
 	def open_default(self, key=None):
-		self.open(key, os.path.join(BASE_DIR, 'Libs', 'MPQ', 'scripts','iscript.bin'))
+		self.open(key, os.path.join(BASE_DIR, 'lib', 'MPQ', 'scripts','iscript.bin'))
 
 	def save(self, key=None):
 		if key and self.buttons['save']['state'] != NORMAL:
@@ -3145,14 +3145,14 @@ def main():
 		p = optparse.OptionParser(usage='usage: PyICE [options] <inp|iscriptin> [out|iscriptout]', version='PyICE %s' % LONG_VERSION)
 		p.add_option('-d', '--decompile', action='store_true', dest='convert', help="Decompile iscripts from iscript.bin [default]", default=True)
 		p.add_option('-c', '--compile', action='store_false', dest='convert', help="Compile iscripts to an iscript.bin")
-		p.add_option('-a', '--weapons', help="Specify your own weapons.dat file for weapon data lookups [default: Libs\\MPQ\\arr\\weapons.dat]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'weapons.dat'))
-		p.add_option('-l', '--flingy', help="Specify your own flingy.dat file for flingy data lookups [default: Libs\\MPQ\\arr\\flingy.dat]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'flingy.dat'))
-		p.add_option('-i', '--images', help="Specify your own images.dat file for image data lookups [default: Libs\\MPQ\\arr\\images.dat]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'images.dat'))
-		p.add_option('-p', '--sprites', help="Specify your own sprites.dat file for sprite data lookups [default: Libs\\MPQ\\arr\\sprite.dat]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'sprites.dat'))
-		p.add_option('-f', '--sfxdata', help="Specify your own sfxdata.dat file for sound data lookups [default: Libs\\MPQ\\arr\\sfxdata.dat]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'sfxdata.dat'))
-		p.add_option('-x', '--stattxt', help="Used to signify the stat_txt.tbl file to use [default: Libs\\MPQ\\rez\\stat_txt.tbl]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'rez','stat_txt.tbl'))
-		p.add_option('-m', '--imagestbl', help="Used to signify the images.tbl file to use [default: Libs\\MPQ\\arr\\images.tbl]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'images.tbl'))
-		p.add_option('-t', '--sfxdatatbl', help="Used to signify the sfxdata.tbl file to use [default: Libs\\MPQ\\arr\\sfxdata.tbl]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'sfxdata.tbl'))
+		p.add_option('-a', '--weapons', help="Specify your own weapons.dat file for weapon data lookups [default: lib\\MPQ\\arr\\weapons.dat]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'weapons.dat'))
+		p.add_option('-l', '--flingy', help="Specify your own flingy.dat file for flingy data lookups [default: lib\\MPQ\\arr\\flingy.dat]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'flingy.dat'))
+		p.add_option('-i', '--images', help="Specify your own images.dat file for image data lookups [default: lib\\MPQ\\arr\\images.dat]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'images.dat'))
+		p.add_option('-p', '--sprites', help="Specify your own sprites.dat file for sprite data lookups [default: lib\\MPQ\\arr\\sprite.dat]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'sprites.dat'))
+		p.add_option('-f', '--sfxdata', help="Specify your own sfxdata.dat file for sound data lookups [default: lib\\MPQ\\arr\\sfxdata.dat]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'sfxdata.dat'))
+		p.add_option('-x', '--stattxt', help="Used to signify the stat_txt.tbl file to use [default: lib\\MPQ\\rez\\stat_txt.tbl]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'rez','stat_txt.tbl'))
+		p.add_option('-m', '--imagestbl', help="Used to signify the images.tbl file to use [default: lib\\MPQ\\arr\\images.tbl]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'images.tbl'))
+		p.add_option('-t', '--sfxdatatbl', help="Used to signify the sfxdata.tbl file to use [default: lib\\MPQ\\arr\\sfxdata.tbl]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'sfxdata.tbl'))
 		p.add_option('-s', '--scripts', help="A list of iscript ID's to decompile (seperated by commas) [default: All]", default='')
 		p.add_option('-b', '--iscript', help="Used to signify the base iscript.bin file to compile on top of", default='')
 		p.add_option('-r', '--reference', action='store_true', help="When decompiling, put a reference for commands and parameters [default: Off]", default=False)

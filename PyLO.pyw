@@ -1,8 +1,8 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs import LO,GRP,PAL
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib import LO,GRP,PAL
+from lib.analytics import *
 
 from tkinter import *
 from tkinter.messagebox import *
@@ -1025,7 +1025,7 @@ class PyLO(Tk):
 		if not self.unsaved():
 			savesize(self, self.settings)
 			self.settings['highlights'] = self.text.highlights
-			m = os.path.join(BASE_DIR,'Libs','MPQ','')
+			m = os.path.join(BASE_DIR,'lib','MPQ','')
 			self.settings['basegrp'] = ['','MPQ:'][self.grppanel.variables['Base GRP:'][0].get()] + self.grppanel.variables['Base GRP:'][1].get().replace(m,'MPQ:',1)
 			self.settings['overlaygrp'] = ['','MPQ:'][self.grppanel.variables['Overlay GRP:'][0].get()] + self.grppanel.variables['Overlay GRP:'][1].get().replace(m,'MPQ:',1)
 			self.settings['usebasegrp'] = self.usebasegrp.get()

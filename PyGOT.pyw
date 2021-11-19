@@ -1,8 +1,8 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs import TRG, GOT
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib import TRG, GOT
+from lib.analytics import *
 
 from tkinter import *
 from tkinter.messagebox import *

@@ -1,9 +1,9 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs.SFmpq import *
-from Libs import AIBIN, TBL, DAT
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib.SFmpq import *
+from lib import AIBIN, TBL, DAT
+from lib.analytics import *
 
 from tkinter import *
 from tkinter.messagebox import *
@@ -2041,7 +2041,7 @@ class StringEditor(PyMSDialog):
 			self.parent.edittbl(False)
 
 	def opendefault(self):
-		self.open(os.path.join(BASE_DIR, 'Libs', 'MPQ', 'rez' 'stat_txt.tbl'))
+		self.open(os.path.join(BASE_DIR, 'lib', 'MPQ', 'rez' 'stat_txt.tbl'))
 
 	def save(self, key=None, file=None):
 		if key and self.buttons['save']['state'] != NORMAL:
@@ -2243,7 +2243,7 @@ class PyAI(Tk):
 	def __init__(self, guifile=None):
 		self.settings = loadsettings('PyAI',
 			{
-				'stat_txt':os.path.join(BASE_DIR, 'Libs', 'MPQ', 'rez', 'stat_txt.tbl'),
+				'stat_txt':os.path.join(BASE_DIR, 'lib', 'MPQ', 'rez', 'stat_txt.tbl'),
 				'unitsdat':'MPQ:arr\\units.dat',
 				'upgradesdat':'MPQ:arr\\upgrades.dat',
 				'techdatadat':'MPQ:arr\\techdata.dat',
@@ -2751,7 +2751,7 @@ class PyAI(Tk):
 				WarningDialog(self, warnings)
 
 	def open_default(self, key=None):
-		self.open(key, os.path.join(BASE_DIR, 'Libs','MPQ','Scripts','aiscript.bin'),os.path.join(BASE_DIR, 'Libs','MPQ','Scripts','bwscript.bin'))
+		self.open(key, os.path.join(BASE_DIR, 'lib','MPQ','Scripts','aiscript.bin'),os.path.join(BASE_DIR, 'lib','MPQ','Scripts','bwscript.bin'))
 
 	def open_mpq(self):
 		file = self.select_file('Open MPQ', True, '.mpq', [('MPQ Files','*.mpq'),('Embedded MPQ Files','*.exe'),('All Files','*')])
@@ -2833,7 +2833,7 @@ class PyAI(Tk):
 					h = MpqOpenArchiveForUpdate(file, MOAU_OPEN_ALWAYS | MOAU_MAINTAIN_LISTFILE)
 				else:
 					try:
-						copy(os.path.join(BASE_DIR,'Libs','Data','SEMPQ.exe'), file)
+						copy(os.path.join(BASE_DIR,'lib','Data','SEMPQ.exe'), file)
 						h = MpqOpenArchiveForUpdate(file, MOAU_OPEN_ALWAYS | MOAU_MAINTAIN_LISTFILE)
 					except:
 						h = -1
@@ -3492,14 +3492,14 @@ def main():
 		p = optparse.OptionParser(usage='usage: PyAI [options] <inp|aiscriptin bwscriptin> [out|aiscriptout bwscriptout]', version='PyAI %s' % LONG_VERSION)
 		p.add_option('-d', '--decompile', action='store_true', dest='convert', help="Decompile AI's from aiscript.bin and/or bwscript.bin [default]", default=True)
 		p.add_option('-c', '--compile', action='store_false', dest='convert', help="Compile AI's to an aiscript.bin and/or bwscript.bin")
-		p.add_option('-u', '--units', help="Specify your own units.dat file for unit data lookups [default: Libs\\MPQ\\arr\\units.dat]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'units.dat'))
-		p.add_option('-g', '--upgrades', help="Specify your own upgrades.dat file for upgrade data lookups [default: Libs\\MPQ\\arr\\upgrades.dat]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'upgrades.dat'))
-		p.add_option('-t', '--techdata', help="Specify your own techdata.dat file for technology data lookups [default: Libs\\MPQ\\arr\\techdata.dat]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'techdata.dat'))
+		p.add_option('-u', '--units', help="Specify your own units.dat file for unit data lookups [default: lib\\MPQ\\arr\\units.dat]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'units.dat'))
+		p.add_option('-g', '--upgrades', help="Specify your own upgrades.dat file for upgrade data lookups [default: lib\\MPQ\\arr\\upgrades.dat]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'upgrades.dat'))
+		p.add_option('-t', '--techdata', help="Specify your own techdata.dat file for technology data lookups [default: lib\\MPQ\\arr\\techdata.dat]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'techdata.dat'))
 		p.add_option('-s', '--scripts', help="A list of AI Script ID's to decompile (seperated by commas) [default: All]", default='')
 		p.add_option('-a', '--aiscript', help="Used to signify the base aiscript.bin file to compile on top of", default='')
 		p.add_option('-b', '--bwscript', help="Used to signify the base bwscript.bin file to compile on top of", default='')
 		p.add_option('-l', '--longlabels', action='store_false', help="Used to signify that you want decompiled scripts to use desriptive command names [default: Off]", default=True)
-		p.add_option('-x', '--stattxt', help="Used to signify the stat_txt.tbl file to use [default: Libs\\MPQ\\rez\\stat_txt.tbl]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'rez', 'stat_txt.tbl'))
+		p.add_option('-x', '--stattxt', help="Used to signify the stat_txt.tbl file to use [default: lib\\MPQ\\rez\\stat_txt.tbl]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'rez', 'stat_txt.tbl'))
 		p.add_option('-r', '--reference', action='store_true', help="When decompiling, put a reference for commands and parameters [default: Off]", default=False)
 		p.add_option('-w', '--hidewarns', action='store_true', help="Hides any warning produced by compiling your code [default: Off]", default=False)
 		p.add_option('-f', '--deffile', help="Specify an External Definition file containing variables to be used when interpreting/decompiling [default: None]", default=None)

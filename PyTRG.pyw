@@ -1,8 +1,8 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs import TRG,TBL,AIBIN
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib import TRG,TBL,AIBIN
+from lib.analytics import *
 # def customs(trg):
 	# trg.dynamic_actions[1] = ['MySetLocationTo',[TRG.new_location,TRG.new_x1,TRG.new_y1,TRG.new_x2,TRG.new_y2,TRG.new_flags,TRG.new_properties]]
 	# trg.dynamic_actions[2] = ['MySetLocationFromDeaths',[TRG.new_location,TRG.action_tunit]]
@@ -1198,8 +1198,8 @@ def main():
 		p.add_option('-c', '--compile', action='store_false', dest='convert', help="Compile a TRG file")
 		p.add_option('-t', '--trig', action='store_true', help="Used to decompile/compile a GOT compatable TRG", default=False)
 		p.add_option('-r', '--reference', action='store_true', help="When decompiling, put a reference for parameter types, conditions and actions with parameter lists, and AIScripts [default: Off]", default=False)
-		p.add_option('-s', '--stattxt',  help="Used to signify the stat_txt.tbl file to use [default: Libs\\MPQ\\rez\\stat_txt.tbl]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'rez', 'stat_txt.tbl'))
-		p.add_option('-a', '--aiscript', help="Used to signify the aiscript.bin file to use [default: Libs\\MPQ\\scripts\\aiscript.bin]", default=os.path.join(BASE_DIR, 'Libs', 'MPQ', 'scripts', 'aiscript.bin'))
+		p.add_option('-s', '--stattxt',  help="Used to signify the stat_txt.tbl file to use [default: lib\\MPQ\\rez\\stat_txt.tbl]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'rez', 'stat_txt.tbl'))
+		p.add_option('-a', '--aiscript', help="Used to signify the aiscript.bin file to use [default: lib\\MPQ\\scripts\\aiscript.bin]", default=os.path.join(BASE_DIR, 'lib', 'MPQ', 'scripts', 'aiscript.bin'))
 		p.add_option('--gui', help="Opens a file with the GUI", default='')
 		opt, args = p.parse_args()
 		if opt.gui:

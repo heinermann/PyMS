@@ -19,7 +19,7 @@ if os.path.exists(BASE_DIR):
 	os.chdir(BASE_DIR)
 
 import json
-with open(os.path.join(BASE_DIR, 'Libs', 'versions.json')) as f:
+with open(os.path.join(BASE_DIR, 'lib', 'versions.json')) as f:
 	VERSIONS = json.load(f)
 
 couriernew = ('Courier', -12, 'normal')

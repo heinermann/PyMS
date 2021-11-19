@@ -1,13 +1,13 @@
-from Libs.utils import *
-from Libs.setutils import *
-from Libs.trace import setup_trace
-from Libs.SFmpq import *
-from Libs.DAT import *
-from Libs.TBL import TBL,decompile_string,compile_string
-from Libs.PAL import Palette
-from Libs.GRP import CacheGRP, frame_to_photo, rle_outline, OUTLINE_SELF
-from Libs.IScriptBIN import IScriptBIN
-from Libs.analytics import *
+from lib.utils import *
+from lib.setutils import *
+from lib.trace import setup_trace
+from lib.SFmpq import *
+from lib.DAT import *
+from lib.TBL import TBL,decompile_string,compile_string
+from lib.PAL import Palette
+from lib.GRP import CacheGRP, frame_to_photo, rle_outline, OUTLINE_SELF
+from lib.IScriptBIN import IScriptBIN
+from lib.analytics import *
 
 from tkinter import *
 from tkinter.messagebox import *
@@ -52,7 +52,7 @@ ICON_CACHE = {}
 GRP_CACHE = {}
 HINTS = {}
 PALETTES = {}
-for l in open(os.path.join(BASE_DIR,'Libs','Data','Hints.txt')):
+for l in open(os.path.join(BASE_DIR,'lib','Data','Hints.txt')):
 	m = re.match('(\\S+)=(.+)\n?', l)
 	if m:
 		HINTS[m.group(1)] = m.group(2)
@@ -171,7 +171,7 @@ class SaveMPQDialog(PyMSDialog):
 						h = MpqOpenArchiveForUpdate(file, MOAU_OPEN_ALWAYS | MOAU_MAINTAIN_LISTFILE)
 					else:
 						try:
-							copy(os.path.join(BASE_DIR,'Libs','Data','SEMPQ.exe'), file)
+							copy(os.path.join(BASE_DIR,'lib','Data','SEMPQ.exe'), file)
 							h = MpqOpenArchiveForUpdate(file, MOAU_OPEN_ALWAYS | MOAU_MAINTAIN_LISTFILE)
 						except:
 							h = -1
@@ -298,7 +298,7 @@ class DATTab(NotebookTab):
 		if self.file:
 			self.toplevel.status.set(self.file)
 		else:
-			self.toplevel.status.set(os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr',  self.dat.datname))
+			self.toplevel.status.set(os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr',  self.dat.datname))
 
 	def activate(self):
 		if self.dat:
@@ -4002,7 +4002,7 @@ class PyDAT(Tk):
 
 	def grp(self, pal, path, draw_function=None, draw_info=None):
 		if not FOLDER and pal in PALETTES:
-			p = os.path.join(BASE_DIR,'Libs','MPQ',os.path.join(*path.split('\\')))
+			p = os.path.join(BASE_DIR,'lib','MPQ',os.path.join(*path.split('\\')))
 			if not path in GRP_CACHE or not pal in GRP_CACHE[path]:
 				p = self.mpqhandler.get_file('MPQ:' + path)
 				try:
@@ -4295,7 +4295,7 @@ def main():
 					if opt.basedat:
 						basedat = os.path.abspath(opt.basedat)
 					else:
-						basedat = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr','{}{}dat'.format(['units','weapons','flingy','sprites','images','upgrades','techdata','sfxdata','portdata','mapdata','orders'][opt.type],os.extsep))
+						basedat = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr','{}{}dat'.format(['units','weapons','flingy','sprites','images','upgrades','techdata','sfxdata','portdata','mapdata','orders'][opt.type],os.extsep))
 					print("Loading base DAT file '%s'..." % basedat)
 					dat.load_file(basedat)
 					print(f" - '{basedat}' read successfully\nInterpreting file '{args[0]}'...")

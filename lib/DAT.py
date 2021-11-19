@@ -35,7 +35,7 @@ DATA_REFERENCE = {
 
 DATA_CACHE = {}
 for d in list(DATA_REFERENCE.keys()):
-	f = open(os.path.join(BASE_DIR, 'Libs', 'Data', d))
+	f = open(os.path.join(BASE_DIR, 'lib', 'Data', d))
 	DATA_CACHE[d] = [l.rstrip() for l in f.readlines()]
 	f.close()
 
@@ -177,7 +177,7 @@ class UnitsDAT:
 	count = 228
 	def __init__(self, stat_txt=None):
 		if stat_txt == None:
-			stat_txt = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'rez', 'stat_txt.tbl')
+			stat_txt = os.path.join(BASE_DIR, 'lib', 'MPQ', 'rez', 'stat_txt.tbl')
 		if isstr(stat_txt):
 			self.tbl = TBL.TBL()
 			self.tbl.load_file(stat_txt)
@@ -715,7 +715,7 @@ class ImagesDAT(UnitsDAT):
 	
 	def __init__(self, grps=None):
 		if grps == None:
-			grps = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'images.tbl')
+			grps = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'images.tbl')
 		UnitsDAT.__init__(self, grps)
 		self.data = [
 			[[self.stattxt_value,'GRP File Path: '],''],
@@ -902,7 +902,7 @@ class SoundsDAT(UnitsDAT):
 	
 	def __init__(self, sfx=None):
 		if sfx == None:
-			sfx = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'sfxdata.tbl')
+			sfx = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'sfxdata.tbl')
 		UnitsDAT.__init__(self, sfx)
 		self.data = [
 			[[self.stattxt_value,'Sound File Path'],''],
@@ -938,7 +938,7 @@ class PortraitDAT(UnitsDAT):
 	
 	def __init__(self, ports=None):
 		if ports == None:
-			ports = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'portdata.tbl')
+			ports = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'portdata.tbl')
 		UnitsDAT.__init__(self, ports)
 		self.data = [
 			[[self.stattxt_value,'Portrait File Path'],''],
@@ -968,7 +968,7 @@ class CampaignDAT(UnitsDAT):
 	
 	def __init__(self, maps=None):
 		if maps == None:
-			maps = os.path.join(BASE_DIR, 'Libs', 'MPQ', 'arr', 'mapdata.tbl')
+			maps = os.path.join(BASE_DIR, 'lib', 'MPQ', 'arr', 'mapdata.tbl')
 		UnitsDAT.__init__(self, maps)
 		self.data = [
 			[[self.stattxt_value,'Map File Path'],'']
