@@ -16,7 +16,7 @@ def get_icon(name):
 executables = []
 for prog in ['PyAI', 'PyBIN', 'PyDAT', 'PyFNT', 'PyGOT', 'PyGRP', 'PyICE', 'PyLO', 'PyMAP', 'PyMPQ', 'PyPAL', 'PyPCX', 'PySPK', 'PyTBL', 'PyTILE', 'PyTRG']:
 	executables.append(Executable(
-		f"{prog}.pyw",
+		f"{prog}.py",
 		icon = get_icon(prog),
 		base = base
 	))
