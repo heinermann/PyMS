@@ -42,7 +42,7 @@ data = [
 	('Docs/', 'Docs/')
 ]
 
-exclude_lib = ['asyncio', 'decimal', 'hashlib', 'multiprocessing', 'overlapped', 'queue', 'ssl', 'unicodedata', '_ssl', 'difflib', 'doctest', 'calendar', 'email', 'unittest', 'packaging', 'xml']
+exclude_lib = ['asyncio', 'decimal', 'hashlib', 'multiprocessing', 'overlapped', 'queue', 'ssl', '_ssl', 'difflib', 'doctest', 'calendar', 'email', 'unittest', 'packaging', 'xml']
 
 exe_options = {
 	"include_msvcr": True,
